@@ -165,7 +165,7 @@ const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY);
 const CRECHES=["Koalakids Toulon Brunet","Koalakids Cuers","Koalakids Ollioules","Koalakids Toulon Picot 1","Koalakids Toulon Picot 2","Koalakids Toulon St Jean","Autre"];
 const letters=['A','B','C','D','E','F'];
 
-let state='loading',quizList=[],quiz=null,questions=[],current=0,answers=[],revealed=[];
+let state='loading',quiz=null,questions=[],current=0,answers=[],revealed=[];
 let user={prenom:'',nom:'',creche:''};
 
 const app=()=>document.getElementById('app');
@@ -199,10 +199,7 @@ async function boot(){
       resetAnswers();
       state='start';
     }else{
-      const{data,error}=await db.from('quiz').select('*').eq('publie',true).order('cree_le',{ascending:false});
-      if(error)return fail("Impossible de charger la liste des quiz.<br><small style=\'color:var(--text-light)\'>"+esc(error.message||'')+" "+esc(error.hint||'')+"</small>");
-      quizList=data||[];
-      state='hub';
+      return fail("Aucun quiz s\u00e9lectionn\u00e9.<br><small style='color:var(--text-light)'>Utilisez le lien qui vous a \u00e9t\u00e9 transmis pour acc\u00e9der \u00e0 votre quiz.</small>");
     }
   }catch(e){return fail("Erreur de connexion : "+e.message)}
   render();
@@ -217,27 +214,11 @@ function resetAnswers(){
 }
 
 function render(){
-  if(state==='hub')renderHub();
-  else if(state==='start')renderStart();
+  if(state==='start')renderStart();
   else if(state==='quiz')renderQuiz();
   else renderResults();
 }
 
-function renderHub(){
-  document.getElementById('header-chip').style.display='none';
-  const items=quizList.length?quizList.map(q=>
-    `<div class="quiz-item" onclick="location.search='?quiz=${q.id}'">
-      <div><h3>${esc(q.titre)}</h3>${q.description?`<p>${esc(q.description)}</p>`:''}</div>
-      <div class="chev">→</div>
-    </div>`).join(''):`<p style="color:var(--text-muted);text-align:center;padding:1rem">Aucun quiz disponible pour le moment.</p>`;
-  app().innerHTML=`
-  <div class="start-screen">
-    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
-    <h2>Quiz disponibles</h2>
-    <p class="subtitle">Choisissez le quiz à réaliser.</p>
-    <div class="quiz-list">${items}</div>
-  </div>`;
-}
 
 function renderStart(){
   document.getElementById('header-chip').style.display='none';
