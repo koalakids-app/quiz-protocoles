@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Koalakids</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — Quiz Koalakids</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -132,25 +133,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 .center-msg{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:2.5rem 2rem;text-align:center;color:var(--text-muted)}
 .spinner{width:34px;height:34px;border:3px solid var(--border-strong);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
 @keyframes spin{to{transform:rotate(360deg)}}
-.quiz-list{display:flex;flex-direction:column;gap:10px;margin-top:1.25rem;text-align:left}
-.quiz-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s}
-.quiz-item:hover{border-color:var(--orange);background:var(--orange-light);transform:translateX(3px)}
-.quiz-item h3{font-size:15px;font-weight:700;color:var(--text)}
-.quiz-item p{font-size:13px;color:var(--text-muted);margin-top:2px}
-.quiz-item .chev{color:var(--orange);font-size:18px;flex-shrink:0}
+table tr:last-child{border-bottom:none!important}
+textarea.form-input{font-family:inherit;line-height:1.5}
 </style>
 </head>
 <body>
 <header class="app-header">
   <img class="header-logo" id="logo" src="data:image/jpeg;base64,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" alt="Koalakids">
   <div class="header-title">
-    <h1 id="hdr-title">Quiz Koalakids</h1>
-    <p id="hdr-sub">Formation Koalakids</p>
+    <h1>Administration</h1>
+    <p>Gestion des quiz Koalakids</p>
   </div>
-  <div id="header-chip" class="header-score-chip" style="display:none"></div>
+  <button id="logout-btn" class="btn" style="display:none;padding:6px 14px;font-size:13px" onclick="logout()">Déconnexion</button>
 </header>
-
-<div class="container">
+<div class="container" style="max-width:900px">
   <div id="app"><div class="center-msg"><div class="spinner"></div>Chargement…</div></div>
 </div>
 
@@ -159,247 +155,326 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 const SUPABASE_URL="https://phbcqxjzobzwuzetgbem.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoYmNxeGp6b2J6d3V6ZXRnYmVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1Mjg3ODMsImV4cCI6MjEwMDEwNDc4M30.Cz7_0WN_pWoXeamk484hJr2iCVdKZEatR-m_f0bKj3w";
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-const CRECHES=["Koalakids Toulon Brunet","Koalakids Cuers","Koalakids Ollioules","Koalakids Toulon Picot 1","Koalakids Toulon Picot 2","Koalakids Toulon St Jean","Autre"];
 const letters=['A','B','C','D','E','F'];
-
-let state='loading',quizList=[],quiz=null,questions=[],current=0,answers=[],revealed=[];
-let user={prenom:'',nom:'',creche:''};
-
 const app=()=>document.getElementById('app');
-const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-function isCorrect(i){
-  const q=questions[i],a=answers[i];
-  if(a===null||a===undefined)return false;
-  if(q.multi){
-    if(!Array.isArray(a)||a.length!==q.reponses.length)return false;
-    return q.reponses.every(x=>a.includes(x));
-  }
-  return a===q.reponses[0];
-}
-function hasAnswer(i){
-  const a=answers[i];
-  return questions[i].multi?(Array.isArray(a)&&a.length>0):a!==null;
-}
-function getScore(){return questions.reduce((n,_,i)=>isCorrect(i)?n+1:n,0)}
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche='';
 
 async function boot(){
-  const p=new URLSearchParams(location.search).get('quiz');
-  try{
-    if(p){
-      const{data,error}=await db.from('quiz').select('*').eq('id',p).eq('publie',true).single();
-      if(error||!data)return fail("Ce quiz n'existe pas ou n'est plus disponible.");
-      quiz=data;
-      const r=await db.from('questions').select('*').eq('quiz_id',quiz.id).order('ordre');
-      if(r.error||!r.data.length)return fail("Ce quiz ne contient aucune question.");
-      questions=r.data;
-      resetAnswers();
-      state='start';
-    }else{
-      const{data,error}=await db.from('quiz').select('*').eq('publie',true).order('cree_le',{ascending:false});
-      if(error)return fail("Impossible de charger la liste des quiz.");
-      quizList=data||[];
-      state='hub';
-    }
-  }catch(e){return fail("Erreur de connexion : "+e.message)}
+  const{data}=await db.auth.getSession();
+  if(data.session){view='list';await loadQuizzes();}
+  else{view='login';render();}
+}
+function render(){
+  document.getElementById('logout-btn').style.display=view==='login'?'none':'inline-flex';
+  if(view==='login')renderLogin();
+  else if(view==='list')renderList();
+  else if(view==='edit')renderEdit();
+  else if(view==='results')renderResults();
+}
+
+function renderLogin(){
+  app().innerHTML=`
+  <div class="start-screen" style="max-width:420px;margin:2rem auto">
+    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
+    <h2>Espace administrateur</h2>
+    <p class="subtitle">Connectez-vous pour gérer les quiz.</p>
+    <div class="form-group"><label class="form-label">E-mail</label>
+      <input class="form-input" id="log-mail" type="email" autocomplete="username"></div>
+    <div class="form-group"><label class="form-label">Mot de passe</label>
+      <input class="form-input" id="log-pass" type="password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')login()"></div>
+    <div style="margin-top:1.25rem"><button class="btn purple" style="width:100%;padding:12px" onclick="login()">Se connecter</button></div>
+    <div id="log-err" class="save-status err" style="margin-top:.75rem"></div>
+  </div>`;
+}
+async function login(){
+  const email=document.getElementById('log-mail').value.trim();
+  const password=document.getElementById('log-pass').value;
+  const err=document.getElementById('log-err');
+  err.textContent='Connexion…';
+  const{error}=await db.auth.signInWithPassword({email,password});
+  if(error){err.textContent='⚠ '+error.message;return;}
+  view='list';await loadQuizzes();
+}
+async function logout(){await db.auth.signOut();view='login';render();}
+
+async function loadQuizzes(){
+  const{data,error}=await db.from('quiz').select('*').order('cree_le',{ascending:false});
+  if(error){app().innerHTML=`<div class="center-msg">⚠ ${esc(error.message)}</div>`;return;}
+  quizzes=data||[];
+  const counts={};
+  for(const q of quizzes){
+    const{count}=await db.from('questions').select('*',{count:'exact',head:true}).eq('quiz_id',q.id);
+    const{count:rc}=await db.from('resultats').select('*',{count:'exact',head:true}).eq('quiz_id',q.id);
+    counts[q.id]={q:count||0,r:rc||0};
+  }
+  quizzes.forEach(q=>{q._c=counts[q.id]});
   render();
 }
-function fail(msg){
-  app().innerHTML=`<div class="center-msg"><div style="font-size:38px;margin-bottom:8px">⚠</div>${esc(msg)}</div>`;
-}
-function resetAnswers(){
-  current=0;
-  answers=new Array(questions.length).fill(null);
-  revealed=new Array(questions.length).fill(false);
-}
 
-function render(){
-  if(state==='hub')renderHub();
-  else if(state==='start')renderStart();
-  else if(state==='quiz')renderQuiz();
-  else renderResults();
-}
-
-function renderHub(){
-  document.getElementById('header-chip').style.display='none';
-  const items=quizList.length?quizList.map(q=>
-    `<div class="quiz-item" onclick="location.search='?quiz=${q.id}'">
-      <div><h3>${esc(q.titre)}</h3>${q.description?`<p>${esc(q.description)}</p>`:''}</div>
-      <div class="chev">→</div>
-    </div>`).join(''):`<p style="color:var(--text-muted);text-align:center;padding:1rem">Aucun quiz disponible pour le moment.</p>`;
+function renderList(){
+  const base=location.href.split('?')[0].replace(/admin\.html$/,'index.html');
+  const items=quizzes.length?quizzes.map(q=>`
+    <div class="question-card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <h3 style="font-size:16px;font-weight:700">${esc(q.titre)}</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(q.description)}</p>
+          <p style="font-size:12px;color:var(--text-light);margin-top:6px">
+            ${q._c.q} question${q._c.q>1?'s':''} · ${q._c.r} résultat${q._c.r>1?'s':''} ·
+            <span style="color:${q.publie?'var(--success-text)':'var(--text-light)'}">${q.publie?'● Publié':'○ Brouillon'}</span>
+          </p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openQuiz('${q.id}')">Modifier</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openResults('${q.id}')">Résultats (${q._c.r})</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="togglePublish('${q.id}',${q.publie})">${q.publie?'Dépublier':'Publier'}</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyLink('${q.id}')">Copier le lien</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteQuiz('${q.id}')">Supprimer</button>
+      </div>
+    </div>`).join(''):`<div class="center-msg">Aucun quiz. Créez le premier.</div>`;
   app().innerHTML=`
-  <div class="start-screen">
-    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
-    <h2>Quiz disponibles</h2>
-    <p class="subtitle">Choisissez le quiz à réaliser.</p>
-    <div class="quiz-list">${items}</div>
-  </div>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;gap:12px;flex-wrap:wrap">
+      <h2 style="font-size:20px;color:var(--purple)">Mes quiz</h2>
+      <button class="btn purple" onclick="newQuiz()">+ Nouveau quiz</button>
+    </div>${items}
+    <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Lien salariées : ${esc(base)}?quiz=IDENTIFIANT</p>`;
 }
 
-function renderStart(){
-  document.getElementById('header-chip').style.display='none';
-  document.getElementById('hdr-title').textContent=quiz.titre;
-  const opts=CRECHES.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  app().innerHTML=`
-  <div class="start-screen">
-    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
-    <h2>${esc(quiz.titre)}</h2>
-    <p class="subtitle">${esc(quiz.description||'')}</p>
-    <div class="start-meta">
-      <div class="start-meta-item"><div class="dot"></div>${questions.length} questions</div>
-      <div class="start-meta-item"><div class="dot"></div>Corrigé immédiat</div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Prénom</label>
-      <input class="form-input" id="inp-prenom" type="text" placeholder="ex : Marie" autocomplete="given-name"></div>
-      <div class="form-group"><label class="form-label">Nom</label>
-      <input class="form-input" id="inp-nom" type="text" placeholder="ex : Dupont" autocomplete="family-name"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Crèche</label>
-      <select class="form-select" id="inp-creche"><option value="">-- Choisir ma crèche --</option>${opts}</select></div>
-    <div style="margin-top:1.5rem">
-      <button class="btn purple" style="font-size:15px;padding:12px 36px" onclick="startQuiz()">Commencer le quiz →</button>
-    </div>
-    <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Vos résultats seront enregistrés automatiquement.</p>
-  </div>`;
+function copyLink(id){
+  const base=location.href.split('?')[0].replace(/admin\.html$/,'index.html');
+  const url=base+'?quiz='+id;
+  navigator.clipboard.writeText(url).then(()=>alert('Lien copié :\n'+url),()=>prompt('Copiez ce lien :',url));
+}
+async function togglePublish(id,cur){
+  const{error}=await db.from('quiz').update({publie:!cur}).eq('id',id);
+  if(error)return alert('Erreur : '+error.message);
+  await loadQuizzes();
+}
+async function deleteQuiz(id){
+  const q=quizzes.find(x=>x.id===id);
+  if(!confirm(`Supprimer « ${q.titre} » ?\nLes questions ET les résultats associés seront définitivement effacés.`))return;
+  const{error}=await db.from('quiz').delete().eq('id',id);
+  if(error)return alert('Erreur : '+error.message);
+  await loadQuizzes();
+}
+async function newQuiz(){
+  const titre=prompt('Titre du nouveau quiz :');
+  if(!titre)return;
+  const{data,error}=await db.from('quiz').insert({titre:titre,description:'',publie:false}).select().single();
+  if(error)return alert('Erreur : '+error.message);
+  openQuiz(data.id);
 }
 
-function renderQuiz(){
-  const q=questions[current],isAnswered=revealed[current],isLast=current===questions.length-1;
-  const chip=document.getElementById('header-chip');
-  chip.style.display='block';
-  const done=revealed.filter(Boolean).length;
-  chip.textContent=done>0?`${getScore()} / ${done} ✓`:user.prenom;
+async function openQuiz(id){
+  curQuiz=quizzes.find(q=>q.id===id)||null;
+  if(!curQuiz){const{data}=await db.from('quiz').select('*').eq('id',id).single();curQuiz=data;}
+  const{data,error}=await db.from('questions').select('*').eq('quiz_id',id).order('ordre');
+  if(error)return alert('Erreur : '+error.message);
+  curQuestions=data||[];
+  view='edit';render();
+}
 
-  const isMulti=!!q.multi;
-  const sel=isMulti?(Array.isArray(answers[current])?answers[current]:[]):answers[current];
-  const optsHtml=q.options.map((o,i)=>{
-    let cls='option';
-    const picked=isMulti?sel.includes(i):sel===i;
-    const good=isMulti?q.reponses.includes(i):i===q.reponses[0];
-    if(isAnswered){cls+=' disabled';if(good)cls+=' correct';else if(picked)cls+=' wrong';}
-    else if(picked)cls+=' selected';
-    return`<div class="${cls}" onclick="choose(${i})"><div class="option-letter">${letters[i]}</div><div class="option-text">${esc(o)}</div></div>`;
+function renderEdit(){
+  const qs=curQuestions.map((q,i)=>{
+    const opts=q.options.map((o,j)=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <input type="${q.multi?'checkbox':'radio'}" name="ans-${i}" ${q.reponses.includes(j)?'checked':''}
+          onchange="setAnswer(${i},${j},this.checked)" style="width:16px;height:16px;accent-color:var(--orange);flex-shrink:0">
+        <span style="font-size:12px;font-weight:700;color:var(--text-muted);width:14px">${letters[j]}</span>
+        <input class="form-input" style="padding:6px 10px;font-size:13px" value="${esc(o)}"
+          onchange="setOption(${i},${j},this.value)">
+        ${q.options.length>2?`<button class="btn" style="padding:4px 8px;font-size:12px" onclick="delOption(${i},${j})">×</button>`:''}
+      </div>`).join('');
+    return `<div class="question-card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">
+        <span class="q-badge" style="margin:0">Question ${i+1}</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px">
+            <input type="checkbox" ${q.multi?'checked':''} onchange="setMulti(${i},this.checked)"
+              style="accent-color:var(--purple)"> Plusieurs réponses</label>
+          <button class="btn" style="padding:4px 9px;font-size:12px" onclick="moveQ(${i},-1)" ${i===0?'disabled':''}>↑</button>
+          <button class="btn" style="padding:4px 9px;font-size:12px" onclick="moveQ(${i},1)" ${i===curQuestions.length-1?'disabled':''}>↓</button>
+          <button class="btn" style="padding:4px 9px;font-size:12px;color:var(--danger-text)" onclick="delQ(${i})">Suppr.</button>
+        </div>
+      </div>
+      <textarea class="form-input" rows="2" style="font-size:14px;margin-bottom:10px;resize:vertical"
+        onchange="setEnonce(${i},this.value)">${esc(q.enonce)}</textarea>
+      ${opts}
+      ${q.options.length<6?`<button class="btn" style="padding:5px 12px;font-size:12px;margin-top:4px" onclick="addOption(${i})">+ Option</button>`:''}
+    </div>`;
   }).join('');
-
-  let fb='';
-  if(isAnswered){
-    const ok=isCorrect(current);
-    const good=isMulti?q.reponses.map(x=>q.options[x]).join(' — '):q.options[q.reponses[0]];
-    const lbl=isMulti?'Les bonnes réponses sont':'La bonne réponse est';
-    fb=`<div class="feedback show ${ok?'ok':'ko'}"><span>${ok?'✓':'✗'}</span><span>${ok?'Bonne réponse !':lbl+' : <strong>'+esc(good)+'</strong>'}</span></div>`;
-  }
-
-  const btnLabel=isAnswered?(isLast?'Voir mes résultats →':'Suivant →'):'Valider';
-  const btnDisabled=(!isAnswered&&!hasAnswer(current))?'disabled':'';
-
   app().innerHTML=`
-  <div class="progress-wrap">
-    <div class="progress-meta">
-      <span class="progress-label">Question ${current+1} sur ${questions.length}</span>
-      <span class="progress-count">${Math.round((current+1)/questions.length*100)}%</span>
+    <button class="btn" style="margin-bottom:1rem" onclick="backToList()">← Retour</button>
+    <div class="question-card" style="margin-bottom:1.25rem">
+      <div class="form-group"><label class="form-label">Titre du quiz</label>
+        <input class="form-input" id="qz-titre" value="${esc(curQuiz.titre)}"></div>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label>
+        <input class="form-input" id="qz-desc" value="${esc(curQuiz.description)}"></div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${(current+1)/questions.length*100}%"></div></div>
-  </div>
-  <div class="question-card">
-    <div class="q-badge">Question ${current+1}</div>
-    ${isMulti?'<div class="q-badge" style="background:var(--purple-light);color:var(--purple);border-color:rgba(74,63,159,.2);margin-left:6px">Plusieurs réponses</div>':''}
-    <div class="q-text">${esc(q.enonce)}</div>
-    <div class="options">${optsHtml}</div>
-    ${fb}
-  </div>
-  <div class="nav">
-    <button class="btn" onclick="navigate(-1)" ${current===0?'disabled':''}>← Précédent</button>
-    <span class="pager">${current+1} / ${questions.length}</span>
-    <button class="btn primary" onclick="nextAction()" ${btnDisabled}>${btnLabel}</button>
-  </div>`;
+    ${qs||'<div class="center-msg">Aucune question. Ajoutez la première.</div>'}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem">
+      <button class="btn" onclick="addQ()">+ Ajouter une question</button>
+      <button class="btn primary" onclick="saveAll()">Enregistrer les modifications</button>
+    </div>
+    <div id="save-msg" class="save-status" style="margin-top:.75rem"></div>`;
+}
+
+function setEnonce(i,v){curQuestions[i].enonce=v}
+function setOption(i,j,v){curQuestions[i].options[j]=v}
+function setMulti(i,v){
+  const q=curQuestions[i];q.multi=v;
+  if(!v&&q.reponses.length>1)q.reponses=[q.reponses[0]];
+  renderEdit();
+}
+function setAnswer(i,j,checked){
+  const q=curQuestions[i];
+  if(q.multi){
+    q.reponses=checked?[...new Set([...q.reponses,j])].sort((a,b)=>a-b):q.reponses.filter(x=>x!==j);
+  }else q.reponses=[j];
+}
+function addOption(i){curQuestions[i].options.push('');renderEdit()}
+function delOption(i,j){
+  const q=curQuestions[i];
+  q.options.splice(j,1);
+  q.reponses=q.reponses.filter(x=>x!==j).map(x=>x>j?x-1:x);
+  if(!q.reponses.length)q.reponses=[0];
+  renderEdit();
+}
+function addQ(){
+  curQuestions.push({quiz_id:curQuiz.id,enonce:'Nouvelle question',options:['','','',''],reponses:[0],multi:false,ordre:curQuestions.length,_new:true});
+  renderEdit();
+}
+function delQ(i){
+  if(!confirm('Supprimer cette question ?'))return;
+  const q=curQuestions[i];
+  if(q.id)(curQuestions._del=curQuestions._del||[]).push(q.id);
+  curQuestions.splice(i,1);renderEdit();
+}
+function moveQ(i,d){
+  const j=i+d;if(j<0||j>=curQuestions.length)return;
+  const del=curQuestions._del;
+  [curQuestions[i],curQuestions[j]]=[curQuestions[j],curQuestions[i]];
+  curQuestions._del=del;renderEdit();
+}
+function backToList(){
+  if(confirm('Quitter sans enregistrer les modifications non sauvegardées ?')){view='list';loadQuizzes();}
+}
+
+async function saveAll(){
+  const msg=document.getElementById('save-msg');
+  msg.className='save-status';msg.textContent='Enregistrement…';
+  try{
+    const u=await db.from('quiz').update({
+      titre:document.getElementById('qz-titre').value.trim(),
+      description:document.getElementById('qz-desc').value.trim()
+    }).eq('id',curQuiz.id);
+    if(u.error)throw u.error;
+    if(curQuestions._del&&curQuestions._del.length){
+      const d=await db.from('questions').delete().in('id',curQuestions._del);
+      if(d.error)throw d.error;
+      curQuestions._del=[];
+    }
+    for(let i=0;i<curQuestions.length;i++){
+      const q=curQuestions[i];
+      const payload={quiz_id:curQuiz.id,enonce:q.enonce,options:q.options,reponses:q.reponses,multi:q.multi,ordre:i};
+      if(q.id){
+        const r=await db.from('questions').update(payload).eq('id',q.id);
+        if(r.error)throw r.error;
+      }else{
+        const r=await db.from('questions').insert(payload).select().single();
+        if(r.error)throw r.error;
+        q.id=r.data.id;delete q._new;
+      }
+      q.ordre=i;
+    }
+    msg.className='save-status ok';msg.textContent='✓ Modifications enregistrées';
+  }catch(e){
+    msg.className='save-status err';msg.textContent='⚠ '+e.message;
+  }
+}
+
+async function openResults(id){
+  curQuiz=quizzes.find(q=>q.id===id);
+  const{data,error}=await db.from('resultats').select('*').eq('quiz_id',id).order('passe_le',{ascending:false});
+  if(error)return alert('Erreur : '+error.message);
+  results=data||[];filterCreche='';view='results';render();
 }
 
 function renderResults(){
-  const score=getScore(),pct=Math.round(score/questions.length*100),wrong=questions.length-score;
-  let icon,mention,col;
-  if(pct>=80){icon='🎉';mention='Excellent !';col='var(--success-text)'}
-  else if(pct>=60){icon='👍';mention='Bien !';col='var(--purple)'}
-  else{icon='📚';mention='À retravailler';col='var(--danger-text)'}
-  document.getElementById('header-chip').style.display='none';
-  const now=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  app().innerHTML=`
-  <div class="results">
-    <div class="result-icon">${icon}</div>
-    <div class="result-score">${score}</div>
-    <div class="result-total">sur ${questions.length} questions</div>
-    <div class="result-mention" style="color:${col}">${mention}</div>
-    <div class="result-user-recap">
-      <strong>${esc(user.prenom)} ${esc(user.nom)}</strong>
-      ${esc(user.creche)} · ${now}
-    </div>
-    <div class="result-grid">
-      <div class="result-stat"><div class="result-stat-val" style="color:var(--success-text)">${score}</div><div class="result-stat-label">Correctes</div></div>
-      <div class="result-stat"><div class="result-stat-val" style="color:var(--danger-text)">${wrong}</div><div class="result-stat-label">Incorrectes</div></div>
-      <div class="result-stat"><div class="result-stat-val" style="color:var(--orange)">${pct}%</div><div class="result-stat-label">Score</div></div>
-    </div>
-    <div id="save-status" class="save-status">Enregistrement en cours…</div>
-    <div class="result-actions">
-      <button class="btn purple" onclick="restartQuiz()">Recommencer</button>
-      <button class="btn" onclick="reviewErrors()" ${wrong===0?'disabled':''}>Revoir les erreurs (${wrong})</button>
-    </div>
-  </div>`;
-  saveResults(score,pct);
-}
+  const list=filterCreche?results.filter(r=>r.creche===filterCreche):results;
+  const creches=[...new Set(results.map(r=>r.creche))].sort();
+  const moy=list.length?Math.round(list.reduce((a,r)=>a+r.pourcentage,0)/list.length):0;
 
-async function saveResults(score,pct){
-  const detail=questions.map((q,i)=>({
-    ordre:q.ordre,
-    enonce:q.enonce,
-    donnee:answers[i],
-    attendue:q.reponses,
-    correct:isCorrect(i)
-  }));
-  const el=()=>document.getElementById('save-status');
-  try{
-    const{error}=await db.from('resultats').insert({
-      quiz_id:quiz.id,prenom:user.prenom,nom:user.nom,creche:user.creche,
-      score:score,total:questions.length,pourcentage:pct,detail:detail
-    });
-    if(error)throw error;
-    if(el()){el().textContent='✓ Résultat enregistré';el().className='save-status ok'}
-  }catch(e){
-    if(el()){el().textContent='⚠ Erreur d\'enregistrement : '+e.message;el().className='save-status err'}
+  let byQ='';
+  if(list.length&&list[0].detail){
+    const stats={};
+    list.forEach(r=>(r.detail||[]).forEach(d=>{
+      if(!stats[d.ordre])stats[d.ordre]={e:d.enonce,ok:0,n:0};
+      stats[d.ordre].n++;if(d.correct)stats[d.ordre].ok++;
+    }));
+    const rows=Object.entries(stats).sort((a,b)=>a[0]-b[0]).map(([o,s])=>{
+      const p=Math.round(s.ok/s.n*100);
+      const col=p>=70?'var(--success-text)':p>=40?'var(--orange)':'var(--danger-text)';
+      return `<tr><td style="padding:6px 8px;font-size:12px;color:var(--text-muted)">Q${+o+1}</td>
+        <td style="padding:6px 8px;font-size:12px">${esc(s.e).slice(0,90)}</td>
+        <td style="padding:6px 8px;font-size:13px;font-weight:700;color:${col};text-align:right;white-space:nowrap">${p}%</td></tr>`;
+    }).join('');
+    byQ=`<h3 style="font-size:15px;color:var(--purple);margin:1.5rem 0 .5rem">Taux de réussite par question</h3>
+      <div class="question-card" style="padding:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse">${rows}</table></div>`;
   }
+
+  const rows=list.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px;font-size:13px"><strong>${esc(r.prenom)} ${esc(r.nom)}</strong></td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche)}</td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted);white-space:nowrap">${new Date(r.passe_le).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="padding:8px;font-size:13px;text-align:right;white-space:nowrap">${r.score}/${r.total}</td>
+      <td style="padding:8px;font-size:13px;font-weight:700;text-align:right;color:${r.pourcentage>=80?'var(--success-text)':r.pourcentage>=60?'var(--purple)':'var(--danger-text)'}">${r.pourcentage}%</td>
+      <td style="padding:8px;text-align:right"><button class="btn" style="padding:3px 8px;font-size:11px" onclick="showDetail('${r.id}')">Détail</button></td>
+    </tr>`).join('');
+
+  app().innerHTML=`
+    <button class="btn" style="margin-bottom:1rem" onclick="view='list';loadQuizzes()">← Retour</button>
+    <h2 style="font-size:19px;color:var(--purple);margin-bottom:.25rem">${esc(curQuiz.titre)}</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">${list.length} résultat${list.length>1?'s':''} · moyenne ${moy}%</p>
+    <div class="form-group" style="max-width:320px">
+      <label class="form-label">Filtrer par crèche</label>
+      <select class="form-select" onchange="filterCreche=this.value;renderResults()">
+        <option value="">Toutes les crèches</option>
+        ${creches.map(c=>`<option value="${esc(c)}" ${c===filterCreche?'selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem"><button class="btn" onclick="exportCSV()">Exporter en CSV</button></div>
+    ${list.length?`<div class="question-card" style="padding:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse">${rows}</table></div>`:'<div class="center-msg">Aucun résultat pour ce filtre.</div>'}
+    ${byQ}`;
 }
 
-function choose(i){
-  if(revealed[current])return;
-  const q=questions[current];
-  if(q.multi){
-    let a=Array.isArray(answers[current])?answers[current].slice():[];
-    a.includes(i)?a=a.filter(x=>x!==i):a.push(i);
-    answers[current]=a.length?a.sort((x,y)=>x-y):null;
-  }else answers[current]=i;
-  render();
+function showDetail(id){
+  const r=results.find(x=>x.id===id);
+  if(!r||!r.detail)return alert('Aucun détail enregistré pour ce résultat.');
+  const ko=r.detail.filter(d=>!d.correct);
+  const txt=ko.length?ko.map(d=>`Q${d.ordre+1} — ${d.enonce}`).join('\n\n'):'Aucune erreur.';
+  alert(`${r.prenom} ${r.nom} — ${r.score}/${r.total}\n\nQuestions ratées :\n\n${txt}`);
 }
-function nextAction(){
-  if(!revealed[current]){if(!hasAnswer(current))return;revealed[current]=true;render();}
-  else if(current===questions.length-1){state='results';render();}
-  else{current++;render();}
+
+function exportCSV(){
+  const list=filterCreche?results.filter(r=>r.creche===filterCreche):results;
+  const head=['Prénom','Nom','Crèche','Date','Score','Total','Pourcentage','Questions ratées'];
+  const lines=[head.join(';')];
+  list.forEach(r=>{
+    const ko=(r.detail||[]).filter(d=>!d.correct).map(d=>'Q'+(d.ordre+1)).join(' ');
+    lines.push([r.prenom,r.nom,r.creche,new Date(r.passe_le).toLocaleString('fr-FR'),r.score,r.total,r.pourcentage+'%',ko]
+      .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';'));
+  });
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='resultats-'+curQuiz.titre.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.csv';
+  a.click();
 }
-function navigate(d){current=Math.max(0,Math.min(questions.length-1,current+d));render()}
-function startQuiz(){
-  const p=document.getElementById('inp-prenom').value.trim();
-  const n=document.getElementById('inp-nom').value.trim();
-  const c=document.getElementById('inp-creche').value;
-  if(!p||!n||!c){alert('Merci de renseigner votre prénom, nom et crèche avant de commencer.');return;}
-  user={prenom:p,nom:n,creche:c};
-  resetAnswers();state='quiz';render();
-}
-function restartQuiz(){resetAnswers();state='start';render()}
-function reviewErrors(){
-  const errs=questions.reduce((a,_,i)=>{if(!isCorrect(i))a.push(i);return a;},[]);
-  if(!errs.length)return;
-  current=errs[0];revealed[current]=false;answers[current]=null;
-  state='quiz';render();
-}
+
 boot();
 </script>
 
