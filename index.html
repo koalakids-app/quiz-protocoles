@@ -9,7 +9,7 @@
 :root{
   --orange:#E8621A;
   --orange-light:#FDF0E8;
-  --orange-dark:#C4511200;
+  --orange-dark:#C45112;
   --purple:#4A3F9F;
   --purple-light:#EEEDFE;
   --bg:#FBF7F4;
@@ -80,7 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 .btn:hover:not(:disabled){border-color:var(--orange);color:var(--orange);background:var(--orange-light)}
 .btn:disabled{opacity:.35;cursor:default}
 .btn.primary{background:var(--orange);color:white;border-color:var(--orange)}
-.btn.primary:hover:not(:disabled){background:#D4571500;border-color:#D45715;color:white}
+.btn.primary:hover:not(:disabled){background:#D45715;border-color:#D45715;color:white}
 .btn.purple{background:var(--purple);color:white;border-color:var(--purple)}
 .btn.purple:hover:not(:disabled){background:#3D348E;border-color:#3D348E;color:white}
 .pager{font-size:13px;color:var(--text-muted);font-weight:500}
@@ -181,14 +181,14 @@ const questions = [
   {q:"Si un gâteau est préparé à la crèche, comment l'échantillon témoin doit-il être conservé ?",opts:["100g conservés 5 jours au réfrigérateur","100g conservés 7 jours au réfrigérateur","L'étiquetage des ingrédients suffit, pas besoin d'échantillon","Aucun échantillon n'est requis car c'est une activité ponctuelle"],ans:0},
   {q:"Quelle est la température minimale à cœur que doivent atteindre les plats livrés lors de la remise en température ?",opts:["+70°C","+120°C","+63°C","+45°C"],ans:2},
   {q:"Une fois qu'un biberon de lait en poudre a été réchauffé, combien de temps peut-il être conservé ?",opts:["30 minutes","Jusqu'au départ de l'enfant le soir","2 heures","1 heure"],ans:0},
-  {q:"À quelle température doit être lavée la machine contenant le linge des changes et des enfants ?",opts:["À 60°C avec une lessive désinfectante","À 40°C avec une lessive désinfectante","À froid, pour préserver les textiles","À 90°C pour une stérilisation complète"],ans:0},
+  {q:"À quelle température doit être lavée la machine contenant le linge des changes ?",opts:["À 60°C avec une lessive désinfectante","À 40°C avec une lessive désinfectante","À froid, pour préserver les textiles","À 90°C pour une stérilisation complète"],ans:0},
   {q:"Dans quel cas l'utilisation d'une solution hydro-alcoolique (SHA) est-elle une alternative valide au lavage des mains ?",opts:["À condition que les mains n'aient pas été souillées","Uniquement si l'enfant n'est pas malade","À n'importe quel moment pour gagner du temps","Seulement après avoir retiré des gants"],ans:0},
   {q:"Pour quel type de produit n'est-il pas nécessaire de conserver un plat témoin ?",opts:["Les yaourts industriels en pots individuels","Les purées pour bébés de moins de 6 mois","La viande hachée intégrée dans un plat","Le fromage blanc servi en vrac"],ans:0},
   {q:"À quelle fréquence le protocole de désinfection/détartrage au vinaigre du chauffe-biberon doit-il être effectué ?",opts:["Une fois par mois","Une fois par semaine","Quotidiennement","Uniquement lorsque du tartre est visible"],ans:1},
   {q:"En cas de visite de la PMI, si le référent technique n'est pas présent, quelle est la procédure ?",opts:["Prévenir immédiatement la gestionnaire par téléphone ET le coordinateur pédagogique","Ne pas autoriser l'accès de la crèche","Prendre les coordonnées de la personne et lui demander de revenir","Prévenir uniquement votre coordinateur pédagogique par téléphone"],ans:0},
   {q:"Lors d'une administration de paracétamol à la crèche, quelle est la durée minimale entre deux prises ?",opts:["6 heures","4 heures","2 heures","8 heures"],ans:1},
-  {q:"Si un enfant dort au moment du repas, quelle procédure doit être suivie pour son plat ?",opts:["Jeter systématiquement le plat et utiliser un plat de secours","Laisser le plat au réfrigérateur, puis réchauffage au chauffe-plat ou bain-marie à son réveil","Maintenir le plat au four à 70°C pendant une durée maximale de 2h","Laisser le plat à température ambiante sur le comptoir pour qu'il soit prêt"],ans:1},
-  {q:"Selon les protocoles de sortie, combien d'enfants au maximum peuvent être pris en charge par un adulte ?",opts:["11 enfants","14 enfants","6 enfants","12 enfants"],ans:0}
+  {q:"Si un enfant dort au moment du repas, quelle procédure doit être suivie pour son plat ?",multi:true,opts:["Jeter systématiquement le plat et utiliser un plat de secours","Laisser le plat au réfrigérateur, puis réchauffage au chauffe-plat ou bain-marie à son réveil","Maintenir le plat au four à 70°C pendant une durée maximale de 2h","Laisser le plat à température ambiante sur le comptoir pour qu'il soit prêt"],ans:[1,2]},
+  {q:"Selon les protocoles de sortie, combien d'enfants au maximum peuvent être pris en charge par un adulte ?",opts:["5 enfants","14 enfants","6 enfants","12 enfants"],ans:0}
 ];
 
 const letters=['A','B','C','D'];
@@ -198,7 +198,20 @@ let answers=new Array(questions.length).fill(null);
 let revealed=new Array(questions.length).fill(false);
 let user={prenom:'',nom:'',creche:''};
 
-function getScore(){return answers.reduce((a,v,i)=>v===questions[i].ans?a+1:a,0)}
+function isCorrect(i){
+  const q=questions[i],a=answers[i];
+  if(a===null||a===undefined)return false;
+  if(q.multi){
+    if(!Array.isArray(a)||a.length!==q.ans.length)return false;
+    return q.ans.every(x=>a.includes(x));
+  }
+  return a===q.ans;
+}
+function hasAnswer(i){
+  const a=answers[i];
+  return questions[i].multi?(Array.isArray(a)&&a.length>0):a!==null;
+}
+function getScore(){return questions.reduce((acc,_,i)=>isCorrect(i)?acc+1:acc,0)}
 
 function render(){
   const app=document.getElementById('app');
@@ -251,21 +264,27 @@ function renderQuiz(app){
   const done=revealed.filter(Boolean).length;
   chip.textContent=done>0?`${s} / ${done} ✓`:`${user.prenom}`;
 
+  const isMulti=!!q.multi;
+  const sel=isMulti?(Array.isArray(answers[current])?answers[current]:[]):answers[current];
   const optsHtml=q.opts.map((o,i)=>{
     let cls='option';
-    if(isAnswered){cls+=' disabled';if(i===q.ans)cls+=' correct';else if(answers[current]===i)cls+=' wrong';}
-    else if(answers[current]===i)cls+=' selected';
+    const picked=isMulti?sel.includes(i):sel===i;
+    const good=isMulti?q.ans.includes(i):i===q.ans;
+    if(isAnswered){cls+=' disabled';if(good)cls+=' correct';else if(picked)cls+=' wrong';}
+    else if(picked)cls+=' selected';
     return`<div class="${cls}" onclick="choose(${i})"><div class="option-letter">${letters[i]}</div><div class="option-text">${o}</div></div>`;
   }).join('');
 
   let fb='';
   if(isAnswered){
-    const ok=answers[current]===q.ans;
-    fb=`<div class="feedback show ${ok?'ok':'ko'}"><span>${ok?'✓':'✗'}</span><span>${ok?'Bonne réponse !':'Mauvaise réponse — La bonne réponse est : <strong>'+q.opts[q.ans]+'</strong>'}</span></div>`;
+    const ok=isCorrect(current);
+    const good=isMulti?q.ans.map(x=>q.opts[x]).join(' — '):q.opts[q.ans];
+    const lbl=isMulti?'Les bonnes réponses sont':'La bonne réponse est';
+    fb=`<div class="feedback show ${ok?'ok':'ko'}"><span>${ok?'✓':'✗'}</span><span>${ok?'Bonne réponse !':'Mauvaise réponse — '+lbl+' : <strong>'+good+'</strong>'}</span></div>`;
   }
 
   const btnLabel=isAnswered?(isLast?'Voir mes résultats →':'Suivant →'):'Valider';
-  const btnDisabled=(!isAnswered&&answers[current]===null)?'disabled':'';
+  const btnDisabled=(!isAnswered&&!hasAnswer(current))?'disabled':'';
 
   app.innerHTML=`
   <div class="progress-wrap">
@@ -277,6 +296,7 @@ function renderQuiz(app){
   </div>
   <div class="question-card">
     <div class="q-badge">Question ${current+1}</div>
+    ${isMulti?'<div class="q-badge" style="background:var(--purple-light);color:var(--purple);border-color:rgba(74,63,159,.2);margin-left:6px">Plusieurs réponses</div>':''}
     <div class="q-text">${q.q}</div>
     <div class="options">${optsHtml}</div>
     ${fb}
@@ -332,12 +352,12 @@ function saveResults(score,pct,dateStr){
     pourcentage:pct,
     date:dateStr
   };
-  if(!GOOGLE_SCRIPT_URL||GOOGLE_SCRIPT_URL==='https://script.google.com/macros/s/AKfycbxCFDTeZJbMoMRVmNt3_Kj7223PrvgFv0s9Df7aesUdzjN-85rFahxEXEshHzWNRP2Q/exec'){
+  if(!GOOGLE_SCRIPT_URL||GOOGLE_SCRIPT_URL==='VOTRE_URL_ICI'){
     document.getElementById('save-status').textContent='⚠ URL Google Script non configurée';
     document.getElementById('save-status').className='save-status err';
     return;
   }
-  fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
+  fetch(GOOGLE_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
     .then(r=>{
       const el=document.getElementById('save-status');
       if(el){el.textContent='✓ Résultat enregistré';el.className='save-status ok'}
@@ -348,9 +368,18 @@ function saveResults(score,pct,dateStr){
     });
 }
 
-function choose(i){if(revealed[current])return;answers[current]=i;render()}
+function choose(i){
+  if(revealed[current])return;
+  const q=questions[current];
+  if(q.multi){
+    let a=Array.isArray(answers[current])?answers[current].slice():[];
+    a.includes(i)?a=a.filter(x=>x!==i):a.push(i);
+    answers[current]=a.length?a.sort():null;
+  }else answers[current]=i;
+  render();
+}
 function nextAction(){
-  if(!revealed[current]){if(answers[current]===null)return;revealed[current]=true;render();}
+  if(!revealed[current]){if(!hasAnswer(current))return;revealed[current]=true;render();}
   else if(current===questions.length-1){state='results';render();}
   else{current++;render();}
 }
@@ -369,7 +398,7 @@ function restartQuiz(){
   state='start';render();
 }
 function reviewErrors(){
-  const errs=questions.reduce((a,_,i)=>{if(answers[i]!==questions[i].ans)a.push(i);return a;},[]);
+  const errs=questions.reduce((a,_,i)=>{if(!isCorrect(i))a.push(i);return a;},[]);
   if(!errs.length)return;
   current=errs[0];revealed[current]=false;answers[current]=null;
   state='quiz';render();
