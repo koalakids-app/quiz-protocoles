@@ -150,11 +150,13 @@ textarea.form-input{font-family:inherit;line-height:1.5}
   <div id="app"><div class="center-msg"><div class="spinner"></div>Chargement…</div></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL="https://phbcqxjzobzwuzetgbem.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoYmNxeGp6b2J6d3V6ZXRnYmVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1Mjg3ODMsImV4cCI6MjEwMDEwNDc4M30.Cz7_0WN_pWoXeamk484hJr2iCVdKZEatR-m_f0bKj3w";
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const _sb=window.supabase||window.Supabase;
+if(!_sb||!_sb.createClient){document.getElementById('app').innerHTML='<div class="center-msg"><div style="font-size:38px;margin-bottom:8px">\u26a0</div>La biblioth\u00e8que Supabase n\'a pas pu \u00eatre charg\u00e9e.<br>V\u00e9rifiez votre connexion internet.</div>';throw new Error('supabase-js non charge');}
+const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY,{global:{headers:{apikey:SUPABASE_KEY}}});
 const letters=['A','B','C','D','E','F'];
 const app=()=>document.getElementById('app');
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
