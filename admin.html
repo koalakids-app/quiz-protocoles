@@ -216,7 +216,7 @@ async function loadQuizzes(){
 }
 
 function renderList(){
-  const base=location.href.split('?')[0].replace(/admin\.html$/,'index.html');
+  const base=quizBase();
   const items=quizzes.length?quizzes.map(q=>`
     <div class="question-card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
@@ -245,8 +245,14 @@ function renderList(){
     <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Lien salariées : ${esc(base)}?quiz=IDENTIFIANT</p>`;
 }
 
+function quizBase(){
+  let u=location.href.split('?')[0].split('#')[0];
+  u=u.replace(/\/admin(\.html)?\/?$/i,'/index.html');
+  if(!/index\.html$/i.test(u))u=u.replace(/\/?$/,'/index.html');
+  return u;
+}
 function copyLink(id){
-  const base=location.href.split('?')[0].replace(/admin\.html$/,'index.html');
+  const base=quizBase();
   const url=base+'?quiz='+id;
   navigator.clipboard.writeText(url).then(()=>alert('Lien copié :\n'+url),()=>prompt('Copiez ce lien :',url));
 }
