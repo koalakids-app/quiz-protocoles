@@ -214,19 +214,6 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-fig{margin:1.25rem 0}
 .m-fig img{width:100%;border-radius:12px;border:1px solid var(--border);display:block}
 .m-fig figcaption{font-size:12px;color:var(--text-light);text-align:center;margin-top:6px;font-style:italic}
-.cat-intro{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.75rem;margin-bottom:2rem}
-.cat-intro h1{font-size:24px;font-weight:800;color:var(--purple);letter-spacing:-.3px;margin-bottom:10px}
-.cat-intro p{font-size:15px;color:var(--text-muted);line-height:1.65}
-.cat-theme{font-size:19px;font-weight:700;color:var(--purple);margin-bottom:4px;letter-spacing:-.2px}
-.cat-desc{font-size:14px;color:var(--text-muted);margin-bottom:14px}
-.cat-grid{display:grid;gap:12px}
-.cat-card{display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:12px;padding:1.15rem 1.35rem;text-decoration:none;color:inherit;transition:border-color .15s,transform .12s,box-shadow .15s}
-.cat-card:hover{border-color:var(--border-strong);border-left-color:var(--orange);transform:translateX(3px);box-shadow:0 3px 14px rgba(232,98,26,.09)}
-.cat-card h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px;line-height:1.35}
-.cat-card p{font-size:13.5px;color:var(--text-muted);line-height:1.55;margin-bottom:9px}
-.cat-go{font-size:12.5px;font-weight:700;color:var(--orange)}
-.retour{display:inline-block;font-size:13px;color:var(--text-muted);text-decoration:none;margin-bottom:1rem;font-weight:600}
-.retour:hover{color:var(--orange)}
 .m-end-actions a.btn{text-decoration:none}
 @media(max-width:480px){.cat-intro{padding:1.5rem 1.25rem}.cat-intro h1{font-size:20px}}
 
@@ -311,51 +298,23 @@ function blocHTML(b){
   return '';
 }
 
-/* ---------- VUE : CATALOGUE ---------- */
-async function showCatalogue(){
+/* ---------- VUE : ACCUEIL SANS LIEN ---------- */
+function showAccueil(){
   setHead('Micro-formations','Koalakids');
-  const{data:themes,error}=await db.from('theme').select('*').order('ordre');
-  if(error)return erreur(error.message);
-  const{data:mods,error:e2}=await db.from('module').select('*').eq('publie',true).order('ordre');
-  if(e2)return erreur(e2.message);
-
-  const parTheme={};
-  (mods||[]).forEach(m=>{(parTheme[m.theme_id]=parTheme[m.theme_id]||[]).push(m)});
-  const avec=(themes||[]).filter(t=>(parTheme[t.id]||[]).length);
-
-  if(!avec.length){
-    app().innerHTML=`<div class="container"><div class="center-msg">
-      <div style="font-size:38px;margin-bottom:8px">\ud83d\udcda</div>
-      Aucune formation n'est disponible pour le moment.</div></div>`;
-    return;
-  }
-
-  const html=avec.map(t=>`
-    <section style="margin-bottom:2rem">
-      <h2 class="cat-theme">${esc(t.nom)}</h2>
-      ${t.description?`<p class="cat-desc">${esc(t.description)}</p>`:''}
-      <div class="cat-grid">
-        ${parTheme[t.id].map(m=>`
-          <a class="cat-card" href="?module=${m.id}">
-            <h3>${esc(m.titre)}</h3>
-            ${m.accroche?`<p>${esc(m.accroche)}</p>`:''}
-            <span class="cat-go">Lire le module \u2192</span>
-          </a>`).join('')}
-      </div>
-    </section>`).join('');
-
-  app().innerHTML=`<div class="container">
-    <div class="cat-intro">
-      <h1>Vos micro-formations</h1>
-      <p>Des modules courts, \u00e0 lire quand vous avez un moment. Chacun tient en quelques minutes et porte sur une situation que vous rencontrez au quotidien.</p>
-    </div>${html}
-    <p class="m-foot">Micro-formations Koalakids</p></div>`;
+  app().innerHTML=`<div class="container"><div class="center-msg">
+    <div style="font-size:38px;margin-bottom:10px">\ud83d\udcec</div>
+    <h2 style="font-size:19px;color:var(--purple);margin-bottom:8px">Acc\u00e8s par lien</h2>
+    <p style="font-size:14px;line-height:1.6">Les micro-formations s'ouvrent depuis le lien qui vous a \u00e9t\u00e9 transmis.<br>
+    Utilisez celui que vous avez re\u00e7u pour acc\u00e9der \u00e0 votre module.</p>
+    <p style="font-size:12.5px;color:var(--text-light);margin-top:1.25rem">
+    Si vous pensez qu'il s'agit d'une erreur, rapprochez-vous de votre r\u00e9f\u00e9rente.</p>
+  </div></div>`;
 }
 
 /* ---------- VUE : MODULE ---------- */
 async function showModule(id){
   const{data:m,error}=await db.from('module').select('*').eq('id',id).single();
-  if(error||!m)return erreur("Ce module n'existe pas ou n'est plus disponible.");
+  if(error||!m)return erreur("Ce lien n'est pas valide ou le module n'est plus disponible.");
   if(!m.publie)return erreur("Ce module n'est pas encore publi\u00e9.");
 
   const{data:t}=await db.from('theme').select('*').eq('id',m.theme_id).single();
@@ -367,7 +326,6 @@ async function showModule(id){
   document.title=m.titre+' \u2014 Koalakids';
 
   app().innerHTML=`<div class="container">
-    <a class="retour" href="?">\u2190 Toutes les formations</a>
     <div class="m-hero">
       ${nom?`<div class="m-tag">Th\u00e8me : ${esc(nom)}</div>`:''}
       <h2>${esc(m.titre)}</h2>
@@ -378,7 +336,6 @@ async function showModule(id){
       <h3>Vous avez termin\u00e9 ce module</h3>
       <p>Prenez le temps d'essayer ce qui vous a parl\u00e9. Vous pouvez y revenir quand vous voulez.</p>
       <div class="m-end-actions">
-        <a class="btn purple" href="?">Voir les autres modules</a>
         <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Relire depuis le d\u00e9but</button>
       </div>
     </div>
@@ -407,7 +364,7 @@ addEventListener('scroll',()=>{
 /* ---------- ROUTAGE ---------- */
 function route(){
   const id=new URLSearchParams(location.search).get('module');
-  if(id)showModule(id);else showCatalogue();
+  if(id)showModule(id);else showAccueil();
 }
 addEventListener('popstate',route);
 route();

@@ -622,6 +622,7 @@ function renderModules(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="btn primary" style="padding:7px 14px;font-size:13px" onclick="editContent('${m.id}')">Modifier le contenu</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="editModule('${m.id}')">Renommer</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyModuleLink('${m.id}')">Copier le lien</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="toggleModule('${m.id}',${m.publie})">${m.publie?'Dépublier':'Publier'}</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteModule('${m.id}')">Supprimer</button>
       </div>
@@ -771,6 +772,21 @@ function blocVide(type){
     image:{url:'',alt:'',legende:''}
   };
   return JSON.parse(JSON.stringify(c[type]));
+}
+
+function moduleBase(){
+  let u=location.href.split('?')[0].split('#')[0];
+  u=u.replace(/\/admin(\.html)?\/?$/i,'/formations.html');
+  if(!/formations\.html$/i.test(u))u=u.replace(/\/?$/,'/formations.html');
+  return u;
+}
+function copyModuleLink(id){
+  const m=curModules.find(x=>x.id===id);
+  const url=moduleBase()+'?module='+id;
+  const avert=m&&!m.publie?'\n\n\u26a0 Ce module est en brouillon : le lien ne fonctionnera qu\'une fois publi\u00e9.':'';
+  navigator.clipboard.writeText(url).then(
+    ()=>alert('Lien copi\u00e9 :\n'+url+avert),
+    ()=>prompt('Copiez ce lien :',url));
 }
 
 async function editContent(id){
