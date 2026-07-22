@@ -633,7 +633,10 @@ function renderModules(){
     <button class="btn" style="margin-bottom:1rem" onclick="loadThemes()">← Tous les thèmes</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;gap:12px;flex-wrap:wrap">
       <h2 style="font-size:20px;color:var(--purple)">${esc(curTheme.nom)}</h2>
-      <button class="btn purple" onclick="newModule()">+ Nouveau module</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="importModuleJSON()">⇩ Importer (JSON IA)</button>
+        <button class="btn purple" onclick="newModule()">+ Nouveau module</button>
+      </div>
     </div>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">${esc(curTheme.description)}</p>
     ${items}`;
@@ -648,6 +651,42 @@ async function newModule(){
     publie:false,ordre:curModules.length
   });
   if(error)return alert('Erreur : '+error.message);
+  loadModules();
+}
+async function importModuleJSON(){
+  const raw=prompt('Collez le JSON du module généré par l\u2019IA :\n\n{ "module": { "titre": "\u2026", "accroche": "\u2026" }, "blocs": [ { "type": "texte", "contenu": {\u2026} } ] }');
+  if(raw===null||!raw.trim())return;
+  let data;
+  try{ data=JSON.parse(raw); }
+  catch(e){ return alert('JSON invalide : '+e.message); }
+  const mod=data.module||data;
+  const blocs=data.blocs||[];
+  const titre=(mod.titre||'').trim();
+  if(!titre)return alert('Le JSON doit contenir un titre de module (module.titre).');
+  if(!Array.isArray(blocs)||!blocs.length)return alert('Le JSON doit contenir une liste « blocs » non vide.');
+  // Validation des types
+  const okTypes=Object.keys(TYPES);
+  const bad=blocs.map((b,i)=>({i,t:b&&b.type})).filter(x=>!okTypes.includes(x.t));
+  if(bad.length)return alert('Type de bloc inconnu :\n'+bad.map(x=>`bloc #${x.i+1} : « ${x.t} »`).join('\n')+'\n\nTypes valides : '+okTypes.join(', '));
+  if(!confirm(`Créer le module « ${titre} » avec ${blocs.length} bloc${blocs.length>1?'s':''} ?`))return;
+  // Création du module
+  const{data:mrow,error:merr}=await db.from('module').insert({
+    theme_id:curTheme.id,titre:titre,accroche:(mod.accroche||'').trim(),
+    publie:false,ordre:curModules.length
+  }).select().single();
+  if(merr)return alert('Erreur création module : '+merr.message);
+  // Insertion des blocs (contenu fusionné avec les valeurs par défaut du type)
+  const payload=blocs.map((b,i)=>({
+    module_id:mrow.id,type:b.type,
+    contenu:Object.assign(blocVide(b.type),b.contenu||{}),
+    ordre:i
+  }));
+  const{error:berr}=await db.from('bloc').insert(payload);
+  if(berr){
+    await db.from('module').delete().eq('id',mrow.id);
+    return alert('Erreur insertion des blocs (module annulé) : '+berr.message);
+  }
+  alert(`Module « ${titre} » importé : ${blocs.length} bloc${blocs.length>1?'s':''}.\nIl est en brouillon — vérifiez le contenu puis publiez-le.`);
   loadModules();
 }
 async function editModule(id){
