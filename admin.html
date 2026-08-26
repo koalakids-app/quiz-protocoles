@@ -332,6 +332,17 @@ function renderEdit(){
       </div>
       <textarea class="form-input" rows="2" style="font-size:14px;margin-bottom:10px;resize:vertical"
         onchange="setEnonce(${i},this.value)">${esc(q.enonce)}</textarea>
+      <div style="margin-bottom:12px">
+        ${q.image_url?`<img src="${esc(q.image_url)}" alt="" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:6px">`:''}
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <input type="file" accept="image/*" id="qfile-${i}" style="display:none" onchange="uploadQImg(${i},this)">
+          <button class="btn" style="padding:5px 12px;font-size:12px" onclick="document.getElementById('qfile-${i}').click()">
+            ${q.image_url?"Remplacer l'image":'+ Image (facultatif)'}</button>
+          ${q.image_url?`<button class="btn" style="padding:5px 12px;font-size:12px;color:var(--danger-text)" onclick="removeQImg(${i})">Retirer</button>`:''}
+          <span id="qup-${i}" style="font-size:12px;color:var(--text-muted)"></span>
+        </div>
+        ${q.image_url?`<input class="form-input" style="padding:6px 10px;font-size:12px;margin-top:6px" placeholder="Texte alternatif (decrit l'image)" value="${esc(q.image_alt)}" onchange="setQAlt(${i},this.value)">`:''}
+      </div>
       ${opts}
       ${q.options.length<6?`<button class="btn" style="padding:5px 12px;font-size:12px;margin-top:4px" onclick="addOption(${i})">+ Option</button>`:''}
     </div>`;
@@ -353,6 +364,22 @@ function renderEdit(){
 }
 
 function setEnonce(i,v){curQuestions[i].enonce=v}
+function setQAlt(i,v){curQuestions[i].image_alt=v}
+function removeQImg(i){curQuestions[i].image_url=null;curQuestions[i].image_alt=null;renderEdit()}
+async function uploadQImg(i,input){
+  const f=input.files[0];if(!f)return;
+  const st=document.getElementById('qup-'+i);
+  if(f.size>5*1024*1024){st.textContent='\u26a0 Image trop lourde (max 5 Mo)';st.style.color='var(--danger-text)';return;}
+  st.style.color='var(--text-muted)';st.textContent='Envoi en cours\u2026';
+  const ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace('jfif','jpg');
+  const path=`quiz/${curQuiz.id}/${Date.now()}.${ext}`;
+  const{error}=await db.storage.from('images-formations').upload(path,f,{cacheControl:'3600',upsert:false});
+  if(error){st.textContent='\u26a0 '+error.message;st.style.color='var(--danger-text)';return;}
+  const{data}=db.storage.from('images-formations').getPublicUrl(path);
+  curQuestions[i].image_url=data.publicUrl;
+  if(!curQuestions[i].image_alt)curQuestions[i].image_alt=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+  renderEdit();
+}
 function setOption(i,j,v){curQuestions[i].options[j]=v}
 function setMulti(i,v){
   const q=curQuestions[i];q.multi=v;
@@ -374,7 +401,7 @@ function delOption(i,j){
   renderEdit();
 }
 function addQ(){
-  curQuestions.push({quiz_id:curQuiz.id,enonce:'Nouvelle question',options:['','','',''],reponses:[0],multi:false,ordre:curQuestions.length,_new:true});
+  curQuestions.push({quiz_id:curQuiz.id,enonce:'Nouvelle question',options:['','','',''],reponses:[0],multi:false,image_url:null,image_alt:null,ordre:curQuestions.length,_new:true});
   renderEdit();
 }
 function delQ(i){
@@ -409,7 +436,7 @@ async function saveAll(){
     }
     for(let i=0;i<curQuestions.length;i++){
       const q=curQuestions[i];
-      const payload={quiz_id:curQuiz.id,enonce:q.enonce,options:q.options,reponses:q.reponses,multi:q.multi,ordre:i};
+      const payload={quiz_id:curQuiz.id,enonce:q.enonce,options:q.options,reponses:q.reponses,multi:q.multi,ordre:i,image_url:q.image_url||null,image_alt:q.image_alt||null};
       if(q.id){
         const r=await db.from('questions').update(payload).eq('id',q.id);
         if(r.error)throw r.error;
