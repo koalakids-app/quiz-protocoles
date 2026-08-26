@@ -289,6 +289,7 @@ function renderQuiz(){
     <div class="q-badge">Question ${current+1}</div>
     ${isMulti?'<div class="q-badge" style="background:var(--purple-light);color:var(--purple);border-color:rgba(74,63,159,.2);margin-left:6px">Plusieurs réponses</div>':''}
     <div class="q-text">${esc(q.enonce)}</div>
+    ${q.image_url?`<img src="${esc(q.image_url)}" alt="${esc(q.image_alt||'')}" loading="lazy" style="display:block;width:100%;max-height:300px;object-fit:contain;background:#f6f6f8;border:1px solid var(--border);border-radius:10px;margin:0 0 1rem">`:''}
     <div class="options">${optsHtml}</div>
     ${fb}
   </div>
