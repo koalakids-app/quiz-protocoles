@@ -255,7 +255,7 @@ function renderList(){
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openResults('${q.id}')">Résultats (${q._c.r})</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="togglePublish('${q.id}',${q.publie})">${q.publie?'Dépublier':'Publier'}</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyLink('${q.id}')">Copier le lien</button>
-        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copierMailMisEnForme('${q.id}')">✉ Mail candidat</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="mailCandidat('${q.id}')">✉ Mail candidat</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteQuiz('${q.id}')">Supprimer</button>
       </div>
     </div>`).join(''):`<div class="center-msg">Aucun quiz. Créez le premier.</div>`;
@@ -279,56 +279,27 @@ function copyLink(id){
   const url=base+'?quiz='+id;
   navigator.clipboard.writeText(url).then(()=>alert('Lien copié :\n'+url),()=>prompt('Copiez ce lien :',url));
 }
-function corpsMail(url,civ,nom,html){
-  const L=html
-    ?`<a href="${url}">questionnaire en ligne</a>`
-    :'questionnaire en ligne : '+url;
-  const p=[
-    `Bonjour ${civ} ${nom},`,
-    "Je fais suite \u00e0 votre candidature au poste de [intitul\u00e9 du poste] au sein de notre micro-cr\u00e8che Koalakids [cr\u00e8che]. Je vous propose d'\u00e9changer lors d'un entretien le [jour] [date] \u00e0 [heure], sur notre micro-cr\u00e8che situ\u00e9e au [adresse].",
-    "Afin de pr\u00e9parer cet entretien, vous trouverez ci-joint la fiche de poste ainsi que le projet \u00e9ducatif et p\u00e9dagogique. Merci d'en prendre connaissance, puis de r\u00e9pondre au "+L+" qui s'y rattache.",
-    "Sur la premi\u00e8re page, merci d'indiquer votre pr\u00e9nom, votre nom, puis de s\u00e9lectionner \u00ab Salari\u00e9(e) en recrutement \u00bb. Comptez une dizaine de minutes ; les r\u00e9ponses sont corrig\u00e9es au fur et \u00e0 mesure. Il ne s'agit pas d'une \u00e9preuve \u00e9liminatoire : ce questionnaire servira simplement de base \u00e0 nos \u00e9changes.",
-    "Merci de me confirmer le rendez-vous par retour de mail.",
-    "En l'attente,",
-    "Cordialement,"
-  ];
-  const sign=["David Bucari","\u00c9ducateur de jeunes enfants","R\u00e9f\u00e9rent p\u00e9dagogique et familial \u2014 Koalakids Ollioules, St Jean du Var et Cuers Peireguins","06 59 73 80 14"];
-  const capital="\u00c9lue meilleure enseigne 2026 pour la qualit\u00e9 de service (magazine Capital)";
-  if(html){
-    return '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5">'
-      +p.map(x=>`<p>${x}</p>`).join('')
-      +'<p>'+sign.join('<br>')+'</p>'
-      +`<p style="font-size:12px;color:#666">${capital}</p></div>`;
-  }
-  return p.join('\r\n\r\n')+'\r\n\r\n'+sign.join('\r\n')+'\r\n\r\n'+capital;
-}
-function infosCandidat(){
+function mailCandidat(id){
+  const url=quizBase()+'?quiz='+id;
   const nom=(prompt("Nom de la candidate ou du candidat (facultatif) :","")||'[Nom]').trim()||'[Nom]';
   const civ=(prompt("Civilit\u00e9 : tapez M ou Mme","Mme")||'Mme').trim();
-  return{nom,civ};
-}
-async function copierMailMisEnForme(id){
-  const url=quizBase()+'?quiz='+id;
-  const{nom,civ}=infosCandidat();
-  const html=corpsMail(url,civ,nom,true);
-  const texte=corpsMail(url,civ,nom,false);
-  try{
-    await navigator.clipboard.write([new ClipboardItem({
-      'text/html':new Blob([html],{type:'text/html'}),
-      'text/plain':new Blob([texte],{type:'text/plain'})
-    })]);
-    alert("Mail copi\u00e9 avec la mise en forme.\n\nCollez-le dans votre message (Ctrl+V) : le mot \u00ab questionnaire en ligne \u00bb sera un lien cliquable.");
-  }catch(e){
-    const d=document.createElement('div');
-    d.contentEditable='true';d.innerHTML=html;
-    d.style.cssText='position:fixed;left:-9999px;top:0';
-    document.body.appendChild(d);
-    const r=document.createRange();r.selectNodeContents(d);
-    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);
-    const ok=document.execCommand('copy');
-    sel.removeAllRanges();document.body.removeChild(d);
-    alert(ok?"Mail copi\u00e9. Collez-le dans votre message (Ctrl+V).":"Copie impossible dans ce navigateur. Utilisez le bouton \u00ab Mail candidat \u00bb.");
-  }
+  const objet="Votre candidature \u2014 entretien et questionnaire pr\u00e9paratoire";
+  const corps=[
+    `Bonjour ${civ} ${nom},`,'',
+    "Je fais suite \u00e0 votre candidature au poste de [intitul\u00e9 du poste] au sein de notre micro-cr\u00e8che Koalakids [cr\u00e8che]. Je vous propose d'\u00e9changer lors d'un entretien le [jour] [date] \u00e0 [heure], sur notre micro-cr\u00e8che situ\u00e9e au [adresse].",'',
+    "Afin de pr\u00e9parer cet entretien, vous trouverez ci-joint la fiche de poste ainsi que le projet \u00e9ducatif et p\u00e9dagogique. Merci d'en prendre connaissance, puis de r\u00e9pondre au questionnaire qui s'y rattache :",'',
+    url,'',
+    "Sur la premi\u00e8re page, merci d'indiquer votre pr\u00e9nom, votre nom, puis de s\u00e9lectionner \u00ab Salari\u00e9(e) en recrutement \u00bb. Comptez une dizaine de minutes ; les r\u00e9ponses sont corrig\u00e9es au fur et \u00e0 mesure. Il ne s'agit pas d'une \u00e9preuve \u00e9liminatoire : ce questionnaire servira simplement de base \u00e0 nos \u00e9changes.",'',
+    "Merci de me confirmer le rendez-vous par retour de mail.",'',
+    "En l'attente,",'',"Cordialement,",'',
+    "David Bucari",
+    "\u00c9ducateur de jeunes enfants",
+    "R\u00e9f\u00e9rent p\u00e9dagogique et familial \u2014 Koalakids Ollioules, St Jean du Var et Cuers Peireguins",
+    "06 59 73 80 14",'',
+    "\u00c9lue meilleure enseigne 2026 pour la qualit\u00e9 de service (magazine Capital)"
+  ].join('\r\n');
+  const href='mailto:?subject='+encodeURIComponent(objet)+'&body='+encodeURIComponent(corps);
+  const a=document.createElement('a');a.href=href;a.click();
 }
 async function togglePublish(id,cur){
   const{error}=await db.from('quiz').update({publie:!cur}).eq('id',id);
