@@ -167,7 +167,7 @@ const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY);
 const letters=['A','B','C','D','E','F'];
 const app=()=>document.getElementById('app');
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche='';
+let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche='',filterStatut='';
 let themes=[],curTheme=null,curModules=[];
 
 async function boot(){
@@ -457,12 +457,18 @@ async function openResults(id){
   curQuiz=quizzes.find(q=>q.id===id);
   const{data,error}=await db.from('resultats').select('*').eq('quiz_id',id).order('passe_le',{ascending:false});
   if(error)return alert('Erreur : '+error.message);
-  results=data||[];filterCreche='';view='results';render();
+  results=data||[];filterCreche='';filterStatut='';view='results';render();
 }
 
+function filtered(){
+  return results.filter(r=>
+    (!filterCreche||r.creche===filterCreche)&&
+    (!filterStatut||(r.statut||'')===filterStatut));
+}
 function renderResults(){
-  const list=filterCreche?results.filter(r=>r.creche===filterCreche):results;
-  const creches=[...new Set(results.map(r=>r.creche))].sort();
+  const list=filtered();
+  const creches=[...new Set(results.map(r=>r.creche).filter(Boolean))].sort();
+  const statuts=[...new Set(results.map(r=>r.statut).filter(Boolean))].sort();
   const moy=list.length?Math.round(list.reduce((a,r)=>a+r.pourcentage,0)/list.length):0;
 
   let byQ='';
@@ -485,7 +491,8 @@ function renderResults(){
 
   const rows=list.map(r=>`<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:8px;font-size:13px"><strong>${esc(r.prenom)} ${esc(r.nom)}</strong></td>
-      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche)}</td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.statut||'—')}</td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche||'—')}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted);white-space:nowrap">${new Date(r.passe_le).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
       <td style="padding:8px;font-size:13px;text-align:right;white-space:nowrap">${r.score}/${r.total}</td>
       <td style="padding:8px;font-size:13px;font-weight:700;text-align:right;color:${r.pourcentage>=80?'var(--success-text)':r.pourcentage>=60?'var(--purple)':'var(--danger-text)'}">${r.pourcentage}%</td>
@@ -496,12 +503,21 @@ function renderResults(){
     <button class="btn" style="margin-bottom:1rem" onclick="view='list';loadQuizzes()">← Retour</button>
     <h2 style="font-size:19px;color:var(--purple);margin-bottom:.25rem">${esc(curQuiz.titre)}</h2>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">${list.length} résultat${list.length>1?'s':''} · moyenne ${moy}%</p>
-    <div class="form-group" style="max-width:320px">
-      <label class="form-label">Filtrer par crèche</label>
-      <select class="form-select" onchange="filterCreche=this.value;renderResults()">
-        <option value="">Toutes les crèches</option>
-        ${creches.map(c=>`<option value="${esc(c)}" ${c===filterCreche?'selected':''}>${esc(c)}</option>`).join('')}
-      </select>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1;min-width:220px;max-width:320px">
+        <label class="form-label">Filtrer par statut</label>
+        <select class="form-select" onchange="filterStatut=this.value;renderResults()">
+          <option value="">Tous les statuts</option>
+          ${statuts.map(c=>`<option value="${esc(c)}" ${c===filterStatut?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:220px;max-width:320px">
+        <label class="form-label">Filtrer par crèche</label>
+        <select class="form-select" onchange="filterCreche=this.value;renderResults()">
+          <option value="">Toutes les crèches</option>
+          ${creches.map(c=>`<option value="${esc(c)}" ${c===filterCreche?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:1rem"><button class="btn" onclick="exportCSV()">Exporter en CSV</button></div>
     ${list.length?`<div class="question-card" style="padding:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse">${rows}</table></div>`:'<div class="center-msg">Aucun résultat pour ce filtre.</div>'}
@@ -517,12 +533,12 @@ function showDetail(id){
 }
 
 function exportCSV(){
-  const list=filterCreche?results.filter(r=>r.creche===filterCreche):results;
-  const head=['Prénom','Nom','Crèche','Date','Score','Total','Pourcentage','Questions ratées'];
+  const list=filtered();
+  const head=['Prénom','Nom','Statut','Crèche','Date','Score','Total','Pourcentage','Questions ratées'];
   const lines=[head.join(';')];
   list.forEach(r=>{
     const ko=(r.detail||[]).filter(d=>!d.correct).map(d=>'Q'+(d.ordre+1)).join(' ');
-    lines.push([r.prenom,r.nom,r.creche,new Date(r.passe_le).toLocaleString('fr-FR'),r.score,r.total,r.pourcentage+'%',ko]
+    lines.push([r.prenom,r.nom,r.statut||'',r.creche||'',new Date(r.passe_le).toLocaleString('fr-FR'),r.score,r.total,r.pourcentage+'%',ko]
       .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';'));
   });
   const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
