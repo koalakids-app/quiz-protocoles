@@ -163,12 +163,29 @@ if(!_sb||!_sb.createClient){document.getElementById('app').innerHTML='<div class
 const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const STATUTS=["Salari\u00e9(e) en poste","Salari\u00e9(e) en recrutement","Stagiaire","Alternant(e)"];
-const STATUT_AVEC_CRECHE="Salari\u00e9(e) en poste";
+/* La cr\u00e8che \u00e9tait demand\u00e9e aux seuls salari\u00e9s en poste : un r\u00e9sultat de stagiaire
+   arrivait donc sans qu'on sache d'o\u00f9 il venait. Elle est maintenant demand\u00e9e
+   \u00e0 tout le monde \u2014 « Autre » reste l\u00e0 pour les cas qui n'entrent pas dans la
+   liste (candidat non encore affect\u00e9, intervenant ext\u00e9rieur). */
 const CRECHES=["Koalakids Toulon Brunet","Koalakids Cuers","Koalakids Ollioules","Koalakids Toulon Picot 1","Koalakids Toulon Picot 2","Koalakids Toulon St Jean","Autre"];
 const letters=['A','B','C','D','E','F'];
 
 let state='loading',quiz=null,questions=[],current=0,answers=[],revealed=[];
 let user={prenom:'',nom:'',creche:'',statut:''};
+
+/* Ce que le dossier de stage peut transmettre dans l'adresse (application
+   cr\u00e8ches, script 36d) : la personne n'a plus rien \u00e0 ressaisir, et `ref`
+   \u2014 l'identifiant de sa fiche \u2014 permettra de rattacher ce r\u00e9sultat au bon
+   dossier. Les champs restent modifiables : une faute de frappe c\u00f4t\u00e9 cr\u00e8che
+   doit pouvoir se corriger ici. */
+const PARAMS=new URLSearchParams(location.search);
+const PRE={
+  prenom:(PARAMS.get('prenom')||'').trim(),
+  nom:(PARAMS.get('nom')||'').trim(),
+  statut:(PARAMS.get('statut')||'').trim(),
+  creche:(PARAMS.get('creche')||'').trim(),
+  ref:(PARAMS.get('ref')||'').trim()
+};
 
 const app=()=>document.getElementById('app');
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -225,8 +242,14 @@ function render(){
 function renderStart(){
   document.getElementById('header-chip').style.display='none';
   document.getElementById('hdr-title').textContent=quiz.titre;
-  const opts=CRECHES.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  const stOpts=STATUTS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  /* Une cr\u00e8che transmise qui ne figure pas dans la liste (renomm\u00e9e, nouveau
+     site) est ajout\u00e9e plut\u00f4t qu'ignor\u00e9e : sinon le champ retomberait sur
+     « Choisir » et l'information serait perdue en silence. */
+  const listeCreches=(PRE.creche&&!CRECHES.includes(PRE.creche))
+    ? [PRE.creche].concat(CRECHES) : CRECHES;
+  const sel=(v,c)=>v===c?' selected':'';
+  const opts=listeCreches.map(c=>`<option value="${esc(c)}"${sel(PRE.creche,c)}>${esc(c)}</option>`).join('');
+  const stOpts=STATUTS.map(c=>`<option value="${esc(c)}"${sel(PRE.statut,c)}>${esc(c)}</option>`).join('');
   app().innerHTML=`
   <div class="start-screen">
     <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
@@ -238,13 +261,13 @@ function renderStart(){
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Prénom</label>
-      <input class="form-input" id="inp-prenom" type="text" placeholder="ex : Marie" autocomplete="given-name"></div>
+      <input class="form-input" id="inp-prenom" type="text" placeholder="ex : Marie" autocomplete="given-name" value="${esc(PRE.prenom)}"></div>
       <div class="form-group"><label class="form-label">Nom</label>
-      <input class="form-input" id="inp-nom" type="text" placeholder="ex : Dupont" autocomplete="family-name"></div>
+      <input class="form-input" id="inp-nom" type="text" placeholder="ex : Dupont" autocomplete="family-name" value="${esc(PRE.nom)}"></div>
     </div>
     <div class="form-group"><label class="form-label">Je suis</label>
       <select class="form-select" id="inp-statut" onchange="onStatutChange()"><option value="">-- Choisir --</option>${stOpts}</select></div>
-    <div class="form-group" id="grp-creche" style="display:none"><label class="form-label">Crèche</label>
+    <div class="form-group" id="grp-creche"><label class="form-label">Crèche</label>
       <select class="form-select" id="inp-creche"><option value="">-- Choisir ma crèche --</option>${opts}</select></div>
     <div style="margin-top:1.5rem">
       <button class="btn purple" style="font-size:15px;padding:12px 36px" onclick="startQuiz()">Commencer le quiz →</button>
@@ -347,10 +370,21 @@ async function saveResults(score,pct){
   }));
   const el=()=>document.getElementById('save-status');
   try{
-    const{error}=await db.from('resultats').insert({
+    const ligne={
       quiz_id:quiz.id,prenom:user.prenom,nom:user.nom,creche:user.creche||null,statut:user.statut||null,
       score:score,total:questions.length,pourcentage:pct,detail:detail
-    });
+    };
+    /* La r\u00e9f\u00e9rence du dossier, quand le quiz a \u00e9t\u00e9 ouvert depuis un lien de
+       stage. Elle n'ouvre rien : elle sert \u00e0 rattacher ce r\u00e9sultat \u00e0 la bonne
+       fiche c\u00f4t\u00e9 application cr\u00e8ches. */
+    if(PRE.ref)ligne.ref=PRE.ref;
+    let{error}=await db.from('resultats').insert(ligne);
+    /* Colonne `ref` absente (script quiz-01 non ex\u00e9cut\u00e9) : on enregistre quand
+       m\u00eame le r\u00e9sultat plut\u00f4t que de le perdre \u2014 la personne a r\u00e9pondu. */
+    if(error&&/ref/i.test(error.message||'')){
+      delete ligne.ref;
+      ({error}=await db.from('resultats').insert(ligne));
+    }
     if(error)throw error;
     if(el()){el().textContent='✓ Résultat enregistré';el().className='save-status ok'}
   }catch(e){
@@ -374,20 +408,17 @@ function nextAction(){
   else{current++;render();}
 }
 function navigate(d){current=Math.max(0,Math.min(questions.length-1,current+d));render()}
-function onStatutChange(){
-  const st=document.getElementById('inp-statut').value;
-  const g=document.getElementById('grp-creche');
-  const show=st===STATUT_AVEC_CRECHE;
-  g.style.display=show?'':'none';
-  if(!show)document.getElementById('inp-creche').value='';
-}
+/* La cr\u00e8che est demand\u00e9e quel que soit le statut : la fonction n'a plus rien
+   \u00e0 masquer. Elle reste appel\u00e9e par le <select>, et sert de point d'accroche
+   si un statut devait un jour changer l'\u00e9cran. */
+function onStatutChange(){}
 function startQuiz(){
   const p=document.getElementById('inp-prenom').value.trim();
   const n=document.getElementById('inp-nom').value.trim();
   const st=document.getElementById('inp-statut').value;
-  const c=st===STATUT_AVEC_CRECHE?document.getElementById('inp-creche').value:'';
+  const c=document.getElementById('inp-creche').value;
   if(!p||!n||!st){alert('Merci de renseigner votre prénom, votre nom et votre statut avant de commencer.');return;}
-  if(st===STATUT_AVEC_CRECHE&&!c){alert('Merci de choisir votre crèche avant de commencer.');return;}
+  if(!c){alert('Merci de choisir votre crèche avant de commencer.');return;}
   user={prenom:p,nom:n,creche:c,statut:st};
   resetAnswers();state='quiz';render();
 }
