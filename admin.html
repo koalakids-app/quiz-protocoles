@@ -298,8 +298,21 @@ function mailCandidat(id){
     "06 59 73 80 14",'',
     "\u00c9lue meilleure enseigne 2026 pour la qualit\u00e9 de service (magazine Capital)"
   ].join('\r\n');
-  const href='mailto:?subject='+encodeURIComponent(objet)+'&body='+encodeURIComponent(corps);
-  const a=document.createElement('a');a.href=href;a.click();
+  /* Outlook (client lourd) plante silencieusement ou boucle indéfiniment sur un lien
+     mailto: dès que le sujet+corps encodés approchent ~2000 caractères (limite connue
+     de sa gestion des liens mailto:, cf. tickets Microsoft) — largement dépassé par ce
+     courrier type. On copie donc le corps dans le presse-papiers et on n'ouvre qu'un
+     mailto: minimal (sujet seul), pour que le message s'ouvre de façon fiable ; il ne
+     reste plus qu'à coller (Ctrl+V) le texte déjà copié. */
+  const href='mailto:?subject='+encodeURIComponent(objet);
+  const ouvrir=()=>{const a=document.createElement('a');a.href=href;a.click();};
+  navigator.clipboard.writeText(corps).then(()=>{
+    alert('Le texte du mail a été copié dans le presse-papiers.\nOutlook va s\'ouvrir : collez-le (Ctrl+V) dans le corps du message.');
+    ouvrir();
+  },()=>{
+    prompt('Copiez ce texte (Ctrl+C), puis collez-le dans le mail qui va s\'ouvrir :',corps);
+    ouvrir();
+  });
 }
 async function togglePublish(id,cur){
   const{error}=await db.from('quiz').update({publie:!cur}).eq('id',id);
