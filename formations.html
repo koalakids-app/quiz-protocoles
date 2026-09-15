@@ -242,6 +242,19 @@ if(!_sb||!_sb.createClient){
 }
 const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY);
 const app=()=>document.getElementById('app');
+
+/* Identifiant de la fiche collaborateur/trice (gestion-stock), transmis dans
+   le lien envoyé par la direction — même principe que `ref` sur index.html
+   (quiz) : sert uniquement à rattacher la lecture, jamais utilisé pour
+   afficher quoi que ce soit ici. */
+const PRE_REF=(new URLSearchParams(location.search).get('ref')||'').trim();
+let _luEnregistre=false;
+async function marquerLu(moduleId){
+  if(!PRE_REF||_luEnregistre)return;
+  _luEnregistre=true;
+  try{await db.from('formations_lu').upsert({module_id:moduleId,ref:PRE_REF},{onConflict:'module_id,ref'});}
+  catch(e){console.warn('[formations_lu]',e);}
+}
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mdBold=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
 
@@ -312,7 +325,9 @@ function showAccueil(){
 }
 
 /* ---------- VUE : MODULE ---------- */
+let _curModuleId=null;
 async function showModule(id){
+  _curModuleId=id;_luEnregistre=false;
   const{data:m,error}=await db.from('module').select('*').eq('id',id).single();
   if(error||!m)return erreur("Ce lien n'est pas valide ou le module n'est plus disponible.");
   if(!m.publie)return erreur("Ce module n'est pas encore publi\u00e9.");
@@ -341,6 +356,12 @@ async function showModule(id){
     </div>
     <p class="m-foot">Micro-formation Koalakids${nom?' \u00b7 '+esc(nom):''}</p></div>`;
   window.scrollTo(0,0);
+  // Module tenant enti\u00e8rement \u00e0 l'\u00e9cran : aucun \u00e9v\u00e9nement scroll ne se
+  // d\u00e9clenchera jamais, donc rien ne marquerait la lecture sans ce filet.
+  setTimeout(()=>{
+    const h=document.documentElement;
+    if(h.scrollHeight-h.clientHeight<=0)marquerLu(id);
+  },300);
 }
 
 function estimeTemps(blocs){
@@ -355,10 +376,16 @@ function estimeTemps(blocs){
 }
 
 /* ---------- BARRE DE LECTURE ---------- */
+/* La lecture est enregistrée dès que la barre atteint ~95% : c'est le seul
+   signal disponible sur une page de contenu sans quiz ni case à cocher. Un
+   module trop court pour produire de scroll (page tenant entièrement à
+   l'écran) est marqué lu directement, faute de quoi il ne le serait jamais. */
 addEventListener('scroll',()=>{
   const h=document.documentElement;
   const d=h.scrollHeight-h.clientHeight;
-  document.getElementById('readbar').style.width=(d>0?Math.min(100,h.scrollTop/d*100):0)+'%';
+  const pct=d>0?Math.min(100,h.scrollTop/d*100):100;
+  document.getElementById('readbar').style.width=pct+'%';
+  if(pct>=95&&_curModuleId)marquerLu(_curModuleId);
 });
 
 /* ---------- ROUTAGE ---------- */
