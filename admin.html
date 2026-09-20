@@ -263,8 +263,16 @@ function renderList(){
     ${tabs('quiz')}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;gap:12px;flex-wrap:wrap">
       <h2 style="font-size:20px;color:var(--purple)">Mes quiz</h2>
-      <button class="btn purple" onclick="newQuiz()">+ Nouveau quiz</button>
-    </div>${items}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="file" accept="application/json" id="import-json-input" style="display:none" onchange="importQuizJSON(this)">
+        <button class="btn" onclick="document.getElementById('import-json-input').click()">⇪ Importer JSON</button>
+        <button class="btn purple" onclick="newQuiz()">+ Nouveau quiz</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-light);margin:-1rem 0 1.25rem">
+      Format JSON attendu : un quiz — <code>{"titre","description","questions":[{"enonce","options":[...],"reponses":[0],"multi":false}]}</code>
+      — ou un tableau de plusieurs quiz. <code>reponses</code> contient les index (à partir de 0) des bonnes options.
+    </p>${items}
     <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Lien salariées : ${esc(base)}?quiz=IDENTIFIANT</p>`;
 }
 
@@ -325,6 +333,65 @@ async function deleteQuiz(id){
   const{error}=await db.from('quiz').delete().eq('id',id);
   if(error)return alert('Erreur : '+error.message);
   await loadQuizzes();
+}
+function importQuizJSON(input){
+  const f=input.files[0];
+  if(!f)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    let data;
+    try{data=JSON.parse(e.target.result);}
+    catch(err){alert('⚠ Fichier JSON invalide : '+err.message);input.value='';return;}
+    const quizList=Array.isArray(data)?data:[data];
+    for(const q of quizList){
+      if(!q||typeof q.titre!=='string'||!q.titre.trim()){
+        alert('⚠ Chaque quiz doit avoir un "titre" (texte non vide).');input.value='';return;
+      }
+      if(!Array.isArray(q.questions)||!q.questions.length){
+        alert(`⚠ Le quiz "${q.titre}" doit contenir un tableau "questions" non vide.`);input.value='';return;
+      }
+      for(let i=0;i<q.questions.length;i++){
+        const qq=q.questions[i];
+        if(!qq||typeof qq.enonce!=='string'||!qq.enonce.trim()){
+          alert(`⚠ Question ${i+1} du quiz "${q.titre}" : "enonce" manquant.`);input.value='';return;
+        }
+        if(!Array.isArray(qq.options)||qq.options.length<2){
+          alert(`⚠ Question ${i+1} du quiz "${q.titre}" : au moins 2 "options" sont requises.`);input.value='';return;
+        }
+        if(!Array.isArray(qq.reponses)||!qq.reponses.length||qq.reponses.some(r=>!Number.isInteger(r)||r<0||r>=qq.options.length)){
+          alert(`⚠ Question ${i+1} du quiz "${q.titre}" : "reponses" doit lister les index (0-based) des bonnes options.`);input.value='';return;
+        }
+      }
+    }
+    const nbQ=quizList.reduce((a,q)=>a+q.questions.length,0);
+    if(!confirm(`Importer ${quizList.length} quiz (${nbQ} question${nbQ>1?'s':''}) ?`)){input.value='';return;}
+    try{
+      for(const q of quizList){
+        const{data:qrow,error:qerr}=await db.from('quiz').insert({
+          titre:q.titre.trim(),description:(q.description||'').trim(),publie:!!q.publie
+        }).select().single();
+        if(qerr)throw qerr;
+        const payload=q.questions.map((qq,i)=>({
+          quiz_id:qrow.id,
+          enonce:qq.enonce.trim(),
+          options:qq.options.map(o=>String(o)),
+          reponses:qq.reponses,
+          multi:!!qq.multi,
+          ordre:i,
+          image_url:qq.image_url||null,
+          image_alt:qq.image_alt||null
+        }));
+        const{error:qsErr}=await db.from('questions').insert(payload);
+        if(qsErr)throw qsErr;
+      }
+      alert('✓ Import terminé.');
+      await loadQuizzes();
+    }catch(err){
+      alert('⚠ Erreur pendant l\'import : '+err.message);
+    }
+    input.value='';
+  };
+  reader.readAsText(f);
 }
 async function newQuiz(){
   const titre=prompt('Titre du nouveau quiz :');
