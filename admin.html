@@ -538,7 +538,7 @@ async function loadQuizzes(){
 
 function renderList(){
   const base=quizBase();
-  const items=quizzes.length?quizzes.map(q=>`
+  const carte=q=>`
     <div class="question-card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
@@ -558,7 +558,14 @@ function renderList(){
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openEnvoi('quiz','${q.id}')">✉ Envoyer par mail</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteQuiz('${q.id}')">Supprimer</button>
       </div>
-    </div>`).join(''):`<div class="center-msg">Aucun quiz. Créez le premier.</div>`;
+    </div>`;
+  const GROUPES=[['pedagogie','Projet pédagogique'],['protocoles','Protocoles']];
+  const rang=q=>Number.isInteger(q.ordre)?q.ordre:9999;
+  const sections=GROUPES.map(([code,nom])=>[nom,quizzes.filter(q=>q.bloc===code).sort((x,y)=>rang(x)-rang(y))]);
+  const autres=quizzes.filter(q=>!GROUPES.some(([c])=>c===q.bloc));
+  if(autres.length)sections.push([sections.some(([,l])=>l.length)?'Autres quiz':'Mes quiz',autres]);
+  const items=quizzes.length?sections.filter(([,l])=>l.length).map(([nom,l])=>`
+    <h3 style="font-size:15px;font-weight:700;color:var(--purple);margin:1.5rem 0 .75rem;padding-bottom:6px;border-bottom:2px solid var(--purple-light)">${esc(nom)} <span style="font-weight:500;color:var(--text-light);font-size:13px">· ${l.length} quiz</span></h3>${l.map(carte).join('')}`).join(''):`<div class="center-msg">Aucun quiz. Créez le premier.</div>`;
   app().innerHTML=`
     ${tabs('quiz')}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;gap:12px;flex-wrap:wrap">
