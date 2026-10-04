@@ -15,10 +15,11 @@ language sql
 security definer
 set search_path = public
 as $$
-  select m.id, t.quiz_id, q.titre
+  select m.id, q.id, q.titre
   from public.module m
   left join public.theme t on t.id = m.theme_id
-  left join public.quiz q on q.id = t.quiz_id
+  -- theme.quiz_id est de type text, quiz.id de type uuid : comparaison en texte
+  left join public.quiz q on q.id::text = t.quiz_id::text
   where m.id = any(p_ids);
 $$;
 
