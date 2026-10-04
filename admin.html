@@ -169,6 +169,7 @@ const app=()=>document.getElementById('app');
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche='',filterStatut='';
 let themes=[],curTheme=null,curModules=[];
+let curAxes=[],allModules=[];
 
 async function boot(){
   const{data}=await db.auth.getSession();
@@ -545,7 +546,7 @@ function renderList(){
           <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(q.description)}</p>
           <p style="font-size:12px;color:var(--text-light);margin-top:6px">
             ${q._c.q} question${q._c.q>1?'s':''} · ${q._c.r} résultat${q._c.r>1?'s':''} ·
-            <span style="color:${q.publie?'var(--success-text)':'var(--text-light)'}">${q.publie?'● Publié':'○ Brouillon'}</span>
+            ${q.mode==='profil'?'<span style="color:var(--purple);font-weight:600">Profil sans note</span> · ':''}<span style="color:${q.publie?'var(--success-text)':'var(--text-light)'}">${q.publie?'● Publié':'○ Brouillon'}</span>
           </p>
         </div>
       </div>
@@ -570,7 +571,7 @@ function renderList(){
     </div>
     <p style="font-size:12px;color:var(--text-light);margin:-1rem 0 1.25rem">
       Format JSON attendu : un quiz — <code>{"titre","description","questions":[{"enonce","options":[...],"reponses":[0],"multi":false}]}</code>
-      — ou un tableau de plusieurs quiz. <code>reponses</code> contient les index (à partir de 0) des bonnes options.
+      — ou un tableau de plusieurs quiz. Quiz de profil (sans note) : ajouter <code>"mode":"profil"</code>, <code>"axes":[{"code","libelle","texte_appui","texte_construction","texte_accompagner"}]</code> et, pour chaque question, <code>"type_question"</code>, <code>"axe"</code> et <code>"lectures"</code> (une valeur « appui », « construction » ou « accompagner » par option) à la place de <code>reponses</code>. <code>reponses</code> contient les index (à partir de 0) des bonnes options.
     </p>${items}
     <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Lien salariées : ${esc(base)}?quiz=IDENTIFIANT</p>`;
 }
@@ -657,7 +658,12 @@ function importQuizJSON(input){
         if(!Array.isArray(qq.options)||qq.options.length<2){
           alert(`⚠ Question ${i+1} du quiz "${q.titre}" : au moins 2 "options" sont requises.`);input.value='';return;
         }
-        if(!Array.isArray(qq.reponses)||!qq.reponses.length||qq.reponses.some(r=>!Number.isInteger(r)||r<0||r>=qq.options.length)){
+        if(q.mode==='profil'){
+          const okL=Array.isArray(qq.lectures)&&qq.lectures.length===qq.options.length&&qq.lectures.every(l=>['appui','construction','accompagner'].includes(l));
+          if(!okL){alert(`⚠ Question ${i+1} du quiz "${q.titre}" : "lectures" doit contenir une valeur (appui, construction ou accompagner) par option.`);input.value='';return;}
+          if(typeof qq.axe!=='string'||!qq.axe.trim()){alert(`⚠ Question ${i+1} du quiz "${q.titre}" : "axe" manquant.`);input.value='';return;}
+        }
+        if(q.mode!=='profil'&&(!Array.isArray(qq.reponses)||!qq.reponses.length||qq.reponses.some(r=>!Number.isInteger(r)||r<0||r>=qq.options.length))){
           alert(`⚠ Question ${i+1} du quiz "${q.titre}" : "reponses" doit lister les index (0-based) des bonnes options.`);input.value='';return;
         }
       }
@@ -667,21 +673,27 @@ function importQuizJSON(input){
     try{
       for(const q of quizList){
         const{data:qrow,error:qerr}=await db.from('quiz').insert({
-          titre:q.titre.trim(),description:(q.description||'').trim(),publie:!!q.publie
+          titre:q.titre.trim(),description:(q.description||'').trim(),publie:!!q.publie,...(q.mode==='profil'?{mode:'profil',bloc:q.bloc||null,ordre:Number.isInteger(q.ordre)?q.ordre:null}:{})
         }).select().single();
         if(qerr)throw qerr;
         const payload=q.questions.map((qq,i)=>({
           quiz_id:qrow.id,
           enonce:qq.enonce.trim(),
           options:qq.options.map(o=>String(o)),
-          reponses:qq.reponses,
+          reponses:Array.isArray(qq.reponses)?qq.reponses:[],
           multi:!!qq.multi,
           ordre:i,
           image_url:qq.image_url||null,
-          image_alt:qq.image_alt||null
+          image_alt:qq.image_alt||null,
+          ...(q.mode==='profil'?{type_question:qq.type_question||null,axe:qq.axe.trim(),lectures:qq.lectures}:{})
         }));
         const{error:qsErr}=await db.from('questions').insert(payload);
         if(qsErr)throw qsErr;
+        if(q.mode==='profil'&&Array.isArray(q.axes)&&q.axes.length){
+          const axPayload=q.axes.map((a,k)=>({quiz_id:qrow.id,code:String(a.code).trim(),libelle:String(a.libelle||a.code),ordre:Number.isInteger(a.ordre)?a.ordre:k+1,texte_appui:a.texte_appui||null,texte_construction:a.texte_construction||null,texte_accompagner:a.texte_accompagner||null}));
+          const{error:axErr}=await db.from('axe_formation').insert(axPayload);
+          if(axErr)throw axErr;
+        }
       }
       alert('✓ Import terminé.');
       await loadQuizzes();
@@ -706,15 +718,18 @@ async function openQuiz(id){
   const{data,error}=await db.from('questions').select('*').eq('quiz_id',id).order('ordre');
   if(error)return alert('Erreur : '+error.message);
   curQuestions=data||[];
+  curAxes=[];allModules=[];
+  if(curQuiz.mode==='profil')await chargerAxesEdit(id);
   view='edit';render();
 }
 
 function renderEdit(){
+  const isP=curQuiz.mode==='profil';
   const qs=curQuestions.map((q,i)=>{
     const opts=q.options.map((o,j)=>`
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-        <input type="${q.multi?'checkbox':'radio'}" name="ans-${i}" ${q.reponses.includes(j)?'checked':''}
-          onchange="setAnswer(${i},${j},this.checked)" style="width:16px;height:16px;accent-color:var(--orange);flex-shrink:0">
+        ${isP?lectureSelect(i,j,q):`<input type="${q.multi?'checkbox':'radio'}" name="ans-${i}" ${q.reponses.includes(j)?'checked':''}
+          onchange="setAnswer(${i},${j},this.checked)" style="width:16px;height:16px;accent-color:var(--orange);flex-shrink:0">`}
         <span style="font-size:12px;font-weight:700;color:var(--text-muted);width:14px">${letters[j]}</span>
         <input class="form-input" style="padding:6px 10px;font-size:13px" value="${esc(o)}"
           onchange="setOption(${i},${j},this.value)">
@@ -724,7 +739,7 @@ function renderEdit(){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">
         <span class="q-badge" style="margin:0">Question ${i+1}</span>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <label style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px">
+          <label style="font-size:12px;color:var(--text-muted);display:${isP?'none':'flex'};align-items:center;gap:4px">
             <input type="checkbox" ${q.multi?'checked':''} onchange="setMulti(${i},this.checked)"
               style="accent-color:var(--purple)"> Plusieurs réponses</label>
           <button class="btn" style="padding:4px 9px;font-size:12px" onclick="moveQ(${i},-1)" ${i===0?'disabled':''}>↑</button>
@@ -734,6 +749,7 @@ function renderEdit(){
       </div>
       <textarea class="form-input" rows="2" style="font-size:14px;margin-bottom:10px;resize:vertical"
         onchange="setEnonce(${i},this.value)">${esc(q.enonce)}</textarea>
+      ${isP?metaProfil(i,q):''}
       <div style="margin-bottom:12px">
         ${q.image_url?`<img src="${esc(q.image_url)}" alt="" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:6px">`:''}
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
@@ -757,6 +773,7 @@ function renderEdit(){
       <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label>
         <input class="form-input" id="qz-desc" value="${esc(curQuiz.description)}"></div>
     </div>
+    ${isP?panneauAxes():''}
     ${qs||'<div class="center-msg">Aucune question. Ajoutez la première.</div>'}
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem">
       <button class="btn" onclick="addQ()">+ Ajouter une question</button>
@@ -794,16 +811,17 @@ function setAnswer(i,j,checked){
     q.reponses=checked?[...new Set([...q.reponses,j])].sort((a,b)=>a-b):q.reponses.filter(x=>x!==j);
   }else q.reponses=[j];
 }
-function addOption(i){curQuestions[i].options.push('');renderEdit()}
+function addOption(i){const q=curQuestions[i];q.options.push('');if(Array.isArray(q.lectures))q.lectures.push('construction');renderEdit()}
 function delOption(i,j){
   const q=curQuestions[i];
   q.options.splice(j,1);
+  if(Array.isArray(q.lectures))q.lectures.splice(j,1);
   q.reponses=q.reponses.filter(x=>x!==j).map(x=>x>j?x-1:x);
-  if(!q.reponses.length)q.reponses=[0];
+  if(!q.reponses.length&&curQuiz.mode!=='profil')q.reponses=[0];
   renderEdit();
 }
 function addQ(){
-  curQuestions.push({quiz_id:curQuiz.id,enonce:'Nouvelle question',options:['','','',''],reponses:[0],multi:false,image_url:null,image_alt:null,ordre:curQuestions.length,_new:true});
+  curQuestions.push({quiz_id:curQuiz.id,enonce:'Nouvelle question',options:['','','',''],reponses:curQuiz.mode==='profil'?[]:[0],multi:false,image_url:null,image_alt:null,ordre:curQuestions.length,_new:true,...(curQuiz.mode==='profil'?{type_question:'situation',axe:(curAxes[0]&&curAxes[0].code)||null,lectures:['appui','construction','accompagner','accompagner']}:{})});
   renderEdit();
 }
 function delQ(i){
@@ -839,6 +857,7 @@ async function saveAll(){
     for(let i=0;i<curQuestions.length;i++){
       const q=curQuestions[i];
       const payload={quiz_id:curQuiz.id,enonce:q.enonce,options:q.options,reponses:q.reponses,multi:q.multi,ordre:i,image_url:q.image_url||null,image_alt:q.image_alt||null};
+      if(curQuiz.mode==='profil'){payload.type_question=q.type_question||null;payload.axe=q.axe||null;payload.lectures=q.lectures||null;}
       if(q.id){
         const r=await db.from('questions').update(payload).eq('id',q.id);
         if(r.error)throw r.error;
@@ -849,6 +868,7 @@ async function saveAll(){
       }
       q.ordre=i;
     }
+    if(curQuiz.mode==='profil')await sauverAxes();
     msg.className='save-status ok';msg.textContent='✓ Modifications enregistrées';
   }catch(e){
     msg.className='save-status err';msg.textContent='⚠ '+e.message;
@@ -868,6 +888,7 @@ function filtered(){
     (!filterStatut||(r.statut||'')===filterStatut));
 }
 function renderResults(){
+  if(curQuiz&&curQuiz.mode==='profil')return renderResultsProfil();
   const list=filtered();
   const creches=[...new Set(results.map(r=>r.creche).filter(Boolean))].sort();
   const statuts=[...new Set(results.map(r=>r.statut).filter(Boolean))].sort();
@@ -927,6 +948,7 @@ function renderResults(){
 }
 
 function showDetail(id){
+  if(curQuiz&&curQuiz.mode==='profil'){const rp=results.find(x=>x.id===id);if(rp)return detailProfil(rp);}
   const r=results.find(x=>x.id===id);
   if(!r||!r.detail)return alert('Aucun détail enregistré pour ce résultat.');
   const ko=r.detail.filter(d=>!d.correct);
@@ -935,6 +957,7 @@ function showDetail(id){
 }
 
 function exportCSV(){
+  if(curQuiz&&curQuiz.mode==='profil')return exportCSVProfil();
   const list=filtered();
   const head=['Prénom','Nom','Statut','Crèche','Date','Score','Total','Pourcentage','Questions ratées'];
   const lines=[head.join(';')];
@@ -947,6 +970,158 @@ function exportCSV(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='resultats-'+curQuiz.titre.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.csv';
+  a.click();
+}
+
+/* ==========================================================
+   QUIZ DE PROFIL (sans note) — édition et résultats
+   ========================================================== */
+const NIV_ADM={
+  appui:{label:"Point d'appui",c:'var(--success-text)',bg:'var(--success-bg)'},
+  construction:{label:'En construction',c:'var(--purple)',bg:'var(--purple-light)'},
+  accompagner:{label:'À accompagner',c:'var(--orange-dark)',bg:'var(--orange-light)'}
+};
+const TYPES_ADM={situation:'Mise en situation',connaissance:'Connaissance',auto:'Auto-positionnement'};
+const chipNiv=n=>{const v=NIV_ADM[n];return v?`<span style="display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${v.bg};color:${v.c};white-space:nowrap">${v.label}</span>`:'<span style="color:var(--text-light)">—</span>'};
+
+async function chargerAxesEdit(id){
+  const a=await db.from('axe_formation').select('*').eq('quiz_id',id).order('ordre');
+  curAxes=a.error?[]:(a.data||[]);
+  const m=await db.from('module').select('id,titre,theme_id,publie').order('titre');
+  allModules=m.error?[]:(m.data||[]);
+}
+function lectureSelect(i,j,q){
+  const v=(q.lectures||[])[j]||'construction';
+  return `<select class="form-select" style="width:auto;padding:5px 8px;font-size:12px;flex-shrink:0" onchange="setLecture(${i},${j},this.value)">${['appui','construction','accompagner'].map(n=>`<option value="${n}" ${v===n?'selected':''}>${NIV_ADM[n].label}</option>`).join('')}</select>`;
+}
+function setLecture(i,j,v){
+  const q=curQuestions[i];
+  if(!Array.isArray(q.lectures))q.lectures=q.options.map(()=>'construction');
+  q.lectures[j]=v;
+}
+function setAxeQ(i,v){curQuestions[i].axe=v}
+function setTypeQ(i,v){curQuestions[i].type_question=v}
+function metaProfil(i,q){
+  const ax=curAxes.map(a=>`<option value="${esc(a.code)}" ${q.axe===a.code?'selected':''}>${esc(a.libelle)}</option>`).join('')
+    +(q.axe&&!curAxes.some(a=>a.code===q.axe)?`<option value="${esc(q.axe)}" selected>${esc(q.axe)}</option>`:'');
+  const ty=Object.keys(TYPES_ADM).map(k=>`<option value="${k}" ${q.type_question===k?'selected':''}>${TYPES_ADM[k]}</option>`).join('');
+  return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <select class="form-select" style="width:auto;padding:5px 8px;font-size:12px" onchange="setTypeQ(${i},this.value)">${ty}</select>
+    <select class="form-select" style="width:auto;max-width:100%;padding:5px 8px;font-size:12px" onchange="setAxeQ(${i},this.value)">${ax}</select>
+    <span style="font-size:12px;color:var(--text-light);align-self:center">Chaque option porte une lecture (à droite de la lettre).</span>
+  </div>`;
+}
+function setAxeChamp(k,champ,v){curAxes[k][champ]=v}
+function panneauAxes(){
+  if(!curAxes.length)return `<div class="question-card" style="margin-bottom:1rem"><strong>Axes de formation</strong>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Aucun axe défini pour ce quiz. Importez le quiz avec ses axes (JSON) ou exécutez le script SQL du thème.</p></div>`;
+  const optsMod=a=>['<option value="">— Aucun (formation à créer) —</option>'].concat(allModules.map(m=>`<option value="${esc(m.id)}" ${a.module_id===m.id?'selected':''}>${esc(m.titre)}${m.publie?'':' (brouillon)'}</option>`)).join('');
+  const ta=(k,champ,lib,val)=>`<div class="form-group" style="margin:8px 0 0"><label class="form-label" style="font-size:11px">${lib}</label>
+    <textarea class="form-input" rows="2" style="font-size:13px;resize:vertical" onchange="setAxeChamp(${k},'${champ}',this.value)">${esc(val)}</textarea></div>`;
+  const cartes=curAxes.map((a,k)=>`<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:10px;background:var(--surface-2)">
+      <div style="font-size:11px;color:var(--text-light)">Code : ${esc(a.code)}</div>
+      <div class="form-group" style="margin:6px 0 0"><label class="form-label" style="font-size:11px">Libellé de l'axe</label>
+        <input class="form-input" style="font-size:14px" value="${esc(a.libelle)}" onchange="setAxeChamp(${k},'libelle',this.value)"></div>
+      <div class="form-group" style="margin:8px 0 0"><label class="form-label" style="font-size:11px">Formation liée (parcours proposé à la personne)</label>
+        <select class="form-select" style="font-size:13px" onchange="setAxeChamp(${k},'module_id',this.value||null)">${optsMod(a)}</select></div>
+      ${ta(k,'texte_appui',"Texte si « point d'appui »",a.texte_appui)}
+      ${ta(k,'texte_construction','Texte si « en construction »',a.texte_construction)}
+      ${ta(k,'texte_accompagner','Texte si « à accompagner »',a.texte_accompagner)}
+    </div>`).join('');
+  return `<div class="question-card" style="margin-bottom:1.25rem"><strong>Axes de formation</strong>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Ce que la personne lit sur son profil, et la formation proposée quand l'axe est « en construction » ou « à accompagner ».</p>${cartes}</div>`;
+}
+async function sauverAxes(){
+  for(const a of curAxes){
+    const r=await db.from('axe_formation').update({
+      libelle:a.libelle,texte_appui:a.texte_appui||null,texte_construction:a.texte_construction||null,
+      texte_accompagner:a.texte_accompagner||null,module_id:a.module_id||null
+    }).eq('id',a.id);
+    if(r.error)throw r.error;
+  }
+}
+
+const axesDe=r=>(r&&r.detail&&Array.isArray(r.detail.axes))?r.detail.axes:[];
+function axesVus(){
+  const vus=[];
+  results.forEach(r=>axesDe(r).forEach(a=>{if(!vus.some(x=>x.code===a.code))vus.push({code:a.code,libelle:a.libelle})}));
+  return vus;
+}
+function renderResultsProfil(){
+  const list=filtered();
+  const creches=[...new Set(results.map(r=>r.creche).filter(Boolean))].sort();
+  const statuts=[...new Set(results.map(r=>r.statut).filter(Boolean))].sort();
+  const vus=axesVus();
+  const nomCourt=r=>`${esc(r.prenom)} ${esc(r.nom)}`;
+  const synth=vus.map(ax=>{
+    const par={appui:[],construction:[],accompagner:[]};
+    list.forEach(r=>{const a=axesDe(r).find(x=>x.code===ax.code);if(a&&par[a.niveau])par[a.niveau].push(nomCourt(r));});
+    const n=par.appui.length+par.construction.length+par.accompagner.length;
+    const pct=k=>n?Math.round(par[k].length/n*100):0;
+    const barre=['appui','construction','accompagner'].map(k=>par[k].length?`<div title="${NIV_ADM[k].label} : ${par[k].length}" style="width:${pct(k)}%;background:${NIV_ADM[k].bg};color:${NIV_ADM[k].c};font-size:11px;font-weight:700;text-align:center;padding:3px 0;overflow:hidden">${par[k].length}</div>`:'').join('');
+    return `<div style="padding:10px 4px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px"><strong style="font-size:13px">${esc(ax.libelle)}</strong>
+        <span style="font-size:12px;color:var(--text-muted)">${n} personne${n>1?'s':''}</span></div>
+      <div style="display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border)">${barre||'<div style="padding:3px 8px;font-size:11px;color:var(--text-light)">—</div>'}</div>
+      ${par.accompagner.length?`<div style="font-size:12px;color:var(--orange-dark);margin-top:6px"><strong>À accompagner :</strong> ${par.accompagner.join(', ')}</div>`:''}
+      ${par.construction.length?`<div style="font-size:12px;color:var(--purple);margin-top:3px"><strong>En construction :</strong> ${par.construction.join(', ')}</div>`:''}
+    </div>`;
+  }).join('');
+  const rows=list.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px;font-size:13px"><strong>${nomCourt(r)}</strong></td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.statut||'—')}</td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche||'—')}</td>
+      <td style="padding:8px;font-size:12px;color:var(--text-muted);white-space:nowrap">${new Date(r.passe_le).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})}</td>
+      ${vus.map(ax=>{const a=axesDe(r).find(x=>x.code===ax.code);return `<td style="padding:8px;text-align:center">${chipNiv(a&&a.niveau)}</td>`}).join('')}
+      <td style="padding:8px;text-align:right"><button class="btn" style="padding:3px 8px;font-size:11px" onclick="showDetail('${r.id}')">Détail</button></td>
+    </tr>`).join('');
+  app().innerHTML=`
+    <button class="btn" style="margin-bottom:1rem" onclick="view='list';loadQuizzes()">← Retour</button>
+    <h2 style="font-size:19px;color:var(--purple);margin-bottom:.25rem">${esc(curQuiz.titre)}</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">${list.length} profil${list.length>1?'s':''} · quiz sans note</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1;min-width:220px;max-width:320px">
+        <label class="form-label">Filtrer par statut</label>
+        <select class="form-select" onchange="filterStatut=this.value;renderResults()">
+          <option value="">Tous les statuts</option>
+          ${statuts.map(c=>`<option value="${esc(c)}" ${c===filterStatut?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:220px;max-width:320px">
+        <label class="form-label">Filtrer par crèche</label>
+        <select class="form-select" onchange="filterCreche=this.value;renderResults()">
+          <option value="">Toutes les crèches</option>
+          ${creches.map(c=>`<option value="${esc(c)}" ${c===filterCreche?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem"><button class="btn" onclick="exportCSV()">Exporter en CSV</button></div>
+    ${list.length?`<h3 style="font-size:15px;color:var(--purple);margin:.5rem 0">Besoins par axe de formation</h3>
+      <div class="question-card" style="padding:8px 12px;margin-bottom:1.25rem">${synth}</div>
+      <h3 style="font-size:15px;color:var(--purple);margin:.5rem 0">Profil de chaque personne</h3>
+      <div class="question-card" style="padding:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <tr style="text-align:left;font-size:11px;color:var(--text-light);text-transform:uppercase"><th style="padding:6px 8px">Personne</th><th style="padding:6px 8px">Statut</th><th style="padding:6px 8px">Crèche</th><th style="padding:6px 8px">Date</th>${vus.map(a=>`<th style="padding:6px 8px;text-align:center">${esc(a.libelle)}</th>`).join('')}<th></th></tr>
+        ${rows}</table></div>`:'<div class="center-msg">Aucun profil pour ce filtre.</div>'}`;
+}
+function detailProfil(r){
+  const ax=axesDe(r);
+  if(!ax.length)return alert('Aucun détail enregistré pour ce résultat.');
+  const txt=ax.map(a=>`${a.libelle} : ${(NIV_ADM[a.niveau]||{}).label||a.niveau} (appui ${a.appui}, en construction ${a.construction}, à accompagner ${a.accompagner})`).join('\n');
+  alert(`${r.prenom} ${r.nom}\n\n${txt}`);
+}
+function exportCSVProfil(){
+  const list=filtered(),vus=axesVus();
+  const head=['Prénom','Nom','Statut','Crèche','Date'].concat(vus.map(a=>a.libelle));
+  const lines=[head.join(';')];
+  list.forEach(r=>{
+    const niv=vus.map(ax=>{const a=axesDe(r).find(x=>x.code===ax.code);return a?((NIV_ADM[a.niveau]||{}).label||a.niveau):''});
+    lines.push([r.prenom,r.nom,r.statut||'',r.creche||'',new Date(r.passe_le).toLocaleString('fr-FR')].concat(niv)
+      .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';'));
+  });
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='profils-'+curQuiz.titre.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.csv';
   a.click();
 }
 

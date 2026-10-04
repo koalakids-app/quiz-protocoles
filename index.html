@@ -138,6 +138,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 .quiz-item h3{font-size:15px;font-weight:700;color:var(--text)}
 .quiz-item p{font-size:13px;color:var(--text-muted);margin-top:2px}
 .quiz-item .chev{color:var(--orange);font-size:18px;flex-shrink:0}
+/* PROFIL (sans note) */
+.profil{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:2rem 1.5rem}
+.profil h2{font-size:22px;font-weight:700;color:var(--purple);text-align:center;margin-bottom:4px}
+.profil .profil-sub{text-align:center;color:var(--text-muted);font-size:14px;margin-bottom:1rem}
+.profil h3{font-size:15px;font-weight:700;color:var(--purple);margin:1.75rem 0 .75rem}
+.axe-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
+.axe-card p{font-size:14px;color:var(--text-muted);margin-top:6px;line-height:1.55}
+.axe-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.axe-head strong{font-size:15px}
+.axe-chip{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 10px;border-radius:20px;border:1px solid;white-space:nowrap}
+.parcours-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+.parcours-item strong{font-size:15px}
+.parcours-niv{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--orange-dark);margin-left:8px}
+.parcours-mod{font-size:13px;color:var(--text-muted);margin-top:2px}
+.parcours-vide{font-size:14px;color:var(--text-muted)}
+.parcours-item a.btn{text-decoration:none;white-space:nowrap}
+@media print{.app-header,.result-actions,.save-status{display:none!important}body{background:white}.profil{border:none;padding:0}}
 </style>
 </head>
 <body>
@@ -172,6 +189,7 @@ const letters=['A','B','C','D','E','F'];
 
 let state='loading',quiz=null,questions=[],current=0,answers=[],revealed=[];
 let user={prenom:'',nom:'',creche:'',statut:''};
+let axes=[],modulesAxes={};
 
 /* Ce que le dossier de stage peut transmettre dans l'adresse (application
    cr\u00e8ches, script 36d) : la personne n'a plus rien \u00e0 ressaisir, et `ref`
@@ -215,6 +233,8 @@ async function boot(){
       const r=await db.from('questions').select('*').eq('quiz_id',quiz.id).order('ordre');
       if(r.error||!r.data.length)return fail("Ce quiz ne contient aucune question.");
       questions=r.data;
+      axes=[];modulesAxes={};
+      if(quiz.mode==='profil')await chargerAxes();
       resetAnswers();
       state='start';
     }else{
@@ -257,7 +277,7 @@ function renderStart(){
     <p class="subtitle">${esc(quiz.description||'')}</p>
     <div class="start-meta">
       <div class="start-meta-item"><div class="dot"></div>${questions.length} questions</div>
-      <div class="start-meta-item"><div class="dot"></div>Corrigé immédiat</div>
+      <div class="start-meta-item"><div class="dot"></div>${isProfil()?'Sans note ni bonne réponse':'Corrigé immédiat'}</div>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Prénom</label>
@@ -277,6 +297,7 @@ function renderStart(){
 }
 
 function renderQuiz(){
+  if(isProfil())return renderQuizProfil();
   const q=questions[current],isAnswered=revealed[current],isLast=current===questions.length-1;
   const chip=document.getElementById('header-chip');
   chip.style.display='block';
@@ -329,6 +350,7 @@ function renderQuiz(){
 }
 
 function renderResults(){
+  if(isProfil())return renderProfil();
   const score=getScore(),pct=Math.round(score/questions.length*100),wrong=questions.length-score;
   let icon,mention,col;
   if(pct>=80){icon='🎉';mention='Excellent !';col='var(--success-text)'}
@@ -403,6 +425,12 @@ function choose(i){
   render();
 }
 function nextAction(){
+  if(isProfil()){
+    if(!hasAnswer(current))return;
+    if(current===questions.length-1){state='results';render();}
+    else{current++;render();}
+    return;
+  }
   if(!revealed[current]){if(!hasAnswer(current))return;revealed[current]=true;render();}
   else if(current===questions.length-1){state='results';render();}
   else{current++;render();}
@@ -422,6 +450,179 @@ function startQuiz(){
   user={prenom:p,nom:n,creche:c,statut:st};
   resetAnswers();state='quiz';render();
 }
+/* ===== MODE PROFIL (sans note) =====
+   Aucune bonne ou mauvaise réponse : chaque option porte une « lecture »
+   (point d'appui / en construction / à accompagner) et chaque question un
+   « axe » de formation. Le résultat est un profil par axe, pas un score. */
+const NIVEAUX={
+  appui:{label:"Point d'appui",ordre:0,couleur:'var(--success-text)',fond:'var(--success-bg)',bord:'var(--success-border)'},
+  construction:{label:'En construction',ordre:1,couleur:'var(--purple)',fond:'var(--purple-light)',bord:'rgba(74,63,159,.35)'},
+  accompagner:{label:'À accompagner',ordre:2,couleur:'var(--orange-dark)',fond:'var(--orange-light)',bord:'var(--border-strong)'}
+};
+const TYPES_Q={situation:'Mise en situation',connaissance:'Connaissance',auto:'Je me positionne'};
+const AIDES_Q={
+  situation:"Choisis ce que tu fais le plus souvent, pas ce qu'il faudrait faire.",
+  connaissance:"Choisis la réponse qui te paraît la plus juste. Si tu hésites, c'est une information utile pour la formation.",
+  auto:"Choisis la réponse qui te ressemble le plus, sans te juger."
+};
+function isProfil(){return !!quiz&&quiz.mode==='profil'}
+
+async function chargerAxes(){
+  try{
+    const a=await db.from('axe_formation').select('*').eq('quiz_id',quiz.id).order('ordre');
+    axes=a.error?[]:(a.data||[]);
+    const ids=axes.map(x=>x.module_id).filter(Boolean);
+    modulesAxes={};
+    if(ids.length){
+      const m=await db.from('module').select('id,titre,accroche').in('id',ids).eq('publie',true);
+      (m.data||[]).forEach(x=>{modulesAxes[x.id]=x});
+    }
+  }catch(e){axes=[];modulesAxes={}}
+}
+function lectureReponse(i){
+  const q=questions[i],a=answers[i];
+  if(a===null||a===undefined||!Array.isArray(q.lectures))return null;
+  return q.lectures[a]||null;
+}
+/* Niveau d'un axe = la lecture la plus fréquente parmi les réponses.
+   À égalité : si « point d'appui » et « à accompagner » arrivent à égalité, le
+   profil est « en construction » (réponses mêlées) ; sinon le besoin le plus fort
+   l'emporte. */
+function niveauAxe(c){
+  const max=Math.max(c.appui,c.construction,c.accompagner);
+  const tete=['accompagner','construction','appui'].filter(n=>c[n]===max);
+  if(tete.includes('appui')&&tete.includes('accompagner'))return 'construction';
+  return tete[0];
+}
+function calculerProfil(){
+  const parAxe={};
+  questions.forEach((q,i)=>{
+    const l=lectureReponse(i);
+    if(!l||!NIVEAUX[l])return;
+    const code=q.axe||'general';
+    const o=parAxe[code]||(parAxe[code]={code:code,appui:0,construction:0,accompagner:0,total:0});
+    o[l]++;o.total++;
+  });
+  const liste=Object.values(parAxe).map(o=>{
+    const def=axes.find(a=>a.code===o.code)||{};
+    o.def=def;o.libelle=def.libelle||o.code;o.ordre=def.ordre==null?99:def.ordre;
+    o.module_id=def.module_id||null;o.niveau=niveauAxe(o);
+    return o;
+  });
+  liste.sort((a,b)=>a.ordre-b.ordre);
+  return liste;
+}
+function lienModule(id){
+  let u=location.href.split('?')[0].split('#')[0];
+  u=u.replace(/\/index(\.html)?\/?$/i,'/formations.html');
+  if(!/formations\.html$/i.test(u))u=u.replace(/\/?$/,'/formations.html');
+  return u+'?module='+encodeURIComponent(id)+(PRE.ref?'&ref='+encodeURIComponent(PRE.ref):'');
+}
+
+function renderQuizProfil(){
+  const q=questions[current],isLast=current===questions.length-1;
+  const chip=document.getElementById('header-chip');
+  chip.style.display='block';chip.textContent=user.prenom;
+  const sel=answers[current];
+  const optsHtml=q.options.map((o,i)=>`<div class="option${sel===i?' selected':''}" onclick="choose(${i})"><div class="option-letter">${letters[i]}</div><div class="option-text">${esc(o)}</div></div>`).join('');
+  const type=TYPES_Q[q.type_question]||'';
+  const aide=AIDES_Q[q.type_question]||'';
+  app().innerHTML=`
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-label">Question ${current+1} sur ${questions.length}</span>
+      <span class="progress-count">${Math.round((current+1)/questions.length*100)}%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${(current+1)/questions.length*100}%"></div></div>
+  </div>
+  <div class="question-card">
+    <div class="q-badge">${type?esc(type):'Question '+(current+1)}</div>
+    <div class="q-text">${esc(q.enonce)}</div>
+    ${q.image_url?`<img src="${esc(q.image_url)}" alt="${esc(q.image_alt||'')}" loading="lazy" style="display:block;width:100%;max-height:300px;object-fit:contain;background:#f6f6f8;border:1px solid var(--border);border-radius:10px;margin:0 0 1rem">`:''}
+    <div class="options">${optsHtml}</div>
+    ${aide?`<p style="font-size:12px;color:var(--text-light);margin-top:12px">${esc(aide)}</p>`:''}
+  </div>
+  <div class="nav">
+    <button class="btn" onclick="navigate(-1)" ${current===0?'disabled':''}>← Précédent</button>
+    <span class="pager">${current+1} / ${questions.length}</span>
+    <button class="btn primary" onclick="nextAction()" ${hasAnswer(current)?'':'disabled'}>${isLast?'Voir mon profil →':'Suivant →'}</button>
+  </div>`;
+}
+
+function renderProfil(){
+  document.getElementById('header-chip').style.display='none';
+  const profil=calculerProfil();
+  const now=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const cartes=profil.map(p=>{
+    const n=NIVEAUX[p.niveau];
+    const texte=p.def['texte_'+p.niveau]||'';
+    return `<div class="axe-card" style="border-left:5px solid ${n.bord}">
+      <div class="axe-head"><strong>${esc(p.libelle)}</strong><span class="axe-chip" style="background:${n.fond};color:${n.couleur};border-color:${n.bord}">${n.label}</span></div>
+      ${texte?`<p>${esc(texte)}</p>`:''}
+    </div>`;
+  }).join('');
+  const aSuivre=profil.filter(p=>p.niveau!=='appui')
+    .sort((a,b)=>NIVEAUX[b.niveau].ordre-NIVEAUX[a.niveau].ordre||a.ordre-b.ordre);
+  const parcours=aSuivre.length?aSuivre.map(p=>{
+    const m=p.module_id?modulesAxes[p.module_id]:null;
+    return `<div class="parcours-item"><div><strong>${esc(p.libelle)}</strong><span class="parcours-niv">${NIVEAUX[p.niveau].label}</span>
+      <div class="parcours-mod">${m?esc(m.titre):'Une formation sur mesure te sera proposée.'}</div></div>
+      ${m?`<a class="btn purple" href="${esc(lienModule(m.id))}" target="_blank" rel="noopener">Ouvrir</a>`:''}</div>`;
+  }).join(''):`<p class="parcours-vide">Sur ce thème, tu t'appuies déjà sur des repères solides : aucune formation n'est à prévoir pour l'instant.</p>`;
+  app().innerHTML=`
+  <div class="profil">
+    <div class="result-icon" style="text-align:center">🧭</div>
+    <h2>Ton profil</h2>
+    <p class="profil-sub">${esc(quiz.titre)}</p>
+    <div class="result-user-recap">
+      <strong>${esc(user.prenom)} ${esc(user.nom)}</strong>
+      ${esc(user.statut)}${user.creche?' · '+esc(user.creche):''} · ${now}
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);text-align:center">Ce profil n'est pas une note : il montre sur quoi tu t'appuies déjà et ce qui peut t'aider à progresser.</p>
+    <h3>Ce qui ressort, axe par axe</h3>
+    ${cartes||'<p class="parcours-vide">Aucune réponse à analyser.</p>'}
+    <h3>Mon parcours de formation</h3>
+    ${parcours}
+    <div id="save-status" class="save-status">Enregistrement en cours…</div>
+    <div class="result-actions">
+      <button class="btn purple" onclick="window.print()">Imprimer mon profil</button>
+      <button class="btn" onclick="restartQuiz()">Recommencer</button>
+    </div>
+  </div>`;
+  saveResultsProfil(profil);
+}
+
+async function saveResultsProfil(profil){
+  const detail={
+    mode:'profil',
+    axes:profil.map(p=>({code:p.code,libelle:p.libelle,niveau:p.niveau,appui:p.appui,construction:p.construction,accompagner:p.accompagner})),
+    reponses:questions.map((q,i)=>({
+      ordre:q.ordre,enonce:q.enonce,axe:q.axe||null,type:q.type_question||null,
+      choix:answers[i],reponse:answers[i]==null?null:q.options[answers[i]],lecture:lectureReponse(i)
+    }))
+  };
+  const el=()=>document.getElementById('save-status');
+  try{
+    /* score/total/pourcentage restent obligatoires dans la table : 0 pour un
+       profil, qui n'a pas de note. Les quiz de profil sont exclus de la
+       fonction kk_resultats_par_ref (partie 4 du script SQL). */
+    const ligne={
+      quiz_id:quiz.id,prenom:user.prenom,nom:user.nom,creche:user.creche||null,statut:user.statut||null,
+      score:0,total:questions.length,pourcentage:0,detail:detail
+    };
+    if(PRE.ref)ligne.ref=PRE.ref;
+    let{error}=await db.from('resultats').insert(ligne);
+    if(error&&/ref/i.test(error.message||'')){
+      delete ligne.ref;
+      ({error}=await db.from('resultats').insert(ligne));
+    }
+    if(error)throw error;
+    if(el()){el().textContent='✓ Profil enregistré';el().className='save-status ok'}
+  }catch(e){
+    if(el()){el().textContent='⚠ Erreur d\'enregistrement : '+e.message;el().className='save-status err'}
+  }
+}
+
 function restartQuiz(){resetAnswers();state='start';render()}
 function reviewErrors(){
   const errs=questions.reduce((a,_,i)=>{if(!isCorrect(i))a.push(i);return a;},[]);
