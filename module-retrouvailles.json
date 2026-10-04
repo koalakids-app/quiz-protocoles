@@ -1,0 +1,150 @@
+{
+  "module": {
+    "titre": "Les retrouvailles du soir",
+    "accroche": "17 h 30. L'enfant a tenu toute la journée. Le parent arrive, et c'est là que ça éclate. Ce moment se prépare aussi."
+  },
+  "blocs": [
+    {
+      "type": "texte",
+      "contenu": {
+        "titre": "",
+        "paragraphes": [
+          "Il est 17 h 30. Tom, qui a joué toute la journée sans un souci, voit son père passer la porte. Il se jette par terre et hurle parce que son manteau est « du mauvais côté ». Son père, épuisé, vous lance un regard qui veut dire : « qu'est-ce que vous lui avez fait ? »",
+          "Vous connaissez aussi cette scène. Elle est moins parlée que celle du matin, et elle est pourtant presque aussi fréquente. Ce module est la suite du précédent : il parle de l'autre bout de la journée, et de ce que vous pouvez faire pour que parent et enfant se retrouvent dans de bonnes conditions."
+        ]
+      }
+    },
+    {
+      "type": "texte",
+      "contenu": {
+        "titre": "Pourquoi c'est maintenant que ça sort",
+        "paragraphes": [
+          "Un enfant en collectivité se retient beaucoup : il attend son tour, partage l'espace, s'adapte au bruit, aux adultes, au rythme du groupe. Il tient, parfois très bien, parce qu'il s'appuie sur vous.",
+          "Quand la personne la plus importante pour lui réapparaît, il peut enfin relâcher. Ce qu'il a gardé toute la journée sort, **et il le dépose chez le parent précisément parce que c'est avec lui qu'il se sent le plus en sécurité**. Les cris de 17 h 30 ne disent pas que la journée s'est mal passée. Ils disent souvent que l'enfant a retrouvé quelqu'un devant qui il peut se lâcher."
+        ]
+      }
+    },
+    {
+      "type": "reflexion",
+      "contenu": {
+        "question": "Quand un parent vous dit « Il ne fait jamais ça à la maison » ou « C'est après la crèche que c'est difficile », que ressentez-vous en premier ?",
+        "sous_titre": "De la culpabilité, de l'agacement, un besoin de vous justifier ? Le repérer aide à répondre autrement.",
+        "placeholder": "Écrivez ce qui vous vient. Personne ne lira cette réponse."
+      }
+    },
+    {
+      "type": "scenes",
+      "contenu": {
+        "titre": "Trois retrouvailles que vous reconnaîtrez",
+        "items": [
+          {
+            "lettre": "A",
+            "titre": "Il court vers sa mère, puis s'effondre",
+            "texte": "Léa a guetté la porte pendant dix minutes. Sa mère arrive, la serre dans ses bras, et Léa se met à pleurer à chaudes larmes. La mère, désemparée : « Mais elle était contente de me voir ! »",
+            "analyse": "les larmes sont souvent celles de la séparation de la journée, enfin autorisées à sortir. Ce n'est pas un rejet. Accueillez-les comme telles : « Elle a eu besoin de vous toute la journée, et maintenant vous êtes là. »"
+          },
+          {
+            "lettre": "B",
+            "titre": "Il ignore son père et continue de jouer",
+            "texte": "Lucas ne lève pas les yeux quand son père arrive. « Pas maintenant ! » Le père, vexé, lance : « Alors je m'en vais. »",
+            "analyse": "il ne s'agit ni de désintérêt ni de bouderie. L'enfant a parfois besoin de finir ce qu'il fait ou de passer d'un lieu à l'autre en douceur. Laisser une minute, nommer l'étape (« Dans une minute, on range et on va chercher ton manteau »), évite le bras de fer."
+          },
+          {
+            "lettre": "C",
+            "titre": "Le parent presse, l'enfant se crispe",
+            "texte": "La mère de Tom a un rendez-vous dans vingt minutes. Elle enfile le manteau en vitesse. Tom se raidit, puis s'effondre. La mère, honteuse devant les autres parents, s'excuse à voix basse.",
+            "analyse": "plus le parent est pressé, plus l'enfant le sent, et plus il résiste. Vous ne pouvez pas rallonger la journée du parent. Vous pouvez en revanche lui donner une ou deux minutes de calme, et lui montrer que l'on voit ce qu'il traverse."
+          }
+        ]
+      }
+    },
+    {
+      "type": "citation",
+      "contenu": {
+        "texte": "Le parent qui arrive n'est pas un jury.\nIl vient chercher son enfant, pas une évaluation."
+      }
+    },
+    {
+      "type": "texte",
+      "contenu": {
+        "titre": "Ce que vous pouvez préparer avant l'arrivée",
+        "paragraphes": [
+          "Les retrouvailles se jouent en partie dans la demi-heure qui précède. Quelques gestes simples changent beaucoup de choses : prévenir l'enfant que « bientôt, papa arrive », l'aider à ranger et à rassembler ses affaires avant, éviter le démarrage d'une activité qui ne pourra pas se terminer.",
+          "Côté parent, c'est aussi un moment où il est souvent fatigué, en retard, parfois inquiet de ce qu'on va lui dire. La première phrase que vous prononcez donne le ton de la suite."
+        ]
+      }
+    },
+    {
+      "type": "comparaison",
+      "contenu": {
+        "intro": "Le transfert du soir tient souvent en quelques phrases. Voici des formulations à vous approprier, pas à réciter.",
+        "plutot": [
+          "**Au parent, en premier :** « Il vous attendait. Il a bien mangé, il a fait une belle sieste, et il a joué avec les voitures. »",
+          "**Au parent qui s'excuse des pleurs :** « Ce sont des retrouvailles, c'est normal que ça sorte. Prenez le temps. »",
+          "**À l'enfant qui résiste :** « Tu n'as pas envie de partir. Je comprends. On met le manteau ensemble, et tu pourras revenir demain. »",
+          "**Quand il y a un souci à signaler :** une seule chose, concrète, au moment où le parent peut l'entendre (pas au milieu des cris)."
+        ],
+        "eviter": [
+          "« Là, tout de suite, il fait un caprice. » : ça met le parent en position d'accusé.",
+          "« Il a été infernal aujourd'hui. » : l'enfant entend, et le parent repart avec un poids.",
+          "Énumérer toute la journée d'un coup alors que le parent a l'esprit ailleurs.",
+          "Comparer : « Avec nous, il est sage. »"
+        ]
+      }
+    },
+    {
+      "type": "reflexion",
+      "contenu": {
+        "question": "Un parent vous dit, devant les autres : « Je ne comprends pas, avec moi il hurle et avec vous il est adorable. » Que lui répondez-vous ?",
+        "sous_titre": "Cette phrase peut se prendre comme un compliment. Elle contient surtout de la peine.",
+        "placeholder": "Écrivez ce qui vous vient. Personne ne lira cette réponse."
+      }
+    },
+    {
+      "type": "texte",
+      "contenu": {
+        "titre": "Quand un parent est à bout, lui aussi",
+        "paragraphes": [
+          "Certains soirs, c'est le parent qui n'en peut plus : retard, journée dure, enfant qui refuse tout. Il peut paraître sec, pressé, voire agacé contre vous. Ce n'est presque jamais personnel.",
+          "Vous n'avez pas à tout absorber, ni à le conseiller dans l'urgence. Mais **un mot d'accueil, une phrase qui dit « je vois que c'est dur »**, et quelques secondes de patience, peuvent changer le climat de la soirée pour toute la famille."
+        ]
+      }
+    },
+    {
+      "type": "retenir",
+      "contenu": {
+        "titre": "À retenir",
+        "points": [
+          "Les pleurs de retrouvailles disent souvent un lien et un relâchement, pas une mauvaise journée.",
+          "Un enfant se lâche devant la personne avec qui il se sent le plus en sécurité.",
+          "Préparer la fin de journée (prévenir, ranger, rassembler) rend les retrouvailles plus douces.",
+          "Commencer par ce qui s'est bien passé, avant tout le reste.",
+          "Ne pas juger devant les autres : ni l'enfant, ni le parent.",
+          "Laisser un peu de temps vaut mieux que presser."
+        ]
+      }
+    },
+    {
+      "type": "essayer",
+      "contenu": {
+        "label": "À essayer cette semaine",
+        "titre": "Une phrase d'accueil, un temps de transition",
+        "etapes": [
+          {
+            "titre": "Observer",
+            "texte": "Pendant trois soirs, repérez les arrivées qui se passent difficilement. Notez ce que vous dites en premier, et ce que fait le parent."
+          },
+          {
+            "titre": "Essayer",
+            "texte": "Un soir, ouvrez le transfert par une phrase positive et concrète (« Il vous attendait, il a joué avec les cubes »), puis laissez une minute avant de parler du reste."
+          },
+          {
+            "titre": "Rapporter",
+            "texte": "Au prochain point d'équipe, partagez ce que vous avez remarqué. Pas comme une réussite ou un échec : comme une observation à discuter."
+          }
+        ],
+        "note": "Cet exercice n'est pas évalué. Il n'a d'intérêt que s'il est fait honnêtement, y compris quand ça ne marche pas."
+      }
+    }
+  ]
+}
