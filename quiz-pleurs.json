@@ -1,0 +1,117 @@
+{
+  "titre": "Quiz de validation : accompagner les pleurs (séparation et retrouvailles)",
+  "description": "À faire une fois les deux modules suivis. Seuil de réussite : 80 %.",
+  "publie": false,
+  "questions": [
+    {
+      "enonce": "Un enfant pleure fort à la séparation. Que peut-on en conclure le plus souvent ?",
+      "options": [
+        "Il est mal attaché à son parent.",
+        "Il fait un caprice pour obtenir que le parent reste.",
+        "Il proteste parce que le lien compte : c'est un signal de détresse normal.",
+        "Il n'est pas prêt pour la collectivité."
+      ],
+      "reponses": [2],
+      "multi": false
+    },
+    {
+      "enonce": "Léa pleure encore à dix heures. Qu'est-ce qui l'aide le plus ?",
+      "options": [
+        "Multiplier les propositions de jeu pour la distraire.",
+        "Rester à proximité sans forcer le contact, verbaliser, proposer un point d'ancrage (doudou, coin calme).",
+        "La poser sur le tapis et s'éloigner pour qu'elle s'habitue.",
+        "L'ignorer jusqu'à ce qu'elle se calme."
+      ],
+      "reponses": [1],
+      "multi": false
+    },
+    {
+      "enonce": "Une adaptation difficile dure depuis plus de trois semaines. Que faire ?",
+      "options": [
+        "Attendre : cela finira par passer.",
+        "La reprendre en équipe et avec la famille (rythme du matin, horaires, référence, situation à la maison).",
+        "Conseiller au parent de retirer l'enfant de la structure.",
+        "Éviter d'en parler au parent pour ne pas l'inquiéter."
+      ],
+      "reponses": [1],
+      "multi": false
+    },
+    {
+      "enonce": "Quelles formulations sont à privilégier face à un enfant qui pleure à la séparation ? (plusieurs réponses)",
+      "options": [
+        "« Tu es triste que maman parte. Elle revient après la sieste. »",
+        "« Ne t'inquiète pas, ça va passer. »",
+        "« Tu regardes la porte. Maman n'est pas là, moi je suis là. »",
+        "« Regarde, il y a les copains ! »"
+      ],
+      "reponses": [0, 2],
+      "multi": true
+    },
+    {
+      "enonce": "Un parent veut partir en cachette pour « éviter les pleurs ». Que lui expliquez-vous ?",
+      "options": [
+        "C'est une bonne idée : moins de pleurs sur le moment.",
+        "Cela apprend à l'enfant qu'on peut disparaître à tout moment : il surveille la porte toute la journée. Un départ annoncé donne une sécurité qui dure.",
+        "Cela n'a aucune conséquence à long terme.",
+        "Cela ne marche que pour les enfants de plus de deux ans."
+      ],
+      "reponses": [1],
+      "multi": false
+    },
+    {
+      "enonce": "Le parent revient trois fois pour un « dernier bisou ». Quelle attitude est la plus juste ?",
+      "options": [
+        "Le presser de partir en lui disant qu'il aggrave les choses.",
+        "Lui dire que cela fait pleurer l'enfant plus longtemps.",
+        "L'autoriser à partir en le rassurant : « Vous pouvez y aller, je reste avec elle. Je vous envoie un message dans une demi-heure. »",
+        "Fermer la porte sans rien dire."
+      ],
+      "reponses": [2],
+      "multi": false
+    },
+    {
+      "enonce": "Quel est votre rôle face aux pleurs ?",
+      "options": [
+        "Les faire cesser le plus vite possible.",
+        "Être là pendant qu'ils durent et les traverser avec l'enfant.",
+        "Les ignorer pour ne pas les encourager.",
+        "Les détourner par une activité."
+      ],
+      "reponses": [1],
+      "multi": false
+    },
+    {
+      "enonce": "À 17 h 30, un enfant joyeux toute la journée éclate en sanglots à l'arrivée de son père. Comment l'interpréter le plus souvent ?",
+      "options": [
+        "La journée s'est mal passée et l'équipe a manqué quelque chose.",
+        "L'enfant rejette son père.",
+        "L'enfant peut enfin relâcher ce qu'il a retenu toute la journée, auprès de la personne avec qui il se sent le plus en sécurité.",
+        "L'enfant manipule ses parents."
+      ],
+      "reponses": [2],
+      "multi": false
+    },
+    {
+      "enonce": "Quelle est la meilleure façon d'ouvrir le transfert du soir avec un parent ?",
+      "options": [
+        "Commencer par ce qui n'a pas marché, pour être transparent.",
+        "Raconter toute la journée dans le détail dès son arrivée.",
+        "Commencer par quelque chose de positif et de concret (« Il vous attendait, il a joué avec les voitures »), puis ne signaler qu'un point à la fois, au bon moment.",
+        "Comparer : « Avec nous, il est sage. »"
+      ],
+      "reponses": [2],
+      "multi": false
+    },
+    {
+      "enonce": "Vous sentez que vous ne tenez plus face aux pleurs d'un enfant. Que faites-vous ?",
+      "options": [
+        "Vous gardez cela pour vous et tenez bon, en silence.",
+        "Vous demandez à une collègue de prendre le relais, puis vous en parlez en équipe : c'est protéger la qualité de l'accueil.",
+        "Vous isolez l'enfant le temps qu'il se calme.",
+        "Vous attendez que cela passe seule."
+      ],
+      "reponses": [1],
+      "multi": false
+    }
+  ]
+}
