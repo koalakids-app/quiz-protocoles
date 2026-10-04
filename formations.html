@@ -215,6 +215,20 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-fig img{width:100%;border-radius:12px;border:1px solid var(--border);display:block}
 .m-fig figcaption{font-size:12px;color:var(--text-light);text-align:center;margin-top:6px;font-style:italic}
 .m-end-actions a.btn{text-decoration:none}
+.p-nav{font-size:13px;color:var(--text-muted);margin:0 0 1rem}
+.p-nav a{color:var(--purple);font-weight:600;text-decoration:none}
+.p-list{display:flex;flex-direction:column;gap:10px;margin:1.25rem 0}
+.p-item{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;text-decoration:none;color:inherit}
+.p-item:hover{border-color:var(--orange)}
+.p-num{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:var(--purple);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.p-item.lu .p-num{background:#2E8B57}
+.p-item h4{font-size:15px;font-weight:700;color:var(--purple);margin:0 0 3px}
+.p-item p{font-size:13px;color:var(--text-muted);margin:0;line-height:1.5}
+.p-lu{font-size:12px;color:#2E8B57;font-weight:700;margin-top:4px}
+.p-bar{position:sticky;bottom:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-top:1rem;box-shadow:0 -4px 14px rgba(74,63,159,.10)}
+.p-bar a.btn,.p-bar span.btn{text-decoration:none;padding:9px 14px;font-size:13.5px}
+.p-bar .off{opacity:.35;pointer-events:none}
+.p-bar .pos{font-size:12.5px;color:var(--text-muted);font-weight:600;text-align:center}
 @media(max-width:480px){.cat-intro{padding:1.5rem 1.25rem}.cat-intro h1{font-size:20px}}
 
 </style>
@@ -324,6 +338,61 @@ function showAccueil(){
   </div></div>`;
 }
 
+/* ---------- PARCOURS (liens groupés) ---------- */
+/* Le paramètre ref (lien personnel) et quiz (quiz de fin de parcours, facultatif)
+   sont conservés d'un module à l'autre. */
+const PRE_QUIZ=(new URLSearchParams(location.search).get('quiz')||'').trim();
+function lienPage(page,params){
+  const q=new URLSearchParams();
+  Object.keys(params).forEach(k=>q.set(k,params[k]));
+  if(PRE_REF)q.set('ref',PRE_REF);
+  return page+'?'+q.toString();
+}
+const lienModule=id=>lienPage('formations.html',PRE_QUIZ?{module:id,quiz:PRE_QUIZ}:{module:id});
+const lienTheme=id=>lienPage('formations.html',PRE_QUIZ?{theme:id,quiz:PRE_QUIZ}:{theme:id});
+const lienQuiz=()=>lienPage('index.html',{quiz:PRE_QUIZ});
+
+async function modulesDuTheme(themeId){
+  const{data}=await db.from('module').select('id,titre,accroche,ordre').eq('theme_id',themeId).eq('publie',true).order('ordre');
+  return data||[];
+}
+
+async function showTheme(id){
+  _curModuleId=null;
+  const{data:t,error}=await db.from('theme').select('*').eq('id',id).single();
+  if(error||!t)return erreur("Ce lien n'est pas valide ou la formation n'est plus disponible.");
+  const mods=await modulesDuTheme(id);
+  if(!mods.length)return erreur("Cette formation n'est pas encore disponible.");
+  let lus=new Set();
+  if(PRE_REF){
+    try{
+      const{data:l}=await db.from('formations_lu').select('module_id').eq('ref',PRE_REF);
+      (l||[]).forEach(x=>lus.add(x.module_id));
+    }catch(e){}
+  }
+  setHead(t.nom,'Formation Koalakids',mods.length+' module'+(mods.length>1?'s':''));
+  document.title=t.nom+' \u2014 Koalakids';
+  const prochain=mods.find(m=>!lus.has(m.id))||mods[0];
+  const dejaCommence=lus.size>0&&prochain!==mods[0];
+  app().innerHTML=`<div class="container">
+    <div class="m-hero">
+      <div class="m-tag">Formation</div>
+      <h2>${esc(t.nom)}</h2>
+      ${t.description?`<p>${mdBold(t.description)}</p>`:''}
+    </div>
+    <p class="p-nav">${mods.length} module${mods.length>1?'s':''} \u00e0 suivre dans l'ordre. Vous pouvez vous arr\u00eater et reprendre quand vous voulez.</p>
+    <div class="p-list">${mods.map((m,i)=>`
+      <a class="p-item${lus.has(m.id)?' lu':''}" href="${esc(lienModule(m.id))}">
+        <div class="p-num">${lus.has(m.id)?'\u2713':i+1}</div>
+        <div><h4>${esc(m.titre)}</h4>${m.accroche?`<p>${mdBold(m.accroche)}</p>`:''}${lus.has(m.id)?'<div class="p-lu">Lu</div>':''}</div>
+      </a>`).join('')}</div>
+    <div class="m-end-actions" style="margin-bottom:1rem">
+      <a class="btn primary" href="${esc(lienModule(prochain.id))}">${dejaCommence?'Reprendre : ':'Commencer : '}${esc(prochain.titre)}</a>
+    </div>
+    <p class="m-foot">Micro-formation Koalakids \u00b7 ${esc(t.nom)}</p></div>`;
+  window.scrollTo(0,0);
+}
+
 /* ---------- VUE : MODULE ---------- */
 let _curModuleId=null;
 async function showModule(id){
@@ -337,12 +406,20 @@ async function showModule(id){
   if(e2)return erreur(e2.message);
 
   const nom=t?t.nom:'';
+  // Position dans le parcours (modules publiés du même thème)
+  let freres=[];
+  try{freres=await modulesDuTheme(m.theme_id);}catch(e){}
+  const pos=freres.findIndex(x=>x.id===id);
+  const suivant=pos>=0?freres[pos+1]:null;
+  const precedent=pos>0?freres[pos-1]:null;
+  const enParcours=freres.length>1&&pos>=0;
   setHead(m.titre,'Micro-formation'+(nom?' \u00b7 '+nom:''),'\u2248 '+estimeTemps(blocs||[])+' min');
   document.title=m.titre+' \u2014 Koalakids';
 
   app().innerHTML=`<div class="container">
     <div class="m-hero">
       ${nom?`<div class="m-tag">Th\u00e8me : ${esc(nom)}</div>`:''}
+      ${enParcours?`<p class="p-nav" style="margin:0 0 .5rem">Module ${pos+1} sur ${freres.length} \u00b7 <a href="${esc(lienTheme(m.theme_id))}">Voir tous les modules</a></p>`:''}
       <h2>${esc(m.titre)}</h2>
       ${m.accroche?`<p>${mdBold(m.accroche)}</p>`:''}
     </div>
@@ -351,10 +428,18 @@ async function showModule(id){
       <h3>Vous avez termin\u00e9 ce module</h3>
       <p>Prenez le temps d'essayer ce qui vous a parl\u00e9. Vous pouvez y revenir quand vous voulez.</p>
       <div class="m-end-actions">
+        ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Module suivant : ${esc(suivant.titre)} \u2192</a>`:''}
+        ${!suivant&&enParcours&&PRE_QUIZ?`<a class="btn primary" href="${esc(lienQuiz())}">Passer le quiz de validation \u2192</a>`:''}
         <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Relire depuis le d\u00e9but</button>
+        ${enParcours?`<a class="btn" href="${esc(lienTheme(m.theme_id))}">Tous les modules</a>`:''}
       </div>
     </div>
-    <p class="m-foot">Micro-formation Koalakids${nom?' \u00b7 '+esc(nom):''}</p></div>`;
+    <p class="m-foot">Micro-formation Koalakids${nom?' \u00b7 '+esc(nom):''}</p>
+    ${enParcours?`<div class="p-bar">
+      ${precedent?`<a class="btn" href="${esc(lienModule(precedent.id))}">\u2190 Pr\u00e9c\u00e9dent</a>`:'<span class="btn off">\u2190 Pr\u00e9c\u00e9dent</span>'}
+      <span class="pos">Module ${pos+1} / ${freres.length}</span>
+      ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Suivant \u2192</a>`:(PRE_QUIZ?`<a class="btn primary" href="${esc(lienQuiz())}">Passer le quiz \u2192</a>`:'<span class="btn off">Suivant \u2192</span>')}
+    </div>`:''}</div>`;
   window.scrollTo(0,0);
   // Module tenant enti\u00e8rement \u00e0 l'\u00e9cran : aucun \u00e9v\u00e9nement scroll ne se
   // d\u00e9clenchera jamais, donc rien ne marquerait la lecture sans ce filet.
@@ -390,8 +475,9 @@ addEventListener('scroll',()=>{
 
 /* ---------- ROUTAGE ---------- */
 function route(){
-  const id=new URLSearchParams(location.search).get('module');
-  if(id)showModule(id);else showAccueil();
+  const q=new URLSearchParams(location.search);
+  const id=q.get('module'),th=q.get('theme');
+  if(id)showModule(id);else if(th)showTheme(th);else showAccueil();
 }
 addEventListener('popstate',route);
 route();

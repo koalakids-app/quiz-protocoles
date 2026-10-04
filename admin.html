@@ -207,6 +207,9 @@ const memeMail=s=>String(s||'').trim().toLowerCase();
 function modeleMessage(kind,titre){
   return `Bonjour {prenom},\n\nVous trouverez ci-dessous le lien à suivre pour réaliser ${kind==='quiz'?'le quiz':'la formation'} « ${titre} » :\n\n{lien}\n\nMerci de le faire dans les meilleurs délais.\n\nCordialement,\nL'équipe Koalakids`;
 }
+function modeleParcours(nom,nb){
+  return `Bonjour {prenom},\n\nVous trouverez ci-dessous le lien de la formation « ${nom} ». Elle se compose de ${nb} modules courts, à suivre dans l'ordre : le lien ouvre le premier module, puis chaque module vous propose d'enchaîner avec le suivant. Vous pouvez vous arrêter et reprendre quand vous voulez depuis ce même lien.\n\n{lien}\n\nMerci de la suivre dans les meilleurs délais.\n\nCordialement,\nL'équipe Koalakids`;
+}
 const MODELE_CANDIDAT=[
  "Bonjour {civilite} {nom},","",
  "Je fais suite à votre candidature au poste de [intitulé du poste] au sein de notre micro-crèche Koalakids [crèche]. Je vous propose d'échanger lors d'un entretien le [jour] [date] à [heure], sur notre micro-crèche située au [adresse].","",
@@ -400,7 +403,7 @@ function envApercu(){
 function envModele(type){
   if(!confirm('Remplacer le message actuel par ce modèle ?'))return;
   if(type==='candidat'){ENV.message=MODELE_CANDIDAT;ENV.objet='Votre candidature — entretien et questionnaire préparatoire';}
-  else{ENV.message=modeleMessage(ENV.kind,ENV.titre);ENV.objet=ENV.kind==='quiz'?'Votre questionnaire - Koalakids':'Votre formation - Koalakids';}
+  else{ENV.message=ENV.parcours?modeleParcours(ENV.parcours.nom,ENV.parcours.nb):modeleMessage(ENV.kind,ENV.titre);ENV.objet=ENV.kind==='quiz'?'Votre questionnaire - Koalakids':'Votre formation - Koalakids';}
   document.getElementById('env-message').value=ENV.message;
   document.getElementById('env-objet').value=ENV.objet;
   envApercu();
@@ -979,6 +982,7 @@ function renderThemes(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="btn primary" style="padding:7px 14px;font-size:13px" onclick="openTheme('${t.id}')">Ouvrir (${t._n})</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="editTheme('${t.id}')">Renommer</button>
+        <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyThemeLink('${t.id}')">🔗 Lien du parcours</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteTheme('${t.id}')">Supprimer</button>
       </div>
     </div>`).join(''):`<div class="center-msg">Aucun thème pour l'instant. Créez le premier.</div>`;
@@ -1077,6 +1081,8 @@ function renderModules(){
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;gap:12px;flex-wrap:wrap">
       <h2 style="font-size:20px;color:var(--purple)">${esc(curTheme.nom)}</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="copyThemeLink('${curTheme.id}')">🔗 Copier le lien du parcours</button>
+        <button class="btn" onclick="envoyerParcours()">✉ Envoyer le parcours par mail</button>
         <button class="btn" onclick="importModuleJSON()">⇩ Importer (JSON IA)</button>
         <button class="btn purple" onclick="newModule()">+ Nouveau module</button>
       </div>
@@ -1270,6 +1276,47 @@ function copyModuleLink(id){
   navigator.clipboard.writeText(url).then(
     ()=>alert('Lien copi\u00e9 :\n'+url+avert),
     ()=>prompt('Copiez ce lien :',url));
+}
+
+async function copyThemeLink(themeId){
+  const t=themes.find(x=>x.id===themeId)||(curTheme&&curTheme.id===themeId?curTheme:null);
+  let url=moduleBase()+'?theme='+themeId;
+  // Quiz de fin de parcours (facultatif) : proposé après le dernier module.
+  let qs=quizzes;
+  if(!qs||!qs.length){
+    try{const{data}=await db.from('quiz').select('id,titre,publie').order('cree_le',{ascending:false});qs=data||[];}catch(e){qs=[];}
+  }
+  qs=qs.filter(q=>q.publie);
+  if(qs.length){
+    const rep=prompt('Quiz proposé à la fin du parcours (facultatif).\nTapez le numéro, ou laissez vide pour aucun :\n\n'+qs.map((q,i)=>(i+1)+'. '+q.titre).join('\n'),'');
+    const n=parseInt(rep,10);
+    if(n>=1&&n<=qs.length)url+='&quiz='+qs[n-1].id;
+  }
+  let avert='';
+  try{
+    const{data:ms}=await db.from('module').select('publie').eq('theme_id',themeId);
+    const brouillons=(ms||[]).filter(m=>!m.publie).length;
+    if(!(ms||[]).some(m=>m.publie))avert='\n\n\u26a0 Aucun module publié : le lien ne fonctionnera pas.';
+    else if(brouillons)avert='\n\n\u26a0 '+brouillons+' module'+(brouillons>1?'s':'')+' en brouillon : '+(brouillons>1?'ne seront':'ne sera')+' pas visible'+(brouillons>1?'s':'')+' dans le parcours.';
+  }catch(e){}
+  navigator.clipboard.writeText(url).then(
+    ()=>alert('Lien du parcours copié :\n'+url+avert),
+    ()=>prompt('Copiez ce lien :',url));
+}
+
+function envoyerParcours(){
+  const pub=curModules.filter(m=>m.publie);
+  if(!pub.length)return alert('Publiez au moins un module : le lien envoyé ne fonctionnerait pas.');
+  if(pub.length<curModules.length&&!confirm((curModules.length-pub.length)+' module(s) sont encore en brouillon et ne seront pas dans le parcours.\n\nContinuer ?'))return;
+  // Le mail part avec le lien du premier module (lien personnel, géré par le serveur) ;
+  // chaque module propose ensuite le suivant.
+  openEnvoi('module',pub[0].id);
+  if(ENV){
+    ENV.parcours={nom:curTheme.nom,nb:pub.length};
+    ENV.titre=curTheme.nom+' (parcours de '+pub.length+' module'+(pub.length>1?'s':'')+')';
+    ENV.objet='Votre formation - Koalakids';
+    ENV.message=modeleParcours(curTheme.nom,pub.length);
+  }
 }
 
 async function editContent(id){
