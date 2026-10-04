@@ -1083,6 +1083,7 @@ function renderModules(){
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="copyThemeLink('${curTheme.id}')">🔗 Copier le lien du parcours</button>
         <button class="btn" onclick="envoyerParcours()">✉ Envoyer le parcours par mail</button>
+        <button class="btn" onclick="choisirQuizTheme()">🎯 Quiz de fin${curTheme.quiz_id?' ✓':''}</button>
         <button class="btn" onclick="importModuleJSON()">⇩ Importer (JSON IA)</button>
         <button class="btn purple" onclick="newModule()">+ Nouveau module</button>
       </div>
@@ -1278,20 +1279,28 @@ function copyModuleLink(id){
     ()=>prompt('Copiez ce lien :',url));
 }
 
+async function choisirQuizTheme(){
+  let qs=[];
+  try{const{data,error}=await db.from('quiz').select('id,titre,publie').order('cree_le',{ascending:false});if(error)throw error;qs=(data||[]).filter(q=>q.publie);}
+  catch(e){return alert('Erreur : '+e.message);}
+  if(!qs.length)return alert('Aucun quiz publié. Publiez d’abord le quiz de validation.');
+  const actuel=qs.findIndex(q=>String(q.id)===String(curTheme.quiz_id));
+  const rep=prompt('Quiz proposé à la fin de la formation « '+curTheme.nom+' ».\n'+(actuel>=0?'Actuel : '+qs[actuel].titre+'\n':'')+'\nTapez le numéro (0 = aucun quiz) :\n\n'+qs.map((q,i)=>(i+1)+'. '+q.titre).join('\n'),actuel>=0?String(actuel+1):'');
+  if(rep===null||rep.trim()==='')return;
+  const n=parseInt(rep,10);
+  if(isNaN(n)||n<0||n>qs.length)return alert('Numéro invalide.');
+  const val=n===0?null:String(qs[n-1].id);
+  const{error}=await db.from('theme').update({quiz_id:val}).eq('id',curTheme.id);
+  if(error)return alert('Erreur : '+error.message+(/quiz_id/.test(error.message)?'\n\nIl faut d’abord exécuter le script SQL « colonne quiz_id ».':''));
+  curTheme.quiz_id=val;
+  const t=themes.find(x=>x.id===curTheme.id);if(t)t.quiz_id=val;
+  renderModules();
+  alert(val?'Quiz de fin enregistré : '+qs[n-1].titre:'Aucun quiz de fin pour cette formation.');
+}
+
 async function copyThemeLink(themeId){
   const t=themes.find(x=>x.id===themeId)||(curTheme&&curTheme.id===themeId?curTheme:null);
   let url=moduleBase()+'?theme='+themeId;
-  // Quiz de fin de parcours (facultatif) : proposé après le dernier module.
-  let qs=quizzes;
-  if(!qs||!qs.length){
-    try{const{data}=await db.from('quiz').select('id,titre,publie').order('cree_le',{ascending:false});qs=data||[];}catch(e){qs=[];}
-  }
-  qs=qs.filter(q=>q.publie);
-  if(qs.length){
-    const rep=prompt('Quiz proposé à la fin du parcours (facultatif).\nTapez le numéro, ou laissez vide pour aucun :\n\n'+qs.map((q,i)=>(i+1)+'. '+q.titre).join('\n'),'');
-    const n=parseInt(rep,10);
-    if(n>=1&&n<=qs.length)url+='&quiz='+qs[n-1].id;
-  }
   let avert='';
   try{
     const{data:ms}=await db.from('module').select('publie').eq('theme_id',themeId);

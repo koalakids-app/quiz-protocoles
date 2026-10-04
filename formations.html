@@ -350,7 +350,7 @@ function lienPage(page,params){
 }
 const lienModule=id=>lienPage('formations.html',PRE_QUIZ?{module:id,quiz:PRE_QUIZ}:{module:id});
 const lienTheme=id=>lienPage('formations.html',PRE_QUIZ?{theme:id,quiz:PRE_QUIZ}:{theme:id});
-const lienQuiz=()=>lienPage('index.html',{quiz:PRE_QUIZ});
+const lienQuiz=q=>lienPage('index.html',{quiz:q});
 
 async function modulesDuTheme(themeId){
   const{data}=await db.from('module').select('id,titre,accroche,ordre').eq('theme_id',themeId).eq('publie',true).order('ordre');
@@ -372,6 +372,7 @@ async function showTheme(id){
   }
   setHead(t.nom,'Formation Koalakids',mods.length+' module'+(mods.length>1?'s':''));
   document.title=t.nom+' \u2014 Koalakids';
+  const qz=PRE_QUIZ||(t.quiz_id?String(t.quiz_id):'');
   const prochain=mods.find(m=>!lus.has(m.id))||mods[0];
   const dejaCommence=lus.size>0&&prochain!==mods[0];
   app().innerHTML=`<div class="container">
@@ -385,7 +386,11 @@ async function showTheme(id){
       <a class="p-item${lus.has(m.id)?' lu':''}" href="${esc(lienModule(m.id))}">
         <div class="p-num">${lus.has(m.id)?'\u2713':i+1}</div>
         <div><h4>${esc(m.titre)}</h4>${m.accroche?`<p>${mdBold(m.accroche)}</p>`:''}${lus.has(m.id)?'<div class="p-lu">Lu</div>':''}</div>
-      </a>`).join('')}</div>
+      </a>`).join('')}${qz?`
+      <a class="p-item" href="${esc(lienQuiz(qz))}">
+        <div class="p-num">\u2605</div>
+        <div><h4>Quiz de validation</h4><p>\u00c0 faire une fois tous les modules suivis.</p></div>
+      </a>`:''}</div>
     <div class="m-end-actions" style="margin-bottom:1rem">
       <a class="btn primary" href="${esc(lienModule(prochain.id))}">${dejaCommence?'Reprendre : ':'Commencer : '}${esc(prochain.titre)}</a>
     </div>
@@ -406,6 +411,8 @@ async function showModule(id){
   if(e2)return erreur(e2.message);
 
   const nom=t?t.nom:'';
+  // Quiz de fin : celui du lien, sinon celui rattach\u00e9 au th\u00e8me
+  const qz=PRE_QUIZ||(t&&t.quiz_id?String(t.quiz_id):'');
   // Position dans le parcours (modules publiés du même thème)
   let freres=[];
   try{freres=await modulesDuTheme(m.theme_id);}catch(e){}
@@ -429,16 +436,16 @@ async function showModule(id){
       <p>Prenez le temps d'essayer ce qui vous a parl\u00e9. Vous pouvez y revenir quand vous voulez.</p>
       <div class="m-end-actions">
         ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Module suivant : ${esc(suivant.titre)} \u2192</a>`:''}
-        ${!suivant&&enParcours&&PRE_QUIZ?`<a class="btn primary" href="${esc(lienQuiz())}">Passer le quiz de validation \u2192</a>`:''}
+        ${!suivant&&qz?`<a class="btn primary" href="${esc(lienQuiz(qz))}">Passer le quiz de validation \u2192</a>`:''}
         <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Relire depuis le d\u00e9but</button>
         ${enParcours?`<a class="btn" href="${esc(lienTheme(m.theme_id))}">Tous les modules</a>`:''}
       </div>
     </div>
     <p class="m-foot">Micro-formation Koalakids${nom?' \u00b7 '+esc(nom):''}</p>
-    ${enParcours?`<div class="p-bar">
+    ${(enParcours||qz)?`<div class="p-bar">
       ${precedent?`<a class="btn" href="${esc(lienModule(precedent.id))}">\u2190 Pr\u00e9c\u00e9dent</a>`:'<span class="btn off">\u2190 Pr\u00e9c\u00e9dent</span>'}
-      <span class="pos">Module ${pos+1} / ${freres.length}</span>
-      ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Suivant \u2192</a>`:(PRE_QUIZ?`<a class="btn primary" href="${esc(lienQuiz())}">Passer le quiz \u2192</a>`:'<span class="btn off">Suivant \u2192</span>')}
+      <span class="pos">${enParcours?'Module '+(pos+1)+' / '+freres.length:''}</span>
+      ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Suivant \u2192</a>`:(qz?`<a class="btn primary" href="${esc(lienQuiz(qz))}">Passer le quiz \u2192</a>`:'<span class="btn off">Suivant \u2192</span>')}
     </div>`:''}</div>`;
   window.scrollTo(0,0);
   // Module tenant enti\u00e8rement \u00e0 l'\u00e9cran : aucun \u00e9v\u00e9nement scroll ne se
