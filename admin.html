@@ -785,8 +785,22 @@ function renderEdit(){
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem">
       <button class="btn" onclick="addQ()">+ Ajouter une question</button>
       <button class="btn primary" onclick="saveAll()">Enregistrer les modifications</button>
+      <button class="btn" onclick="previewQuiz()">Aper\u00e7u</button>
     </div>
     <div id="save-msg" class="save-status" style="margin-top:.75rem"></div>`;
+}
+
+/* Aper\u00e7u : copie le quiz en cours d'\u00e9dition (m\u00eame non enregistr\u00e9) dans
+   localStorage et ouvre la page publique en mode aper\u00e7u (rien n'est enregistr\u00e9). */
+function previewQuiz(){
+  const t=document.getElementById('qz-titre'),d=document.getElementById('qz-desc');
+  const quiz={...curQuiz,titre:t?t.value:curQuiz.titre,description:d?d.value:curQuiz.description};
+  const questions=curQuestions.map((q,i)=>({...q,ordre:i}));
+  if(!questions.length)return alert("Ajoutez au moins une question pour voir l'aper\u00e7u.");
+  try{localStorage.setItem('kk_apercu_quiz',JSON.stringify({quiz,questions,axes:curAxes||[]}));}
+  catch(e){return alert("Impossible de pr\u00e9parer l'aper\u00e7u : "+e.message);}
+  const w=window.open('index.html?apercu=1','_blank');
+  if(!w)alert("Le navigateur a bloqu\u00e9 la fen\u00eatre d'aper\u00e7u. Autorisez les fen\u00eatres surgissantes pour ce site.");
 }
 
 function setEnonce(i,v){curQuestions[i].enonce=v}
