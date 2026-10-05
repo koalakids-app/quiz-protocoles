@@ -151,6 +151,7 @@ textarea.form-input{font-family:inherit;line-height:1.5}
     <p>Gestion des quiz Koalakids</p>
   </div>
   <a href="https://koalakids-app.github.io/gestion-stock/" class="btn" style="padding:6px 14px;font-size:13px;text-decoration:none">← Hub</a>
+  <button id="pwd-btn" class="btn" style="display:none;padding:6px 14px;font-size:13px" onclick="view='setpwd';render()">Mot de passe</button>
   <button id="logout-btn" class="btn" style="display:none;padding:6px 14px;font-size:13px" onclick="logout()">Déconnexion</button>
 </header>
 <div class="container" style="max-width:900px">
@@ -171,14 +172,25 @@ let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche
 let themes=[],curTheme=null,curModules=[];
 let curAxes=[],allModules=[];
 
+/* Lien de réinitialisation reçu par mail : supabase-js ouvre une session
+   temporaire et émet PASSWORD_RECOVERY -> on affiche l'écran de nouveau mot de passe. */
+let recoveryMode=/type=recovery/.test(location.hash);
+db.auth.onAuthStateChange((ev)=>{
+  if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;view='setpwd';render();}
+});
 async function boot(){
   const{data}=await db.auth.getSession();
-  if(data.session){view='list';await loadQuizzes();}
+  if(data.session&&recoveryMode){view='setpwd';render();}
+  else if(data.session){view='list';await loadQuizzes();}
   else{view='login';render();}
 }
 function render(){
-  document.getElementById('logout-btn').style.display=view==='login'?'none':'inline-flex';
+  const nonAuth=view==='login'||view==='forgot';
+  document.getElementById('logout-btn').style.display=nonAuth?'none':'inline-flex';
+  document.getElementById('pwd-btn').style.display=(nonAuth||view==='setpwd')?'none':'inline-flex';
   if(view==='login')renderLogin();
+  else if(view==='forgot')renderForgot();
+  else if(view==='setpwd')renderSetPwd();
   else if(view==='list')renderList();
   else if(view==='edit')renderEdit();
   else if(view==='results')renderResults();
@@ -509,7 +521,65 @@ function renderLogin(){
         onkeydown="if(event.key==='Enter')login()"></div>
     <div style="margin-top:1.25rem"><button class="btn purple" style="width:100%;padding:12px" onclick="login()">Se connecter</button></div>
     <div id="log-err" class="save-status err" style="margin-top:.75rem"></div>
+    <div style="margin-top:.75rem;text-align:center"><a href="#" style="font-size:13px;color:var(--orange)" onclick="view='forgot';render();return false">Mot de passe oublié ?</a></div>
   </div>`;
+}
+function renderForgot(){
+  app().innerHTML=`
+  <div class="start-screen" style="max-width:420px;margin:2rem auto">
+    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
+    <h2>Mot de passe oublié</h2>
+    <p class="subtitle">Saisissez votre e-mail : vous recevrez un lien pour choisir un nouveau mot de passe.</p>
+    <div class="form-group"><label class="form-label">E-mail</label>
+      <input class="form-input" id="fg-mail" type="email" autocomplete="username"
+        onkeydown="if(event.key==='Enter')sendReset()"></div>
+    <div style="margin-top:1.25rem"><button class="btn purple" style="width:100%;padding:12px" onclick="sendReset()">Envoyer le lien</button></div>
+    <div id="fg-msg" class="save-status" style="margin-top:.75rem"></div>
+    <div style="margin-top:.75rem;text-align:center"><a href="#" style="font-size:13px;color:var(--orange)" onclick="view='login';render();return false">← Retour à la connexion</a></div>
+  </div>`;
+}
+async function sendReset(){
+  const email=document.getElementById('fg-mail').value.trim();
+  const msg=document.getElementById('fg-msg');
+  if(!email){msg.className='save-status err';msg.textContent='⚠ Saisissez votre e-mail.';return;}
+  msg.className='save-status';msg.textContent='Envoi…';
+  const redirectTo=location.origin+location.pathname;
+  const{error}=await db.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error){msg.className='save-status err';msg.textContent='⚠ '+error.message;return;}
+  msg.className='save-status ok';
+  msg.textContent='✓ Si ce compte existe, un e-mail vient d\u2019être envoyé. Pensez à vérifier les courriers indésirables.';
+}
+function renderSetPwd(){
+  const connecte=!recoveryMode;
+  app().innerHTML=`
+  <div class="start-screen" style="max-width:420px;margin:2rem auto">
+    <div class="start-logo-wrap"><img src="${document.getElementById('logo').src}" alt="Koalakids"></div>
+    <h2>${connecte?'Changer mon mot de passe':'Choisissez votre mot de passe'}</h2>
+    <p class="subtitle">8 caractères minimum.</p>
+    <div class="form-group"><label class="form-label">Nouveau mot de passe</label>
+      <input class="form-input" id="np-1" type="password" autocomplete="new-password"></div>
+    <div class="form-group"><label class="form-label">Confirmez le mot de passe</label>
+      <input class="form-input" id="np-2" type="password" autocomplete="new-password"
+        onkeydown="if(event.key==='Enter')savePwd()"></div>
+    <div style="margin-top:1.25rem;display:flex;gap:8px">
+      ${connecte?`<button class="btn" style="padding:12px" onclick="view='list';loadQuizzes()">Annuler</button>`:''}
+      <button class="btn purple" style="flex:1;padding:12px" onclick="savePwd()">Enregistrer</button></div>
+    <div id="np-msg" class="save-status" style="margin-top:.75rem"></div>
+  </div>`;
+}
+async function savePwd(){
+  const p1=document.getElementById('np-1').value,p2=document.getElementById('np-2').value;
+  const msg=document.getElementById('np-msg');
+  msg.className='save-status err';
+  if(p1.length<8){msg.textContent='⚠ 8 caractères minimum.';return;}
+  if(p1!==p2){msg.textContent='⚠ Les deux mots de passe sont différents.';return;}
+  msg.className='save-status';msg.textContent='Enregistrement…';
+  const{error}=await db.auth.updateUser({password:p1});
+  if(error){msg.className='save-status err';msg.textContent='⚠ '+error.message;return;}
+  recoveryMode=false;
+  if(location.hash)history.replaceState(null,'',location.pathname+location.search);
+  msg.className='save-status ok';msg.textContent='✓ Mot de passe modifié.';
+  setTimeout(()=>{view='list';loadQuizzes();},900);
 }
 async function login(){
   const email=document.getElementById('log-mail').value.trim();
