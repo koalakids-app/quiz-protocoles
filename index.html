@@ -223,10 +223,23 @@ function hasAnswer(i){
 }
 function getScore(){return questions.reduce((n,_,i)=>isCorrect(i)?n+1:n,0)}
 
+/* Aper\u00e7u depuis l'admin : le quiz en cours d'\u00e9dition (m\u00eame non enregistr\u00e9)
+   est pass\u00e9 via localStorage ; aucun r\u00e9sultat n'est enregistr\u00e9. */
+const APERCU=PARAMS.get('apercu')==='1';
+
 async function boot(){
   const p=new URLSearchParams(location.search).get('quiz');
   try{
-    if(p){
+    if(APERCU){
+      let d=null;
+      try{d=JSON.parse(localStorage.getItem('kk_apercu_quiz'))}catch(e){}
+      if(!d||!d.quiz||!d.questions||!d.questions.length)return fail("Aucun aper\u00e7u disponible. Relancez l'aper\u00e7u depuis l'administration.");
+      quiz=d.quiz;questions=d.questions;axes=d.axes||[];modulesAxes={};
+      document.title='Aper\u00e7u \u2014 '+(quiz.titre||'Quiz');
+      const chip=document.getElementById('header-chip');
+      chip.textContent='Aper\u00e7u';chip.style.display='';
+      resetAnswers();state='start';
+    }else if(p){
       const{data,error}=await db.from('quiz').select('*').eq('id',p).eq('publie',true).single();
       if(error||!data)return fail("Ce quiz n'existe pas ou n'est plus disponible.");
       quiz=data;
@@ -383,6 +396,7 @@ function renderResults(){
 }
 
 async function saveResults(score,pct){
+  if(APERCU){const e=document.getElementById('save-status');if(e){e.textContent="Aper\u00e7u : r\u00e9sultat non enregistr\u00e9";e.className='save-status'}return}
   const detail=questions.map((q,i)=>({
     ordre:q.ordre,
     enonce:q.enonce,
@@ -602,6 +616,7 @@ async function saveResultsProfil(profil){
     }))
   };
   const el=()=>document.getElementById('save-status');
+  if(APERCU){if(el()){el().textContent="Aper\u00e7u : profil non enregistr\u00e9";el().className='save-status'}return}
   try{
     /* score/total/pourcentage restent obligatoires dans la table : 0 pour un
        profil, qui n'a pas de note. Les quiz de profil sont exclus de la
