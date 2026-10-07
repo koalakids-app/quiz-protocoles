@@ -215,6 +215,22 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-fig img{width:100%;border-radius:12px;border:1px solid var(--border);display:block}
 .m-fig figcaption{font-size:12px;color:var(--text-light);text-align:center;margin-top:6px;font-style:italic}
 .m-end-actions a.btn{text-decoration:none}
+/* MICROSÉQUENCE (trame de séance de 45 min) */
+.sq-fiche{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.sq-fiche dl{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:14px}
+.sq-fiche dt{color:var(--text-muted);font-weight:600}
+.sq-fiche dd{margin:0}
+.sq-objectif{background:var(--orange-light);border-left:4px solid var(--orange);border-radius:0 var(--radius) var(--radius) 0;padding:10px 14px;font-weight:600;margin-top:12px}
+.sq-titre{font-size:16px;font-weight:700;color:var(--purple);margin:1.5rem 0 .6rem}
+.sq-etape{display:flex;gap:12px;margin-bottom:8px}
+.sq-t{flex:0 0 82px;text-align:center;background:var(--purple);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:700;padding:8px 4px;align-self:flex-start}
+.sq-b{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
+.sq-b h4{font-size:14px;font-weight:700;color:var(--purple);margin:0 0 3px}
+.sq-b p,.sq-b li{font-size:13.5px;color:var(--text-muted)}
+.sq-b ul{margin:4px 0 0 18px}
+.sq-regles{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
+.sq-regles li{font-size:14px;margin:4px 0 4px 18px}
+@media(max-width:560px){.sq-fiche dl{grid-template-columns:1fr}.sq-etape{flex-direction:column;gap:4px}.sq-t{flex:none;padding:4px}}
 .p-nav{font-size:13px;color:var(--text-muted);margin:0 0 1rem}
 .p-nav a{color:var(--purple);font-weight:600;text-decoration:none}
 .p-list{display:flex;flex-direction:column;gap:10px;margin:1.25rem 0}
@@ -423,7 +439,8 @@ async function showModule(id){
   const suivant=pos>=0?freres[pos+1]:null;
   const precedent=pos>0?freres[pos-1]:null;
   const enParcours=freres.length>1&&pos>=0;
-  setHead(m.titre,'Micro-formation'+(nom?' \u00b7 '+nom:''),'\u2248 '+estimeTemps(blocs||[])+' min');
+  const sequence=m.trame&&typeof m.trame==='object';
+  setHead(m.titre,(sequence?'Micros\u00e9quence':'Micro-formation')+(nom?' \u00b7 '+nom:''),sequence?(m.trame.duree_min||45)+' min':'\u2248 '+estimeTemps(blocs||[])+' min');
   document.title=m.titre+' \u2014 Koalakids';
 
   app().innerHTML=`<div class="container">
@@ -433,6 +450,7 @@ async function showModule(id){
       <h2>${esc(m.titre)}</h2>
       ${m.accroche?`<p>${mdBold(m.accroche)}</p>`:''}
     </div>
+    ${trameHTML(m,t)}
     ${(blocs||[]).map(blocHTML).join('\n')}
     <div class="m-end">
       <h3>Vous avez termin\u00e9 ce module</h3>
@@ -457,6 +475,40 @@ async function showModule(id){
     const h=document.documentElement;
     if(h.scrollHeight-h.clientHeight<=0)marquerLu(id);
   },300);
+}
+
+/* ---------- MICROSÉQUENCE : en-tête, déroulé minuté, règles ----------
+   Tout vient de module.trame (JSON) : aucune donnée de formation n'est écrite
+   ici. Les champs vides ne sont pas affichés. */
+function trameHTML(m,theme){
+  const tr=m&&m.trame;
+  if(!tr||typeof tr!=='object')return '';
+  const ligne=(lib,val)=>val?`<dt>${lib}</dt><dd>${val}</dd>`:'';
+  const so=tr.socle||{};
+  const socle=so.bloc?`Bloc ${esc(so.bloc)} du Socle national`+(so.attendu?` · ${esc(so.attendu)}`:''):'';
+  const mat=Array.isArray(tr.materiel)&&tr.materiel.length?tr.materiel.map(esc).join(' · '):'';
+  const num=tr.module_num&&tr.seq?`Module ${esc(tr.module_num)} – ${esc(tr.seq)}/${esc(tr.sur||3)}`:'';
+  const etapes=(Array.isArray(tr.deroule)?tr.deroule:[]).map(e=>{
+    const liste=(a)=>Array.isArray(a)&&a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
+    return `<div class="sq-etape"><div class="sq-t">${esc(e.de)}–${esc(e.a)} min</div><div class="sq-b">
+      <h4>${esc(e.nom)}</h4>
+      ${e.message?`<p><strong>Message clé :</strong> ${mdBold(e.message)}</p>`:''}
+      ${e.consigne?`<p>${mdBold(e.consigne)}</p>`:''}
+      ${e.amorce?`<p>« ${esc(e.amorce)} »</p>`:''}
+      ${liste(e.idees)}${liste(e.questions)}${liste(e.consignes)}
+      ${e.support?`<p>Support : ${esc(e.support)}</p>`:''}</div></div>`;
+  }).join('');
+  const regles=Array.isArray(tr.regles)&&tr.regles.length
+    ?`<h3 class="sq-titre">Règles d'animation</h3><div class="sq-regles"><ul>${tr.regles.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>`:'';
+  return `<section class="sq-fiche"><dl>
+      ${ligne('Module / séquence',num)}
+      ${ligne('Référence au socle',socle)}
+      ${ligne('Public',esc(tr.public))}
+      ${ligne('Animateur',esc(tr.animateur))}
+      ${ligne('Durée',tr.duree_min?esc(tr.duree_min)+' min':'')}
+      ${ligne('Matériel',mat)}
+    </dl>${tr.objectif?`<div class="sq-objectif">${mdBold(tr.objectif)}</div>`:''}</section>
+    ${etapes?`<h3 class="sq-titre">Déroulé minuté</h3>${etapes}`:''}${regles}`;
 }
 
 function estimeTemps(blocs){
