@@ -1238,10 +1238,10 @@ async function loadThemes(){
 
 function renderThemes(){
   const items=themes.length?themes.map((t,i)=>`
-    <div class="question-card" style="margin-bottom:12px">
+    <div class="question-card carte-filtrable" data-q="${esc((t.nom+' '+(t.description||'')).toLowerCase())}" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
-          <h3 style="font-size:16px;font-weight:700">${esc(t.nom)}</h3>
+          <h3 style="font-size:16px;font-weight:700"><span style="color:var(--orange);margin-right:6px">${i+1}.</span>${esc(t.nom)}</h3>
           <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(t.description)||'<em style="color:var(--text-light)">Aucune description</em>'}</p>
           <p style="font-size:12px;color:var(--text-light);margin-top:6px">${t._n} module${t._n>1?'s':''}</p>
         </div>
@@ -1262,7 +1262,9 @@ function renderThemes(){
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;gap:12px;flex-wrap:wrap">
       <h2 style="font-size:20px;color:var(--purple)">Thèmes de formation</h2>
       <button class="btn purple" onclick="newTheme()">+ Nouveau thème</button>
-    </div>${items}`;
+    </div>
+    ${themes.length>3?barreFiltre('Rechercher un thème…',false):''}
+    ${items}<div id="filtre-vide" class="center-msg" style="display:none">Aucun résultat.</div>`;
 }
 
 async function newTheme(){
@@ -1322,10 +1324,10 @@ async function loadModules(){
 
 function renderModules(){
   const items=curModules.length?curModules.map((m,i)=>`
-    <div class="question-card" style="margin-bottom:12px">
+    <div class="question-card carte-filtrable" data-q="${esc((m.titre+' '+(m.accroche||'')).toLowerCase())}" data-pub="${m.publie?'1':'0'}" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
-          <h3 style="font-size:16px;font-weight:700">${esc(m.titre)}</h3>
+          <h3 style="font-size:16px;font-weight:700"><span style="color:var(--orange);margin-right:6px">${i+1}.</span>${esc(m.titre)}</h3>
           <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(m.accroche)||'<em style="color:var(--text-light)">Aucune accroche</em>'}</p>
           <p style="font-size:12px;color:var(--text-light);margin-top:6px">
             ${m._b} bloc${m._b>1?'s':''} ·
@@ -1361,7 +1363,26 @@ function renderModules(){
       </div>
     </div>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">${esc(curTheme.description)}</p>
-    ${items}`;
+    ${curModules.length>3?barreFiltre('Rechercher un module…',true):''}
+    ${items}<div id="filtre-vide" class="center-msg" style="display:none">Aucun résultat.</div>`;
+}
+
+/* Recherche + filtre de statut : masque/affiche les cartes sans recharger la vue */
+function barreFiltre(placeholder,avecStatut){
+  return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+    <input class="form-input" id="filtre-q" type="search" placeholder="${placeholder}" oninput="filtrerCartes()" style="flex:1;min-width:200px;width:auto">
+    ${avecStatut?`<select class="form-select" id="filtre-pub" onchange="filtrerCartes()" style="width:auto"><option value="">Tous les statuts</option><option value="1">Publiés</option><option value="0">Brouillons</option></select>`:''}
+  </div>`;
+}
+function filtrerCartes(){
+  const q=(document.getElementById('filtre-q')?.value||'').trim().toLowerCase();
+  const pub=document.getElementById('filtre-pub')?.value||'';
+  let n=0;
+  document.querySelectorAll('.carte-filtrable').forEach(c=>{
+    const ok=(!q||c.dataset.q.includes(q))&&(!pub||c.dataset.pub===pub);
+    c.style.display=ok?'':'none';if(ok)n++;
+  });
+  const v=document.getElementById('filtre-vide');if(v)v.style.display=n?'none':'';
 }
 
 async function newModule(){
