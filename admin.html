@@ -200,6 +200,7 @@ function render(){
   else if(view==='envoi')renderEnvoi();
   else if(view==='traces')renderTraces();
   else if(view==='trace')renderTrace();
+  else if(view==='sites')renderSites();
 }
 
 /* ===== ENVOI DIRECT PAR MAIL (quiz et modules) ===== */
@@ -508,6 +509,7 @@ function tabs(active){
 function goTab(id){
   if(id==='quiz'){view='list';loadQuizzes();}
   else if(id==='seances'){loadTraces();}
+  else if(id==='sites'){loadSites();}
   else{view='themes';loadThemes();}
 }
 
@@ -1931,7 +1933,7 @@ function panneauTrame(){
    ni jugement sur un collègue.
    ========================================================== */
 const SITES=["Koalakids Toulon Brunet","Koalakids Toulon Picot 1","Koalakids Toulon Picot 2","Koalakids Toulon St Jean","Koalakids Cuers","Koalakids Ollioules"];
-let traces=[],seqs=[],tr=null,accesTraces=null,erreurTraces='',fSite='',fSeq='';
+let parcoursNoms={},traces=[],seqs=[],tr=null,accesTraces=null,erreurTraces='',fSite='',fSeq='';
 const dateFr=d=>d?new Date(d+'T00:00:00').toLocaleDateString('fr-FR'):'';
 const seqDe=id=>seqs.find(x=>x.id===id);
 
@@ -1941,7 +1943,7 @@ async function chargerSeqs(){
     db.from('module').select('id,titre,theme_id,ordre').not('trame','is',null),
     db.from('theme').select('id,nom,ordre')
   ]);
-  const ordreTheme={};(t.data||[]).forEach(x=>{ordreTheme[x.id]=x.ordre});
+  const ordreTheme={};parcoursNoms={};(t.data||[]).forEach(x=>{ordreTheme[x.id]=x.ordre;parcoursNoms[x.id]=x.nom});
   seqs=(m.data||[]).slice().sort((a,b)=>(ordreTheme[a.theme_id]??99)-(ordreTheme[b.theme_id]??99)||a.ordre-b.ordre);
 }
 async function chargerTraces(){
@@ -1981,6 +1983,7 @@ function renderTraces(){
   const optSeq=['<option value="">Toutes les séquences</option>'].concat(seqs.map(v=>`<option value="${esc(v.id)}" ${fSeq===v.id?'selected':''}>${esc(v.titre)}</option>`)).join('');
   app().innerHTML=`
     ${tabs('seances')}
+    ${sousOnglets('traces')}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem">
       <h2 style="font-size:20px;font-weight:700;color:var(--purple)">Traces de séance</h2>
       ${accesTraces===false?'':`<button class="btn purple" onclick="nouvelleTraceDe('')">+ Nouvelle trace</button>`}
@@ -2138,6 +2141,118 @@ async function enregistrerTrace(){
     msg.className='save-status err';
     msg.textContent='⚠ '+(refus?"Votre compte n'est pas autorisé à enregistrer des traces de séance. Demandez à la direction de vous ajouter à la liste.":e.message);
   }
+}
+
+/* ==========================================================
+   VUE PAR SITE
+   Pour un site : quels thèmes ressortent des profils du quiz de repérage, et
+   quels parcours planifier. Vue AGRÉGÉE : jamais de nom, jamais de liste de
+   personnes, jamais de classement entre personnes. Un site avec moins de
+   MIN_PROFILS profils sur un quiz n'est pas détaillé, pour qu'une réponse ne
+   puisse pas être reconnue dans une petite équipe.
+   ========================================================== */
+const MIN_PROFILS=3;
+let vueSite=SITES[0],donneesSites=null,erreurSites='';
+function sousOnglets(actif){
+  const b=(id,lib,fn)=>`<button class="btn ${actif===id?'primary':''}" style="padding:6px 14px;font-size:13px" onclick="${fn}">${lib}</button>`;
+  return `<div style="display:flex;gap:8px;margin-bottom:1rem">${b('traces','Traces de séance','loadTraces()')}${b('sites','Vue par site','loadSites()')}</div>`;
+}
+async function loadSites(){
+  view='sites';
+  app().innerHTML=`${tabs('seances')}${sousOnglets('sites')}<div class="center-msg">Chargement…</div>`;
+  erreurSites='';donneesSites=null;
+  try{
+    await chargerTraces();
+    const q=await db.from('quiz').select('id,titre,mode,cree_le').eq('mode','profil');
+    if(q.error)throw q.error;
+    const ids=(q.data||[]).map(x=>x.id);
+    const[r,a]=await Promise.all([
+      ids.length?db.from('resultats').select('quiz_id,prenom,nom,creche,passe_le,detail').in('quiz_id',ids):{data:[],error:null},
+      db.from('axe_sequence').select('quiz_id,axe_code,module_id,priorite')
+    ]);
+    if(r.error)throw r.error;
+    donneesSites={quizzes:q.data||[],resultats:r.data||[],liens:a.error?[]:(a.data||[])};
+  }catch(e){erreurSites=e.message||String(e);}
+  render();
+}
+/* Dernier résultat de chaque personne et de chaque quiz (identité utilisée
+   seulement pour ne pas compter deux fois quelqu'un qui a refait le quiz, jamais affichée). */
+function agregerSite(site){
+  const norm=v=>String(v||'').trim().toLowerCase();
+  const derniers={};
+  donneesSites.resultats.filter(r=>r.creche===site).forEach(r=>{
+    const k=r.quiz_id+'|'+norm(r.prenom)+'|'+norm(r.nom);
+    if(!derniers[k]||r.passe_le>derniers[k].passe_le)derniers[k]=r;
+  });
+  const parQuiz={};
+  Object.values(derniers).forEach(r=>{
+    const q=parQuiz[r.quiz_id]=parQuiz[r.quiz_id]||{n:0,axes:{}};
+    q.n++;
+    ((r.detail&&r.detail.axes)||[]).forEach(a=>{
+      const o=q.axes[a.code]=q.axes[a.code]||{code:a.code,libelle:a.libelle||a.code,appui:0,construction:0,accompagner:0};
+      if(typeof o[a.niveau]==='number')o[a.niveau]++;
+    });
+  });
+  return parQuiz;
+}
+function barreNiveaux(o,n){
+  const seg=(v,c)=>v?`<span style="display:block;width:${(v/n*100).toFixed(1)}%;background:${c}"></span>`:'';
+  return `<div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--surface-2);border:1px solid var(--border);margin:4px 0">
+    ${seg(o.accompagner,'var(--orange)')}${seg(o.construction,'var(--purple)')}${seg(o.appui,'var(--success-border)')}</div>`;
+}
+const texteNiveaux=(o,n)=>`À accompagner : ${o.accompagner} · En construction : ${o.construction} · Point d'appui : ${o.appui} (sur ${n} profils)`;
+function renderSites(){
+  const optSite=SITES.map(v=>`<option ${vueSite===v?'selected':''}>${esc(v)}</option>`).join('');
+  const entete=`${tabs('seances')}${sousOnglets('sites')}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.5rem">
+      <h2 style="font-size:20px;font-weight:700;color:var(--purple)">Vue par site</h2>
+      <select class="form-select" style="width:auto;max-width:100%" onchange="vueSite=this.value;renderSites()">${optSite}</select>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:1rem">Vue agrégée du quiz de repérage : aucun nom, aucune note, aucun classement entre personnes. En dessous de ${MIN_PROFILS} profils sur un quiz, le détail n'est pas affiché.</p>`;
+  if(accesTraces===false)return app().innerHTML=`${entete}<div class="question-card" style="border-color:var(--orange);background:var(--orange-light)"><strong>Accès réservé</strong><p style="font-size:13px;margin-top:4px">Votre compte n'est pas dans la liste des personnes autorisées. Demandez à la direction de vous y ajouter.</p></div>`;
+  if(erreurSites)return app().innerHTML=`${entete}<div class="question-card" style="border-color:var(--danger-border)"><strong>⚠ ${esc(erreurSites)}</strong></div>`;
+  if(!donneesSites.resultats.length)return app().innerHTML=`${entete}<div class="question-card"><strong>Aucun profil visible</strong><p style="font-size:13px;margin-top:4px">Aucun résultat de quiz de repérage n'est lisible avec ce compte. Si des équipes ont passé le quiz, il est possible que seul le compte administrateur des quiz puisse lire les résultats.</p></div>`;
+  const agg=agregerSite(vueSite);
+  const titreQuiz={};donneesSites.quizzes.forEach(x=>{titreQuiz[x.id]=x.titre});
+  const quizIds=Object.keys(agg);
+  // Parcours à planifier : moyenne, sur les axes liés (priorité 1) assez documentés, de la part de profils « à accompagner » ou « en construction ».
+  const parcours={};
+  donneesSites.liens.filter(l=>l.priorite===1).forEach(l=>{
+    const q=agg[l.quiz_id];if(!q||q.n<MIN_PROFILS)return;
+    const o=q.axes[l.axe_code];if(!o)return;
+    const m=seqs.find(x=>x.id===l.module_id);if(!m)return;
+    const p=parcours[m.theme_id]=parcours[m.theme_id]||{theme:m.theme_id,axes:[],score:0};
+    p.axes.push({o,n:q.n,quiz:titreQuiz[l.quiz_id]});
+  });
+  const liste=Object.values(parcours).map(p=>{
+    p.score=p.axes.reduce((t,a)=>t+(a.o.accompagner+a.o.construction)/a.n,0)/p.axes.length;
+    const seqsP=seqs.filter(x=>x.theme_id===p.theme);
+    const tenues=new Set(traces.filter(t=>t.site===vueSite&&seqsP.some(x=>x.id===t.module_id)).map(t=>t.module_id)).size;
+    p.tenues=tenues;p.total=seqsP.length;return p;
+  }).filter(p=>p.score>0).sort((a,b)=>b.score-a.score);
+  const blocParcours=liste.length?liste.map(p=>`<div class="question-card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <strong style="font-size:15px">${esc(parcoursNoms[p.theme]||'Parcours')}</strong>
+        <span style="font-size:12px;color:var(--text-muted)">Séances tenues sur ce site : ${p.tenues}/${p.total}</span>
+      </div>
+      ${p.axes.sort((a,b)=>(b.o.accompagner+b.o.construction)-(a.o.accompagner+a.o.construction)).map(a=>`<div style="margin-top:8px">
+        <div style="font-size:13px"><strong>${esc(a.o.libelle)}</strong> <span style="color:var(--text-light)">· ${esc(a.quiz||'')}</span></div>
+        ${barreNiveaux(a.o,a.n)}
+        <div style="font-size:11px;color:var(--text-muted)">${esc(texteNiveaux(a.o,a.n))}</div></div>`).join('')}
+    </div>`).join(''):`<div class="question-card"><p style="font-size:13px;color:var(--text-muted)">Aucun parcours à proposer pour l'instant : soit les équipes de ce site n'ont pas assez de profils (${MIN_PROFILS} minimum par quiz), soit aucun axe n'est « à accompagner » ou « en construction » dans un parcours relié.</p></div>`;
+  const blocQuiz=quizIds.length?quizIds.map(id=>{
+    const q=agg[id],titre=titreQuiz[id]||'Quiz';
+    if(q.n<MIN_PROFILS)return `<div class="question-card" style="margin-bottom:8px"><strong style="font-size:14px">${esc(titre)}</strong>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:2px">Moins de ${MIN_PROFILS} profils sur ce site : pas de détail, pour préserver l'anonymat.</p></div>`;
+    const axes=Object.values(q.axes).sort((a,b)=>b.accompagner-a.accompagner||b.construction-a.construction);
+    return `<details class="question-card" style="margin-bottom:8px"><summary style="cursor:pointer;font-weight:700;font-size:14px">${esc(titre)} <span style="font-weight:400;color:var(--text-muted)">· ${q.n} profils</span></summary>
+      ${axes.map(o=>`<div style="margin-top:8px"><div style="font-size:13px"><strong>${esc(o.libelle)}</strong></div>${barreNiveaux(o,q.n)}<div style="font-size:11px;color:var(--text-muted)">${esc(texteNiveaux(o,q.n))}</div></div>`).join('')}</details>`;
+  }).join(''):`<div class="center-msg">Aucun profil enregistré pour ce site.</div>`;
+  app().innerHTML=`${entete}
+    <h3 style="font-size:16px;color:var(--purple);margin:1rem 0 .5rem">Parcours à planifier</h3>
+    ${blocParcours}
+    <h3 style="font-size:16px;color:var(--purple);margin:1.5rem 0 .5rem">Détail par quiz</h3>
+    ${blocQuiz}`;
 }
 
 function quitBlocs(){
