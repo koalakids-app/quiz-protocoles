@@ -198,6 +198,8 @@ function render(){
   else if(view==='modules')renderModules();
   else if(view==='blocs')renderBlocs();
   else if(view==='envoi')renderEnvoi();
+  else if(view==='traces')renderTraces();
+  else if(view==='trace')renderTrace();
 }
 
 /* ===== ENVOI DIRECT PAR MAIL (quiz et modules) ===== */
@@ -501,10 +503,11 @@ function envRevenir(){ENV.resultats=null;ENV.sel=new Set();renderEnvoi();}
 /* ===== NAVIGATION ONGLETS ===== */
 function tabs(active){
   const t=(id,label)=>`<button class="tab ${active===id?'on':''}" onclick="goTab('${id}')">${label}</button>`;
-  return `<div class="tabs">${t('quiz','Quiz')}${t('formations','Formations')}</div>`;
+  return `<div class="tabs">${t('quiz','Quiz')}${t('formations','Formations')}${t('seances','Séances')}</div>`;
 }
 function goTab(id){
   if(id==='quiz'){view='list';loadQuizzes();}
+  else if(id==='seances'){loadTraces();}
   else{view='themes';loadThemes();}
 }
 
@@ -1335,6 +1338,7 @@ function renderModules(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="btn primary" style="padding:7px 14px;font-size:13px" onclick="editContent('${m.id}')">Modifier le contenu</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="editModule('${m.id}')">Renommer</button>
+        ${m.trame?`<button class="btn" style="padding:7px 14px;font-size:13px" onclick="nouvelleTraceDe('${m.id}')">Trace de séance</button>`:''}
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyModuleLink('${m.id}')">Copier le lien</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openEnvoi('module','${m.id}')">✉ Envoyer par mail</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="toggleModule('${m.id}',${m.publie})">${m.publie?'Dépublier':'Publier'}</button>
@@ -1916,6 +1920,224 @@ function panneauTrame(){
     <div style="margin-top:8px">${miniBtn('+ Ajouter une étape',`addEtape()`)}</div>
     ${lbl("Règles d'animation, une par ligne")}${taL(t.regles,`setTL('regles',this.value)`,4)}
   </div>`;
+}
+
+/* ==========================================================
+   TRACES DE SÉANCE (microséquences de 45 min)
+   Une trace = ce qui a été décidé à la fin d'une séance, sur un site :
+   trace écrite, pratique à tester, engagements, observations.
+   Table trace_seance, réservée aux comptes de la liste acces_formation.
+   On y trace des pratiques, jamais des personnes : ni nom d'enfant,
+   ni jugement sur un collègue.
+   ========================================================== */
+const SITES=["Koalakids Toulon Brunet","Koalakids Toulon Picot 1","Koalakids Toulon Picot 2","Koalakids Toulon St Jean","Koalakids Cuers","Koalakids Ollioules"];
+let traces=[],seqs=[],tr=null,accesTraces=null,erreurTraces='',fSite='',fSeq='';
+const dateFr=d=>d?new Date(d+'T00:00:00').toLocaleDateString('fr-FR'):'';
+const seqDe=id=>seqs.find(x=>x.id===id);
+
+/* Séquences = modules qui ont une trame, dans l'ordre des parcours. */
+async function chargerSeqs(){
+  const[m,t]=await Promise.all([
+    db.from('module').select('id,titre,theme_id,ordre').not('trame','is',null),
+    db.from('theme').select('id,nom,ordre')
+  ]);
+  const ordreTheme={};(t.data||[]).forEach(x=>{ordreTheme[x.id]=x.ordre});
+  seqs=(m.data||[]).slice().sort((a,b)=>(ordreTheme[a.theme_id]??99)-(ordreTheme[b.theme_id]??99)||a.ordre-b.ordre);
+}
+async function chargerTraces(){
+  erreurTraces='';
+  const[a,t]=await Promise.all([
+    db.rpc('a_acces_formation'),
+    db.from('trace_seance').select('*').order('date_seance',{ascending:false}),
+    chargerSeqs()
+  ]);
+  accesTraces=a.error?null:a.data===true;
+  traces=t.error?[]:(t.data||[]);
+  if(t.error)erreurTraces=t.error.message;
+}
+async function loadTraces(){
+  view='traces';
+  app().innerHTML=`${tabs('seances')}<div class="center-msg">Chargement…</div>`;
+  try{await chargerTraces();}catch(e){erreurTraces=e.message;}
+  render();
+}
+function renderTraces(){
+  const lignes=traces.filter(x=>(!fSite||x.site===fSite)&&(!fSeq||x.module_id===fSeq));
+  const liste=lignes.length?lignes.map(x=>{
+    const s=seqDe(x.module_id);
+    return `<div class="question-card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1;min-width:220px">
+          <strong style="font-size:15px">${esc(s?s.titre:'Séquence supprimée')}</strong>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(dateFr(x.date_seance))} · ${esc(x.site)}${x.animateur?' · '+esc(x.animateur):''}</div>
+          ${x.pratique?`<div style="font-size:13px;margin-top:6px"><strong>Pratique à tester :</strong> ${esc(x.pratique)}${x.pratique_qui?' ('+esc(x.pratique_qui)+(x.pratique_jusqua?', jusqu\'au '+esc(dateFr(x.pratique_jusqua)):'')+')':''}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          ${miniBtn('Ouvrir',`ouvrirTrace('${x.id}')`)}${miniBtn('Supprimer',`supprimerTrace('${x.id}')`,1)}
+        </div>
+      </div></div>`;
+  }).join(''):`<div class="center-msg">${traces.length?'Aucune trace pour ce filtre.':'Aucune trace de séance pour l\'instant.'}</div>`;
+  const optSite=['<option value="">Tous les sites</option>'].concat(SITES.map(v=>`<option ${fSite===v?'selected':''}>${esc(v)}</option>`)).join('');
+  const optSeq=['<option value="">Toutes les séquences</option>'].concat(seqs.map(v=>`<option value="${esc(v.id)}" ${fSeq===v.id?'selected':''}>${esc(v.titre)}</option>`)).join('');
+  app().innerHTML=`
+    ${tabs('seances')}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem">
+      <h2 style="font-size:20px;font-weight:700;color:var(--purple)">Traces de séance</h2>
+      ${accesTraces===false?'':`<button class="btn purple" onclick="nouvelleTraceDe('')">+ Nouvelle trace</button>`}
+    </div>
+    ${accesTraces===false?`<div class="question-card" style="border-color:var(--orange);background:var(--orange-light)">
+      <strong>Accès réservé</strong>
+      <p style="font-size:13px;margin-top:4px">Votre compte n'est pas dans la liste des personnes autorisées à lire et saisir les traces de séance. Demandez à la direction de vous y ajouter.</p></div>`:`
+    ${erreurTraces?`<div class="question-card" style="border-color:var(--danger-border)"><strong>⚠ ${esc(erreurTraces)}</strong></div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+      <select class="form-select" style="width:auto;max-width:100%" onchange="fSite=this.value;renderTraces()">${optSite}</select>
+      <select class="form-select" style="width:auto;max-width:100%" onchange="fSeq=this.value;renderTraces()">${optSeq}</select>
+    </div>
+    ${liste}`}`;
+}
+
+function trVide(moduleId){
+  return {module_id:moduleId||'',site:fSite||'',date_seance:new Date().toISOString().slice(0,10),animateur:'',trace:'',
+    pratique:'',pratique_qui:'',pratique_jusqua:'',engagements:[{prenom:'',texte:''}],observations:'',lien_suivante:''};
+}
+async function nouvelleTraceDe(moduleId){
+  try{await chargerTraces();}catch(e){return alert('Erreur : '+e.message);}
+  if(accesTraces===false){view='traces';return render();}
+  tr=trVide(moduleId);
+  if(moduleId)prefillSuivante();
+  view='trace';render();
+}
+function ouvrirTrace(id){
+  const x=traces.find(v=>v.id===id);if(!x)return;
+  tr=JSON.parse(JSON.stringify(x));
+  tr.engagements=Array.isArray(tr.engagements)&&tr.engagements.length?tr.engagements:[{prenom:'',texte:''}];
+  ['animateur','trace','pratique','pratique_qui','pratique_jusqua','observations','lien_suivante'].forEach(k=>{if(tr[k]==null)tr[k]=''});
+  view='trace';render();
+}
+async function supprimerTrace(id){
+  if(!confirm('Supprimer cette trace de séance ? Cette action est définitive.'))return;
+  const{error}=await db.from('trace_seance').delete().eq('id',id);
+  if(error)return alert('Erreur : '+error.message);
+  traces=traces.filter(x=>x.id!==id);renderTraces();
+}
+/* La séquence suivante du même parcours, proposée en « lien avec la suite ». */
+function prefillSuivante(){
+  if(tr.lien_suivante)return;
+  const s=seqDe(tr.module_id);if(!s)return;
+  const n=seqs.find(x=>x.theme_id===s.theme_id&&x.ordre===s.ordre+1);
+  if(n)tr.lien_suivante='Séquence suivante : '+n.titre;
+}
+/* Dernière trace du même site pour ce parcours : sert au « retour sur ce qui
+   a été testé entre deux séances » à l'ouverture de la séance. */
+function rappelTrace(){
+  const s=seqDe(tr.module_id);if(!s||!tr.site)return null;
+  const memeParcours=new Set(seqs.filter(x=>x.theme_id===s.theme_id).map(x=>x.id));
+  return traces.find(x=>x.id!==tr.id&&x.site===tr.site&&memeParcours.has(x.module_id)&&x.date_seance<=tr.date_seance)||null;
+}
+function setTr(k,v){tr[k]=v;dirtyTr();}
+function dirtyTr(){const m=document.getElementById('tr-msg');if(m){m.className='save-status';m.textContent='Modifications non enregistrées';}}
+function setEng(j,k,v){tr.engagements[j][k]=v;dirtyTr();}
+function addEng(){tr.engagements.push({prenom:'',texte:''});dirtyTr();renderTrace();}
+function delEng(j){tr.engagements.splice(j,1);if(!tr.engagements.length)tr.engagements.push({prenom:'',texte:''});dirtyTr();renderTrace();}
+function choisirSeq(v){tr.module_id=v;prefillSuivante();renderTrace();}
+function choisirSite(v){tr.site=v;renderTrace();}
+function majLignes(v){
+  tr.trace=v;dirtyTr();
+  const n=lignesDe(v).length,e=document.getElementById('tr-nl');
+  if(e)e.textContent=n+' ligne'+(n>1?'s':'')+(n>5?' : visez 3 à 5 lignes':'');
+}
+function renderTrace(){
+  const s=seqDe(tr.module_id),r=rappelTrace();
+  const optSeq=['<option value="">Choisir la séquence…</option>'].concat(seqs.map(v=>`<option value="${esc(v.id)}" ${tr.module_id===v.id?'selected':''}>${esc(v.titre)}</option>`)).join('');
+  const optSite=['<option value="">Choisir le site…</option>'].concat(SITES.map(v=>`<option ${tr.site===v?'selected':''}>${esc(v)}</option>`)).join('');
+  const eng=tr.engagements.map((e,j)=>`<div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start">
+    <div style="width:130px">${inp(e.prenom,`setEng(${j},'prenom',this.value)`,'Prénom')}</div>
+    <div style="flex:1">${inp(e.texte,`setEng(${j},'texte',this.value)`,'Cette semaine, je…')}</div>
+    ${miniBtn('×',`delEng(${j})`,1)}</div>`).join('');
+  const nl=lignesDe(tr.trace).length;
+  app().innerHTML=`
+    ${tabs('seances')}
+    <button class="btn" style="margin-bottom:1rem" onclick="quitTrace()">← Traces de séance</button>
+    <div class="question-card" style="margin-bottom:1rem;background:var(--purple-light);border-color:var(--purple)">
+      <h2 style="font-size:19px;color:var(--purple)">${tr.id?'Trace de séance':'Nouvelle trace de séance'}</h2>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:4px">On trace des pratiques, jamais des personnes : n'écrivez ni nom d'enfant ni jugement sur une collègue.</p>
+    </div>
+    <div class="question-card" style="margin-bottom:1rem">
+      ${lbl('Séquence')}<select class="form-select" onchange="choisirSeq(this.value)">${optSeq}</select>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">${lbl('Site')}<select class="form-select" onchange="choisirSite(this.value)">${optSite}</select></div>
+        <div style="width:170px">${lbl('Date de la séance')}<input type="date" class="form-input" style="font-size:13px;padding:7px 10px" value="${esc(tr.date_seance)}" onchange="setTr('date_seance',this.value);renderTrace()"></div>
+      </div>
+      ${lbl('Animateur')}${inp(tr.animateur,`setTr('animateur',this.value)`,'Prénom de la personne qui anime')}
+    </div>
+    ${r?`<div class="question-card" style="margin-bottom:1rem;border-color:var(--orange);background:var(--orange-light)">
+      <strong>À reprendre à l'ouverture (retour sur ce qui a été testé)</strong>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:2px">Dernière séance de ce parcours sur ce site : ${esc(dateFr(r.date_seance))}, ${esc((seqDe(r.module_id)||{}).titre||'')}</p>
+      ${r.pratique?`<p style="font-size:13px;margin-top:6px"><strong>Pratique à tester :</strong> ${esc(r.pratique)}${r.pratique_qui?' ('+esc(r.pratique_qui)+(r.pratique_jusqua?', jusqu\'au '+esc(dateFr(r.pratique_jusqua)):'')+')':''}</p>`:''}
+      ${(Array.isArray(r.engagements)?r.engagements:[]).filter(e=>e&&e.texte).map(e=>`<div style="font-size:13px">• ${e.prenom?'<strong>'+esc(e.prenom)+'</strong> : ':''}${esc(e.texte)}</div>`).join('')}
+    </div>`:''}
+    <div class="question-card" style="margin-bottom:1rem">
+      ${lbl('Trace écrite (3 à 5 lignes)')}
+      <textarea class="form-input" rows="5" style="font-size:13px;padding:7px 10px;resize:vertical" placeholder="Ce que nous avons compris, ce que nous avons décidé…" oninput="majLignes(this.value)">${esc(tr.trace)}</textarea>
+      <div id="tr-nl" style="font-size:12px;color:var(--text-light);margin-top:2px">${nl} ligne${nl>1?'s':''}${nl>5?' : visez 3 à 5 lignes':''}</div>
+      ${lbl('Pratique à tester')}${inp(tr.pratique,`setTr('pratique',this.value)`,'Ex. : Je m\'accroupis et je nomme l\'émotion avant de proposer une solution.')}
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">${lbl('Qui')}${inp(tr.pratique_qui,`setTr('pratique_qui',this.value)`,'Toute l\'équipe, ou des prénoms')}</div>
+        <div style="width:170px">${lbl('Jusqu\'au')}<input type="date" class="form-input" style="font-size:13px;padding:7px 10px" value="${esc(tr.pratique_jusqua)}" onchange="setTr('pratique_jusqua',this.value)"></div>
+      </div>
+      ${lbl('Engagements : « Cette semaine, je… » (un par personne)')}${eng}
+      ${miniBtn('+ Ajouter un engagement',`addEng()`)}
+    </div>
+    <div class="question-card" style="margin-bottom:1rem">
+      ${lbl("Observations de l'animateur")}${ta(tr.observations,`setTr('observations',this.value)`,3,"Ce qui a bien fonctionné, ce qui a été difficile, ce qu'il faudrait ajuster")}
+      ${lbl('Lien avec la séquence suivante')}${inp(tr.lien_suivante,`setTr('lien_suivante',this.value)`,'Séquence suivante : …')}
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem;position:sticky;bottom:0;background:var(--bg);padding:12px 0;border-top:1px solid var(--border)">
+      <button class="btn primary" onclick="enregistrerTrace()">Enregistrer</button>
+      ${tr.id?`<button class="btn" onclick="window.print()">Imprimer</button>`:''}
+      <span id="tr-msg" class="save-status" style="margin:0;align-self:center"></span>
+    </div>`;
+}
+function quitTrace(){
+  if(confirm('Quitter ? Les modifications non enregistrées seront perdues.'))loadTraces();
+}
+function verifierTrace(){
+  if(!tr.module_id)return 'Choisissez la séquence.';
+  if(!tr.site)return 'Choisissez le site.';
+  if(!tr.date_seance)return 'Indiquez la date de la séance.';
+  if(!tr.trace.trim())return 'La trace écrite est vide : notez 3 à 5 lignes.';
+  const eng=tr.engagements.filter(e=>String(e.texte||'').trim());
+  if(!eng.length&&!tr.pratique.trim())return 'Ajoutez au moins un engagement ou une pratique à tester : on termine toujours par un engagement.';
+  if(tr.pratique_jusqua&&tr.pratique_jusqua<tr.date_seance)return 'La date « Jusqu\'au » est avant la date de la séance.';
+  return '';
+}
+async function enregistrerTrace(){
+  const msg=document.getElementById('tr-msg');
+  const err=verifierTrace();
+  if(err){msg.className='save-status err';msg.textContent='⚠ '+err;return;}
+  msg.className='save-status';msg.textContent='Enregistrement…';
+  const payload={
+    module_id:tr.module_id,site:tr.site,date_seance:tr.date_seance,
+    animateur:tr.animateur.trim()||null,trace:tr.trace.trim(),
+    pratique:tr.pratique.trim()||null,pratique_qui:tr.pratique_qui.trim()||null,pratique_jusqua:tr.pratique_jusqua||null,
+    engagements:tr.engagements.map(e=>({prenom:String(e.prenom||'').trim(),texte:String(e.texte||'').trim()})).filter(e=>e.texte),
+    observations:tr.observations.trim()||null,lien_suivante:tr.lien_suivante.trim()||null
+  };
+  try{
+    const r=tr.id?await db.from('trace_seance').update(payload).eq('id',tr.id).select().single()
+                 :await db.from('trace_seance').insert(payload).select().single();
+    if(r.error)throw r.error;
+    tr.id=r.data.id;
+    const i=traces.findIndex(x=>x.id===tr.id);
+    if(i>=0)traces[i]=r.data;else traces.unshift(r.data);
+    msg.className='save-status ok';msg.textContent='✓ Enregistré';
+    renderTrace();
+    const m2=document.getElementById('tr-msg');if(m2){m2.className='save-status ok';m2.textContent='✓ Enregistré';}
+  }catch(e){
+    const refus=/row-level security|permission denied/i.test(e.message||'');
+    msg.className='save-status err';
+    msg.textContent='⚠ '+(refus?"Votre compte n'est pas autorisé à enregistrer des traces de séance. Demandez à la direction de vous ajouter à la liste.":e.message);
+  }
 }
 
 function quitBlocs(){
