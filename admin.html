@@ -1503,7 +1503,7 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
    ÉDITEUR DE BLOCS — 8 types
    ========================================================== */
 const BUCKET='images-formations';
-let curBlocs=[],curModule=null,delBlocs=[];
+let curBlocs=[],curModule=null,delBlocs=[],curTrame=null;
 
 const TYPES={
   texte:{label:'Texte',icon:'¶',desc:'Titre et paragraphes'},
@@ -1599,7 +1599,9 @@ async function editContent(id){
   const{data,error}=await db.from('bloc').select('*').eq('module_id',id).order('ordre');
   if(error)return alert('Erreur : '+error.message);
   curBlocs=(data||[]).map(b=>({...b,contenu:b.contenu||blocVide(b.type)}));
-  delBlocs=[];view='blocs';render();
+  delBlocs=[];
+  curTrame=(curModule.trame&&typeof curModule.trame==='object')?JSON.parse(JSON.stringify(curModule.trame)):null;
+  view='blocs';render();
 }
 
 /* ---------- RENDU DES ÉDITEURS PAR TYPE ---------- */
@@ -1799,6 +1801,7 @@ function renderBlocs(){
       <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(curModule.accroche)}</p>
       <p style="font-size:11px;color:var(--text-light);margin-top:6px">Le titre, l'accroche et le pied de page sont générés automatiquement — inutile d'en faire des blocs.</p>
     </div>
+    ${panneauTrame()}
     <div class="addbar">${boutons}</div>
     ${cards}
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem;position:sticky;bottom:0;background:var(--bg);padding:12px 0;border-top:1px solid var(--border)">
@@ -1806,6 +1809,113 @@ function renderBlocs(){
       <button class="btn" onclick="previewModule()">Aperçu</button>
       <span id="bl-msg" class="save-status" style="margin:0;align-self:center"></span>
     </div>`;
+}
+
+/* ---------- TRAME DE LA SÉANCE (microséquences de 45 min) ----------
+   Édite module.trame : objectif, public, animateur, matériel, référence au
+   Socle, déroulé minuté et règles d'animation. Les champs que l'éditeur ne
+   connaît pas (type, numéro de séquence…) sont conservés tels quels. */
+const SOCLE_BLOCS={
+  1:'Bloc 1 – Connaître les besoins des enfants',
+  2:"Bloc 2 – Organiser l'activité avec les enfants",
+  3:'Bloc 3 – Accueillir et accompagner les parents',
+  4:"Bloc 4 – Situer et organiser son activité professionnelle"
+};
+function trameVide(){
+  return {objectif:'',public:"Toute l'équipe du site",animateur:'',materiel:[],socle:{bloc:1,attendu:''},duree_min:45,
+    deroule:[
+      {de:0,a:5,nom:'Ouverture'},{de:5,a:15,nom:'Apport'},
+      {de:15,a:30,nom:"Analyse d'une situation vécue sur le site"},
+      {de:30,a:40,nom:'Mise en pratique'},{de:40,a:45,nom:'Clôture'}],
+    regles:['Un message par séance.','Situations réelles du site.',"Bienveillance : on analyse des pratiques, pas des personnes.",'Toujours finir par un engagement.']};
+}
+const lignesDe=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const enLignes=a=>Array.isArray(a)?a.join('\n'):'';
+function taL(val,onchange,rows,ph){
+  return `<textarea class="form-input" rows="${rows||3}" placeholder="${ph||''}"
+    style="font-size:13px;padding:7px 10px;resize:vertical" onchange="${onchange}">${esc(enLignes(val))}</textarea>`;
+}
+function creerTrame(){curTrame=trameVide();dirty();renderBlocs();}
+function setT(k,v){curTrame[k]=v;dirty()}
+function setTN(k,v){const n=parseInt(v,10);curTrame[k]=isNaN(n)?null:n;dirty()}
+function setTS(k,v){curTrame.socle=curTrame.socle||{};curTrame.socle[k]=k==='bloc'?(parseInt(v,10)||1):v;dirty()}
+function setTL(k,v){curTrame[k]=lignesDe(v);dirty()}
+function setE(j,k,v){curTrame.deroule[j][k]=v;dirty()}
+function setEN(j,k,v){const n=parseInt(v,10);curTrame.deroule[j][k]=isNaN(n)?null:n;dirty()}
+function setEL(j,k,v){curTrame.deroule[j][k]=lignesDe(v);dirty()}
+function addEtape(){
+  const d=curTrame.deroule=curTrame.deroule||[];
+  const fin=d.length?(d[d.length-1].a||0):0;
+  d.push({de:fin,a:fin+5,nom:''});dirty();renderBlocs();
+}
+function delEtape(j){
+  if(!confirm('Supprimer cette étape du déroulé ?'))return;
+  curTrame.deroule.splice(j,1);dirty();renderBlocs();
+}
+function moveEtape(j,d){
+  const k=j+d,a=curTrame.deroule;if(k<0||k>=a.length)return;
+  [a[j],a[k]]=[a[k],a[j]];dirty();renderBlocs();
+}
+/* Contrôles avant enregistrement : on refuse un déroulé incohérent plutôt que
+   de l'enregistrer et de l'afficher de travers aux équipes. */
+function verifierTrame(){
+  const t=curTrame,d=t.deroule||[];
+  if(!d.length)return 'Le déroulé minuté est vide : ajoutez au moins une étape.';
+  const duree=Number.isInteger(t.duree_min)?t.duree_min:45;
+  for(let j=0;j<d.length;j++){
+    const e=d[j];
+    if(!String(e.nom||'').trim())return 'Étape '+(j+1)+' du déroulé : le nom est vide.';
+    if(!Number.isInteger(e.de)||!Number.isInteger(e.a))return 'Étape « '+e.nom+' » : les minutes de début et de fin doivent être des nombres.';
+    if(e.de<0||e.a<=e.de)return 'Étape « '+e.nom+' » : la fin doit être après le début.';
+    if(e.a>duree)return 'Étape « '+e.nom+' » : elle finit à '+e.a+' min, après la durée de la séance ('+duree+' min).';
+    if(j>0&&e.de<d[j-1].a)return 'Étapes « '+d[j-1].nom+' » et « '+e.nom+' » : elles se chevauchent.';
+  }
+  return '';
+}
+function etapeEditor(e,j,n){
+  const num=(k,lib)=>`<div style="width:90px"><div style="font-size:11px;color:var(--text-light);margin-bottom:2px">${lib}</div>
+    <input type="number" min="0" max="180" class="form-input" style="font-size:13px;padding:7px 10px" value="${e[k]==null?'':e[k]}" onchange="setEN(${j},'${k}',this.value)"></div>`;
+  return `<details class="trame-etape" style="border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-top:8px;background:var(--surface-2)">
+    <summary style="cursor:pointer;font-weight:700;font-size:14px;color:var(--purple)">${esc(e.de)}–${esc(e.a)} min · ${esc(e.nom||'(sans nom)')}</summary>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:8px">
+      ${num('de','Début (min)')}${num('a','Fin (min)')}
+      <div style="flex:1;min-width:200px"><div style="font-size:11px;color:var(--text-light);margin-bottom:2px">Nom de l'étape</div>${inp(e.nom,`setE(${j},'nom',this.value)`,'Apport')}</div>
+    </div>
+    ${lbl('Message clé (facultatif)')}${inp(e.message,`setE(${j},'message',this.value)`,'Un seul message à retenir')}
+    ${lbl('Consigne (facultatif)')}${ta(e.consigne,`setE(${j},'consigne',this.value)`,2,"Ce que fait l'animateur")}
+    ${lbl('Phrase à compléter (facultatif)')}${inp(e.amorce,`setE(${j},'amorce',this.value)`,'Cette semaine, je…')}
+    ${lbl('Idées, une par ligne (facultatif, 3 maximum pour un apport)')}${taL(e.idees,`setEL(${j},'idees',this.value)`)}
+    ${lbl('Questions, une par ligne (facultatif)')}${taL(e.questions,`setEL(${j},'questions',this.value)`)}
+    ${lbl('Autres consignes ou exemples, un par ligne (facultatif)')}${taL(e.consignes,`setEL(${j},'consignes',this.value)`)}
+    ${lbl('Support (facultatif)')}${inp(e.support,`setE(${j},'support',this.value)`,'Fiche « Trois postures », 1 page')}
+    <div style="display:flex;gap:6px;margin-top:10px">${miniBtn('↑ Monter',`moveEtape(${j},-1)`)}${miniBtn('↓ Descendre',`moveEtape(${j},1)`)}${miniBtn('Supprimer cette étape',`delEtape(${j})`,1)}</div>
+  </details>`;
+}
+function panneauTrame(){
+  if(!curTrame)return `<div class="question-card" style="margin-bottom:1rem">
+    <strong>Trame de la séance</strong>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0 8px">Ce module n'est pas une microséquence. Ajoutez une trame pour y décrire une séance de 45 minutes (objectif, déroulé minuté, règles d'animation).</p>
+    ${miniBtn('+ Ajouter une trame de séance',`creerTrame()`)}</div>`;
+  const t=curTrame,so=t.socle||{};
+  const optsBloc=Object.keys(SOCLE_BLOCS).map(k=>`<option value="${k}" ${String(so.bloc)===k?'selected':''}>${esc(SOCLE_BLOCS[k])}</option>`).join('');
+  return `<div class="question-card" style="margin-bottom:1.25rem;border-color:var(--purple)">
+    <strong style="color:var(--purple)">Trame de la séance</strong>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Affichée en haut de la séquence, avant les blocs. Les champs laissés vides ne sont pas affichés.</p>
+    ${lbl('Objectif en une phrase')}${ta(t.objectif,`setT('objectif',this.value)`,2,'À la fin, chacun est capable de…')}
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">${lbl('Public')}${inp(t.public,`setT('public',this.value)`,"Toute l'équipe du site")}</div>
+      <div style="flex:1;min-width:200px">${lbl('Animateur')}${inp(t.animateur,`setT('animateur',this.value)`,'Coordinatrice pédagogique')}</div>
+      <div style="width:110px">${lbl('Durée (min)')}<input type="number" min="5" max="180" class="form-input" style="font-size:13px;padding:7px 10px" value="${t.duree_min==null?'':t.duree_min}" onchange="setTN('duree_min',this.value)"></div>
+    </div>
+    ${lbl('Référence au Socle national')}
+    <select class="form-select" style="font-size:13px" onchange="setTS('bloc',this.value)">${optsBloc}</select>
+    <div style="margin-top:6px">${inp(so.attendu,`setTS('attendu',this.value)`,'Attendu visé (ex. Besoins affectifs et émotionnels)')}</div>
+    ${lbl('Matériel, un élément par ligne')}${taL(t.materiel,`setTL('materiel',this.value)`)}
+    ${lbl('Déroulé minuté')}
+    ${(t.deroule||[]).map((e,j)=>etapeEditor(e,j)).join('')}
+    <div style="margin-top:8px">${miniBtn('+ Ajouter une étape',`addEtape()`)}</div>
+    ${lbl("Règles d'animation, une par ligne")}${taL(t.regles,`setTL('regles',this.value)`,4)}
+  </div>`;
 }
 
 function quitBlocs(){
@@ -1816,6 +1926,13 @@ async function saveBlocs(){
   const msg=document.getElementById('bl-msg');
   msg.className='save-status';msg.textContent='Enregistrement…';
   try{
+    if(curTrame){
+      const err=verifierTrame();
+      if(err)throw new Error(err);
+      const rt=await db.from('module').update({trame:curTrame}).eq('id',curModule.id);
+      if(rt.error)throw rt.error;
+      curModule.trame=JSON.parse(JSON.stringify(curTrame));
+    }
     if(delBlocs.length){
       const d=await db.from('bloc').delete().in('id',delBlocs);
       if(d.error)throw d.error;
