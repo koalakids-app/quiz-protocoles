@@ -630,6 +630,7 @@ function renderList(){
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openResults('${q.id}')">Résultats (${q._c.r})</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="togglePublish('${q.id}',${q.publie})">${q.publie?'Dépublier':'Publier'}</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyLink('${q.id}')">Copier le lien</button>
+        ${PARTAGE_OK?`<button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyLink('${q.id}',true)">↗ Partager…</button>`:''}
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openEnvoi('quiz','${q.id}')">✉ Envoyer par mail</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteQuiz('${q.id}')">Supprimer</button>
       </div>
@@ -664,9 +665,24 @@ function quizBase(){
   if(!/index\.html$/i.test(u))u=u.replace(/\/?$/,'/index.html');
   return u;
 }
-function copyLink(id){
+/* Partage du lien par la feuille de partage de l'appareil (WhatsApp, SMS,
+   Messenger…) : rien ne transite par nos serveurs. Les boutons ne sont affichés
+   que si l'appareil sait partager (PARTAGE_OK) ; sinon « Copier le lien » reste
+   le seul moyen, comme avant. Un avertissement (module en brouillon…) est
+   répété avant de partager : un lien qui ne marche pas ne doit pas partir. */
+const PARTAGE_OK=typeof navigator.share==='function';
+async function partagerLien(url,titre,texte,avert){
+  if(avert&&!confirm(avert.trim()+'\n\nPartager quand même ?'))return;
+  try{await navigator.share({title:titre,text:texte+'\n\n'+url});}
+  catch(e){
+    if(e&&e.name==='AbortError')return;
+    navigator.clipboard.writeText(url).then(()=>alert('Partage indisponible — lien copié :\n'+url),()=>prompt('Copiez ce lien :',url));
+  }
+}
+function copyLink(id,partager){
   const base=quizBase();
   const url=base+'?quiz='+id;
+  if(partager===true)return partagerLien(url,'Quiz Koalakids','Bonjour, voici le lien pour réaliser le quiz :');
   navigator.clipboard.writeText(url).then(()=>alert('Lien copié :\n'+url),()=>prompt('Copiez ce lien :',url));
 }
 function mailCandidat(id){
@@ -1369,6 +1385,7 @@ function renderModules(){
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="editModule('${m.id}')">Renommer</button>
         ${m.trame?`<button class="btn" style="padding:7px 14px;font-size:13px" onclick="nouvelleTraceDe('${m.id}')">Trace de séance</button>`:''}
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyModuleLink('${m.id}')">Copier le lien</button>
+        ${PARTAGE_OK?`<button class="btn" style="padding:7px 14px;font-size:13px" onclick="copyModuleLink('${m.id}',true)">↗ Partager…</button>`:''}
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="openEnvoi('module','${m.id}')">✉ Envoyer par mail</button>
         <button class="btn" style="padding:7px 14px;font-size:13px" onclick="toggleModule('${m.id}',${m.publie})">${m.publie?'Dépublier':'Publier'}</button>
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteModule('${m.id}')">Supprimer</button>
@@ -1381,6 +1398,7 @@ function renderModules(){
       <h2 style="font-size:20px;color:var(--purple)">${esc(curTheme.nom)}</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="copyThemeLink('${curTheme.id}')">🔗 Copier le lien du parcours</button>
+        ${PARTAGE_OK?`<button class="btn" onclick="copyThemeLink('${curTheme.id}',true)">↗ Partager le parcours…</button>`:''}
         <button class="btn" onclick="envoyerParcours()">✉ Envoyer le parcours par mail</button>
         <button class="btn" onclick="choisirQuizTheme()">🎯 Quiz de fin${curTheme.quiz_id?' ✓':''}</button>
         <button class="btn" onclick="importModuleJSON()">⇩ Importer (JSON IA)</button>
@@ -1592,10 +1610,11 @@ function moduleBase(){
   if(!/formations\.html$/i.test(u))u=u.replace(/\/?$/,'/formations.html');
   return u;
 }
-function copyModuleLink(id){
+function copyModuleLink(id,partager){
   const m=curModules.find(x=>x.id===id);
   const url=moduleBase()+'?module='+id;
   const avert=m&&!m.publie?'\n\n\u26a0 Ce module est en brouillon : le lien ne fonctionnera qu\'une fois publi\u00e9.':'';
+  if(partager===true)return partagerLien(url,'Formation Koalakids','Bonjour, voici le lien pour suivre la formation'+(m?' « '+m.titre+' »':'')+' :',avert);
   navigator.clipboard.writeText(url).then(
     ()=>alert('Lien copi\u00e9 :\n'+url+avert),
     ()=>prompt('Copiez ce lien :',url));
@@ -1620,7 +1639,7 @@ async function choisirQuizTheme(){
   alert(val?'Quiz de fin enregistré : '+qs[n-1].titre:'Aucun quiz de fin pour cette formation.');
 }
 
-async function copyThemeLink(themeId){
+async function copyThemeLink(themeId,partager){
   const t=themes.find(x=>x.id===themeId)||(curTheme&&curTheme.id===themeId?curTheme:null);
   let url=moduleBase()+'?theme='+themeId;
   let avert='';
@@ -1630,6 +1649,7 @@ async function copyThemeLink(themeId){
     if(!(ms||[]).some(m=>m.publie))avert='\n\n\u26a0 Aucun module publié : le lien ne fonctionnera pas.';
     else if(brouillons)avert='\n\n\u26a0 '+brouillons+' module'+(brouillons>1?'s':'')+' en brouillon : '+(brouillons>1?'ne seront':'ne sera')+' pas visible'+(brouillons>1?'s':'')+' dans le parcours.';
   }catch(e){}
+  if(partager===true)return partagerLien(url,'Parcours de formation Koalakids','Bonjour, voici le lien de votre parcours de formation'+(t?' « '+t.nom+' »':'')+' :',avert);
   navigator.clipboard.writeText(url).then(
     ()=>alert('Lien du parcours copié :\n'+url+avert),
     ()=>prompt('Copiez ce lien :',url));
