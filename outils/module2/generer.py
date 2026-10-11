@@ -8,8 +8,8 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 RACINE = os.path.dirname(os.path.dirname(ICI))
 sys.path.insert(0, os.path.join(ICI, ".."))
 sys.path.insert(0, ICI)
-from contenu import sql_sequence  # noqa: E402
-import seq1, seq2, seq3  # noqa: E402
+from contenu import sql_quiz, sql_sequence  # noqa: E402
+import seq1, seq2, seq3, quiz  # noqa: E402
 
 
 def comptage(blocs):
@@ -119,9 +119,60 @@ def partie35():
                                  "publie = false, sans trame."])
 
 
+def partie36():
+    entete = """-- ============================================================================
+-- PARTIE 36 — Quiz de validation du module 2 « Émotions, pleurs, cadre sans violence »
+-- (version e-learning). Même format que les autres quiz de validation : mode « score »,
+-- corrigé immédiat, seuil de réussite de 80 %.
+-- 10 questions couvrant les trois séquences : le pleur comme signal et la réponse de
+-- l'adulte, les tempêtes émotionnelles et le corps qui parle (séquence 1), le cadre commun,
+-- la reprise sans punir et les fautes professionnelles (séquence 2), la boussole, les
+-- paroles devant l'enfant et la pratique commune (séquence 3). Les questions reformulent
+-- les notions du parcours avec d'autres cas, sans reprendre ses questions mot pour mot.
+-- LE QUIZ EST CRÉÉ NON PUBLIÉ et n'est rattaché à aucun thème : l'étape 36.2
+-- (publication et rattachement aux DEUX thèmes, e-learning et animé) est à exécuter
+-- seulement après relecture. Un seul quiz sert aux deux versions : leurs résultats sont
+-- enregistrés ensemble dans la table resultats.
+-- À exécuter en 3 temps : 36.1, 36c, puis (après relecture) 36.2 et 36d.
+-- Prérequis : partie 33 exécutée (thème e-learning). Le thème animé existe déjà.
+-- Relançable : le quiz n'est créé qu'une fois, les questions ne sont ajoutées
+-- que si le quiz n'en contient aucune.
+-- ============================================================================
+"""
+    gen = sql_quiz(entete=entete, partie=36, quiz_titre=quiz.QUIZ_TITRE, quiz_desc=quiz.QUIZ_DESC,
+                   theme_nom=seq1.THEME_NOM, questions=quiz.QUESTIONS,
+                   attendu=["1 quiz, mode score, 10 questions",
+                            "dont 2 à réponses multiples, publie = false, themes_rattaches = 0."])
+    anime = quiz.THEME_ANIME
+    # contrôle : aucun thème rattaché
+    gen = gen.replace(f"(select t.quiz_id from public.theme t where t.nom = $kk${seq1.THEME_NOM}$kk$) as quiz_du_theme",
+                      "(select count(*) from public.theme t where t.quiz_id = q.id::text) as themes_rattaches")
+    # 36.2 : les deux thèmes
+    ancien = f"  update public.theme set quiz_id = qid::text where nom = $kk${seq1.THEME_NOM}$kk$;\n"
+    assert ancien in gen
+    gen = gen.replace(ancien, f"  update public.theme set quiz_id = qid::text\n  where nom in ($kk${seq1.THEME_NOM}$kk$, $kk${anime}$kk$);\n")
+    gen = gen.replace("-- 36.2 Publication et rattachement au thème e-learning.", "-- 36.2 Publication et rattachement aux thèmes e-learning et animé.")
+    gen = gen.replace("apparaît à la fin du parcours.", "apparaît à la fin du parcours et de la dernière microséquence animée.")
+    controle2 = f"""
+-- ---------------------------------------------------------------------------
+-- 36d Contrôle après publication (lecture seule). Attendu : 2 lignes (thème animé et thème
+-- e-learning), toutes deux rattachées au quiz de validation, quiz publié.
+-- ---------------------------------------------------------------------------
+select t.nom, t.quiz_id, (t.quiz_id = q.id::text) as rattache_au_quiz_de_validation, q.publie as quiz_publie
+from public.theme t
+cross join public.quiz q
+where q.titre = $kk${quiz.QUIZ_TITRE}$kk$
+  and t.nom like 'Module 2 – Émotions, pleurs, cadre sans violence%'
+order by t.nom;
+-- FIN 36d
+"""
+    return gen + controle2
+
+
 if __name__ == "__main__":
     for nom, f in (("partie-33-elearning-module2-seq1.sql", partie33), ("partie-34-elearning-module2-seq2.sql", partie34),
-                   ("partie-35-elearning-module2-seq3.sql", partie35)):
+                   ("partie-35-elearning-module2-seq3.sql", partie35),
+                   ("partie-36-quiz-validation-module2.sql", partie36)):
         chemin = os.path.join(RACINE, "sql", nom)
         with open(chemin, "w", encoding="utf-8") as fh:
             fh.write(f())
