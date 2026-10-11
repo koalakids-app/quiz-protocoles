@@ -245,6 +245,7 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-dlg-rep{margin-top:12px;padding:12px 14px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);font-size:14px;line-height:1.6}
 .m-dlg-rep ul{margin:8px 0 0 18px}
 .m-q [hidden],.m-dlg [hidden]{display:none!important}
+.m-do+.m-q,.m-do+.m-dlg{margin-top:1.25rem}
 .m-end-actions a.btn{text-decoration:none}
 /* MICROSÉQUENCE (trame de séance de 45 min) */
 .sq-fiche{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.25rem}
@@ -600,7 +601,9 @@ function estimeTemps(blocs){
     else if(v&&typeof v==='object')Object.values(v).forEach(compte);
   };
   blocs.forEach(b=>compte(b.contenu));
-  return Math.max(2,Math.round(mots/180));
+  // Temps pour r\u00e9pondre : 45 s par question, 2 min 30 par mise en situation
+  const actif=blocs.reduce((t,b)=>t+(b.type==='question'?0.75:b.type==='dialogue'?2.5:0),0);
+  return Math.max(2,Math.round(mots/180+actif));
 }
 
 /* ---------- BARRE DE LECTURE ---------- */
