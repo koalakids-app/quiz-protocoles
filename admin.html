@@ -1702,6 +1702,9 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
 .m-fig{margin:1.25rem 0}
 .m-fig img{width:100%;border-radius:12px;border:1px solid var(--border);display:block}
 .m-fig figcaption{font-size:12px;color:var(--text-light);text-align:center;margin-top:6px;font-style:italic}
+.m-video-cadre{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+.m-video-cadre video,.m-video-cadre iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.m-video-titre{font-size:15px;margin:0 0 8px}
 `;
 
 /* ==========================================================
@@ -1719,6 +1722,7 @@ const TYPES={
   comparaison:{label:'Plutôt / À éviter',icon:'⇄',desc:'Deux colonnes'},
   essayer:{label:'À essayer',icon:'✓',desc:'Étapes à mettre en pratique'},
   image:{label:'Image',icon:'▣',desc:'Illustration et légende'},
+  video:{label:'Vidéo',icon:'▶',desc:'Fichier MP4 ou lien YouTube'},
   question:{label:'Question',icon:'✔',desc:'Choix de réponses avec correction'},
   dialogue:{label:'Mise en situation',icon:'💬',desc:'Échange à compléter, réponse possible'},
   discussion:{label:'Échange',icon:'✉',desc:'Messages entre participants, relus avant affichage'}
@@ -1734,6 +1738,7 @@ function blocVide(type){
     comparaison:{intro:'',plutot:[''],eviter:['']},
     essayer:{label:'À essayer cette semaine',titre:'',etapes:[{titre:'',texte:''}],note:''},
     image:{url:'',alt:'',legende:''},
+    video:{url:'',titre:'',legende:''},
     question:{enonce:'',options:[{texte:'',juste:true},{texte:'',juste:false}],explication:''},
     dialogue:{label:'Mise en situation',titre:'',contexte:'',repliques:[{qui:'',texte:''}],consigne:'Que répondez-vous ?',reponse_modele:'',points:['']},
     discussion:{label:'Échange avec les autres participants',titre:'',consigne:'',rappel:''}
@@ -1981,6 +1986,20 @@ function editorFor(b,i){
       ${ta(c.rappel,S('rappel'),2,"Merci de ne citer ni nom d'enfant, ni nom de coll\u00e8gue.")}
       <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Les messages envoy\u00e9s par les participants sont \u00e0 relire dans l'onglet \u00ab\u00a0\u00c9changes\u00a0\u00bb avant d'\u00eatre affich\u00e9s.</p>`;
 
+    case 'video':return `
+      ${c.url?`<div style="margin:8px 0;max-width:420px">${videoHTML(c)}</div>`:''}
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
+        <input type="file" accept="video/mp4,video/webm" id="file-${i}" style="display:none" onchange="uploadVideo(${i},this)">
+        <button class="btn" style="padding:6px 14px;font-size:12px" onclick="document.getElementById('file-${i}').click()">
+          ${c.url?'Remplacer la vid\u00e9o':'Choisir un fichier MP4'}</button>
+        <span id="up-${i}" style="font-size:12px;color:var(--text-muted)">MP4, 100 Mo max</span>
+      </div>
+      ${lbl('Ou coller un lien YouTube (non r\u00e9pertori\u00e9e) ou l\'adresse d\'un fichier')}
+      ${inp(c.url,S('url'),'https://youtu.be/\u2026')}
+      ${lbl('Titre (facultatif)')}
+      ${inp(c.titre,S('titre'))}
+      ${lbl('L\u00e9gende affich\u00e9e sous la vid\u00e9o (facultative)')}
+      ${inp(c.legende,S('legende'))}`;
     case 'image':return `
       ${c.url?`<div style="margin:8px 0"><img src="${esc(c.url)}" alt="" style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border)"></div>`:''}
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
@@ -2027,6 +2046,20 @@ function moveBloc(i,d){
   renderBlocs();dirty();
 }
 
+/* Vidéo : lien YouTube (iframe) ou fichier MP4 (lecteur natif) */
+function videoYoutubeId(u){
+  const m=String(u||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m?m[1]:'';
+}
+function videoHTML(c){
+  if(!c.url)return '';
+  const yt=videoYoutubeId(c.url);
+  const lecteur=yt
+    ?`<iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${esc(c.titre||'Vid\u00e9o')}" allow="accelerometer;encrypted-media;picture-in-picture" allowfullscreen loading="lazy"></iframe>`
+    :`<video controls preload="metadata" playsinline src="${esc(c.url)}"${c.poster?` poster="${esc(c.poster)}"`:''}></video>`;
+  return `<figure class="m-fig m-video">${c.titre?`<h3 class="m-video-titre">${esc(c.titre)}</h3>`:''}<div class="m-video-cadre">${lecteur}</div>${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`;
+}
+
 /* ---------- UPLOAD ---------- */
 async function uploadImg(i,input){
   const f=input.files[0];if(!f)return;
@@ -2040,6 +2073,21 @@ async function uploadImg(i,input){
   const{data}=db.storage.from(BUCKET).getPublicUrl(path);
   curBlocs[i].contenu.url=data.publicUrl;
   if(!curBlocs[i].contenu.alt)curBlocs[i].contenu.alt=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+  renderBlocs();dirty();
+}
+
+async function uploadVideo(i,input){
+  const f=input.files[0];if(!f)return;
+  const st=document.getElementById('up-'+i);
+  if(f.size>100*1024*1024){st.textContent='\u26a0 Vid\u00e9o trop lourde (max 100 Mo)';st.style.color='var(--danger-text)';return;}
+  st.style.color='var(--text-muted)';st.textContent='Envoi en cours\u2026 (patientez)';
+  const ext=(f.name.split('.').pop()||'mp4').toLowerCase();
+  const path=`${curModule.id}/${Date.now()}.${ext}`;
+  const{error}=await db.storage.from('videos-formations').upload(path,f,{cacheControl:'3600',upsert:false,contentType:f.type||'video/mp4'});
+  if(error){st.textContent='\u26a0 '+error.message;st.style.color='var(--danger-text)';return;}
+  const{data}=db.storage.from('videos-formations').getPublicUrl(path);
+  curBlocs[i].contenu.url=data.publicUrl;
+  if(!curBlocs[i].contenu.titre)curBlocs[i].contenu.titre=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
   renderBlocs();dirty();
 }
 
@@ -2657,6 +2705,7 @@ function blocHTML(b){
       <div class="m-disc-liste"><p class="m-disc-vide">Aper\u00e7u : les messages valid\u00e9s des participants appara\u00eetront ici.</p></div>
       <textarea class="m-input" rows="3" placeholder="\u00c9crivez en une ou deux phrases\u2026" disabled></textarea>
     </section>`;
+    case 'video':return videoHTML(c);
     case 'image':return c.url?`<figure class="m-fig">
       <img src="${esc(c.url)}" alt="${esc(c.alt||'')}">
       ${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`:'';

@@ -214,6 +214,9 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-fig{margin:1.25rem 0}
 .m-fig img{width:100%;border-radius:12px;border:1px solid var(--border);display:block}
 .m-fig figcaption{font-size:12px;color:var(--text-light);text-align:center;margin-top:6px;font-style:italic}
+.m-video-cadre{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+.m-video-cadre video,.m-video-cadre iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.m-video-titre{font-size:15px;margin:0 0 8px}
 
 /* QUESTIONS ET MISES EN SITUATION (e-learning) */
 .m-q,.m-dlg{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.25rem;margin-bottom:1.25rem}
@@ -430,11 +433,26 @@ function blocHTML(b){
           <div class="m-disc-fb" hidden></div>
         </form>`:`<p class="m-disc-aide">Pour \u00e9crire, ouvrez cette formation depuis votre lien personnel. Vous pouvez lire les messages des autres participants.</p>`}
       </section>`;}
+    case 'video':return videoHTML(c);
     case 'image':return c.url?`<figure class="m-fig">
       <img src="${esc(c.url)}" alt="${esc(c.alt||'')}" loading="lazy">
       ${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`:'';
   }
   return '';
+}
+
+/* Vidéo : lien YouTube (iframe) ou fichier MP4 (lecteur natif) */
+function videoYoutubeId(u){
+  const m=String(u||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m?m[1]:'';
+}
+function videoHTML(c){
+  if(!c.url)return '';
+  const yt=videoYoutubeId(c.url);
+  const lecteur=yt
+    ?`<iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${esc(c.titre||'Vid\u00e9o')}" allow="accelerometer;encrypted-media;picture-in-picture" allowfullscreen loading="lazy"></iframe>`
+    :`<video controls preload="metadata" playsinline src="${esc(c.url)}"${c.poster?` poster="${esc(c.poster)}"`:''}></video>`;
+  return `<figure class="m-fig m-video">${c.titre?`<h3 class="m-video-titre">${esc(c.titre)}</h3>`:''}<div class="m-video-cadre">${lecteur}</div>${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`;
 }
 
 /* Questions : choix, validation et correction immédiate (rien n'est enregistré) */
