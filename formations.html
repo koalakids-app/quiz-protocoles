@@ -246,6 +246,27 @@ textarea.form-input{font-family:inherit;line-height:1.5}
 .m-dlg-rep ul{margin:8px 0 0 18px}
 .m-q [hidden],.m-dlg [hidden]{display:none!important}
 .m-do+.m-q,.m-do+.m-dlg{margin-top:1.25rem}
+
+/* \u00c9CHANGES ENTRE PARTICIPANTS (messages relus avant affichage) */
+.m-disc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.25rem;margin-bottom:1.25rem}
+.m-disc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--purple);margin-bottom:10px}
+.m-disc h3{font-size:18px;margin-bottom:8px}
+.m-disc-consigne{font-size:15px;font-weight:600;line-height:1.5;margin-bottom:8px}
+.m-disc-rappel{font-size:12.5px;line-height:1.5;color:var(--purple);background:var(--purple-light);border-radius:var(--radius);padding:8px 12px;margin-bottom:12px}
+.m-disc-liste{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.m-disc-msg{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+.m-disc-msg.attente{background:#fff;border-style:dashed}
+.m-disc-msg strong{font-size:13px;color:var(--purple)}
+.m-disc-msg time{font-size:11px;color:var(--text-light);margin-left:8px}
+.m-disc-msg p{font-size:14px;line-height:1.55;margin:4px 0 0;white-space:pre-line;overflow-wrap:anywhere}
+.m-disc-vide,.m-disc-aide{font-size:12.5px;line-height:1.5;color:var(--text-light)}
+.m-disc-form label{display:block;margin-bottom:6px}
+.m-disc-pied{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.m-disc-fb{font-size:13px;font-weight:600;margin-top:10px}
+.m-disc-fb.ok{color:var(--success-text)}
+.m-disc-fb.ko{color:var(--danger-text)}
+.m-disc-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.m-disc [hidden]{display:none!important}
 .m-end-actions a.btn{text-decoration:none}
 /* MICROSÉQUENCE (trame de séance de 45 min) */
 .sq-fiche{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.25rem}
@@ -310,6 +331,8 @@ const app=()=>document.getElementById('app');
    (quiz) : sert uniquement à rattacher la lecture, jamais utilisé pour
    afficher quoi que ce soit ici. */
 const PRE_REF=(new URLSearchParams(location.search).get('ref')||'').trim();
+const PRE_PRENOM=(new URLSearchParams(location.search).get('prenom')||'').trim().slice(0,40);
+const PRE_CRECHE=(new URLSearchParams(location.search).get('creche')||'').trim().slice(0,80);
 let _luEnregistre=false;
 async function marquerLu(moduleId){
   if(!PRE_REF||_luEnregistre)return;
@@ -391,6 +414,22 @@ function blocHTML(b){
         ${(c.points||[]).filter(p=>p&&p.trim()).length?`<ul>${c.points.filter(p=>p&&p.trim()).map(p=>`<li>${mdBold(p)}</li>`).join('')}</ul>`:''}
       </div>
     </section>`;
+    case 'discussion':{
+      const peut=!!(PRE_REF&&PRE_PRENOM);
+      return `<section class="m-disc" data-bloc="${esc(b.id||'')}" data-module="${esc(b.module_id||'')}">
+        <div class="m-disc-label">${esc(c.label||'\u00c9change avec les autres participants')}</div>
+        ${c.titre?`<h3>${esc(c.titre)}</h3>`:''}
+        ${c.consigne?`<p class="m-disc-consigne">${mdBold(c.consigne)}</p>`:''}
+        <p class="m-disc-rappel">${esc(c.rappel||RAPPEL_ECHANGES)}</p>
+        <div class="m-disc-liste" aria-live="polite"><p class="m-disc-vide">Chargement des messages\u2026</p></div>
+        ${peut?`<form class="m-disc-form" onsubmit="echangesEnvoyer(this);return false">
+          <label class="m-disc-aide">Votre message sera publi\u00e9 sous le pr\u00e9nom <strong>${esc(PRE_PRENOM)}</strong>, apr\u00e8s relecture.</label>
+          <textarea class="m-input" name="message" rows="3" maxlength="800" minlength="3" required placeholder="\u00c9crivez en une ou deux phrases\u2026" oninput="echangesCompte(this)"></textarea>
+          <input type="text" name="site" class="m-disc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="m-disc-pied"><span class="m-disc-aide m-disc-compte">0 / 800</span><button class="btn primary" type="submit">Envoyer pour relecture</button></div>
+          <div class="m-disc-fb" hidden></div>
+        </form>`:`<p class="m-disc-aide">Pour \u00e9crire, ouvrez cette formation depuis votre lien personnel. Vous pouvez lire les messages des autres participants.</p>`}
+      </section>`;}
     case 'image':return c.url?`<figure class="m-fig">
       <img src="${esc(c.url)}" alt="${esc(c.alt||'')}" loading="lazy">
       ${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`:'';
@@ -421,6 +460,53 @@ function qValider(btn){
 function dlgReveler(btn){
   const r=btn.closest('.m-dlg').querySelector('.m-dlg-rep');
   r.hidden=false;btn.hidden=true;
+}
+
+/* \u00c9changes entre participants : lecture des messages valid\u00e9s (vue publique) et d\u00e9p\u00f4t d'un
+   message en attente de relecture. Le contenu est toujours \u00e9chapp\u00e9 (esc), jamais interpr\u00e9t\u00e9. */
+const RAPPEL_ECHANGES="Merci de ne citer ni nom d'enfant, ni nom de coll\u00e8gue. Les messages sont relus avant d'\u00eatre affich\u00e9s.";
+const dateCourte=d=>{try{return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}catch(e){return ''}};
+async function initEchanges(){
+  for(const s of document.querySelectorAll('.m-disc[data-bloc]'))await echangesCharger(s);
+}
+async function echangesCharger(s){
+  const liste=s.querySelector('.m-disc-liste'),id=s.dataset.bloc;
+  if(!id){liste.innerHTML='';return;}
+  try{
+    const{data,error}=await db.from('echanges_valides').select('prenom,message,cree_le').eq('bloc_id',id).order('cree_le',{ascending:true}).limit(200);
+    if(error)throw error;
+    s._valides=data||[];echangesAfficher(s);
+  }catch(e){liste.innerHTML='<p class="m-disc-vide">Les messages ne peuvent pas \u00eatre affich\u00e9s pour le moment.</p>';}
+}
+function echangesAfficher(s){
+  const v=s._valides||[],a=s._attente||[];
+  const item=(m,att)=>`<div class="m-disc-msg${att?' attente':''}"><strong>${esc(m.prenom)}</strong><time>${att?'en attente de relecture':esc(dateCourte(m.cree_le))}</time><p>${esc(m.message)}</p></div>`;
+  s.querySelector('.m-disc-liste').innerHTML=(v.length||a.length)
+    ?v.map(m=>item(m,false)).join('')+a.map(m=>item(m,true)).join('')
+    :'<p class="m-disc-vide">Aucun message pour l\'instant. Soyez la premi\u00e8re ou le premier \u00e0 partager.</p>';
+}
+function echangesCompte(ta){
+  const c=ta.closest('.m-disc-form').querySelector('.m-disc-compte');
+  if(c)c.textContent=ta.value.length+' / 800';
+}
+async function echangesEnvoyer(f){
+  const s=f.closest('.m-disc'),ta=f.elements.message,btn=f.querySelector('button[type=submit]'),fb=f.querySelector('.m-disc-fb');
+  const dire=(t,ok)=>{fb.hidden=false;fb.className='m-disc-fb '+(ok?'ok':'ko');fb.textContent=t;};
+  const msg=ta.value.trim();
+  if(f.elements.site&&f.elements.site.value){ta.value='';dire('Merci ! Votre message sera visible apr\u00e8s relecture.',true);return false;}  // champ pi\u00e8ge (robots)
+  if(msg.length<3){dire('Votre message est trop court.',false);return false;}
+  if(!PRE_REF||!PRE_PRENOM||!s.dataset.bloc||!s.dataset.module){dire('Ouvrez la formation depuis votre lien personnel pour \u00e9crire.',false);return false;}
+  btn.disabled=true;
+  const{error}=await db.from('echanges').insert({module_id:s.dataset.module,bloc_id:s.dataset.bloc,ref:PRE_REF,prenom:PRE_PRENOM,creche:PRE_CRECHE||null,message:msg});
+  btn.disabled=false;
+  if(error){
+    dire(/echanges_limite/.test(error.message||'')?'Vous avez envoy\u00e9 plusieurs messages en peu de temps. R\u00e9essayez dans une heure.':"Votre message n'a pas pu \u00eatre envoy\u00e9. R\u00e9essayez plus tard.",false);
+    return false;
+  }
+  (s._attente=s._attente||[]).push({prenom:PRE_PRENOM,message:msg});
+  ta.value='';echangesCompte(ta);echangesAfficher(s);
+  dire('Merci ! Votre message sera visible apr\u00e8s relecture.',true);
+  return false;
 }
 
 /* ---------- VUE : ACCUEIL SANS LIEN ---------- */
@@ -551,6 +637,7 @@ async function showModule(id){
       ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Suivant \u2192</a>`:(qz?`<a class="btn primary" href="${esc(lienQuiz(qz))}">Passer le quiz \u2192</a>`:'<span class="btn off">Suivant \u2192</span>')}
     </div>`:''}</div>`;
   window.scrollTo(0,0);
+  initEchanges();
   // Module tenant enti\u00e8rement \u00e0 l'\u00e9cran : aucun \u00e9v\u00e9nement scroll ne se
   // d\u00e9clenchera jamais, donc rien ne marquerait la lecture sans ce filet.
   setTimeout(()=>{
