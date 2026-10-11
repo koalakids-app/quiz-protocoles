@@ -201,6 +201,7 @@ function render(){
   else if(view==='traces')renderTraces();
   else if(view==='trace')renderTrace();
   else if(view==='sites')renderSites();
+  else if(view==='echanges')renderEchanges();
 }
 
 /* ===== ENVOI DIRECT PAR MAIL (quiz et modules) ===== */
@@ -501,15 +502,93 @@ function envReessayer(){
 }
 function envRevenir(){ENV.resultats=null;ENV.sel=new Set();renderEnvoi();}
 
+/* ===== \u00c9CHANGES ENTRE PARTICIPANTS : relecture avant affichage ===== */
+let echanges=[],echSeqs={},echBlocs={},fEchStatut='en_attente',fEchSeq='',erreurEchanges='';
+async function loadEchanges(){
+  view='echanges';
+  app().innerHTML=`${tabs('echanges')}<div class="center-msg">Chargement\u2026</div>`;
+  erreurEchanges='';
+  try{
+    const[m,b,e]=await Promise.all([
+      db.from('module').select('id,titre'),
+      db.from('bloc').select('id,contenu').eq('type','discussion'),
+      db.from('echanges').select('*').order('cree_le',{ascending:false}).limit(500)]);
+    if(e.error)throw e.error;
+    echSeqs={};(m.data||[]).forEach(x=>{echSeqs[x.id]=x.titre});
+    echBlocs={};(b.data||[]).forEach(x=>{echBlocs[x.id]=(x.contenu&&x.contenu.consigne)||''});
+    echanges=e.data||[];
+  }catch(err){erreurEchanges=err.message||String(err);echanges=[];}
+  render();
+}
+const ECH_LIB={en_attente:'\u00c0 relire',valide:'Valid\u00e9',refuse:'Refus\u00e9'};
+const ECH_STYLE={en_attente:'background:var(--orange-light);color:var(--orange);border-color:var(--orange)',valide:'background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)',refuse:'background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border)'};
+function renderEchanges(){
+  const n=s=>echanges.filter(x=>x.statut===s).length;
+  const lignes=echanges.filter(x=>(!fEchStatut||x.statut===fEchStatut)&&(!fEchSeq||x.module_id===fEchSeq));
+  const dt=d=>d?new Date(d).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'';
+  const liste=lignes.length?lignes.map(x=>{
+    const cons=echBlocs[x.bloc_id]||'';
+    return `<div class="question-card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1;min-width:220px">
+          <strong style="font-size:15px">${esc(x.prenom)}</strong>
+          <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;border:1px solid;margin-left:6px;${ECH_STYLE[x.statut]||''}">${esc(ECH_LIB[x.statut]||x.statut)}</span>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(echSeqs[x.module_id]||'S\u00e9quence supprim\u00e9e')} \u00b7 ${esc(dt(x.cree_le))}${x.creche?' \u00b7 '+esc(x.creche):''} \u00b7 r\u00e9f. ${esc(x.ref)}</div>
+          ${cons?`<div style="font-size:12px;color:var(--text-light);font-style:italic;margin-top:4px">\u00ab\u00a0${esc(cons.length>140?cons.slice(0,140)+'\u2026':cons)}\u00a0\u00bb</div>`:''}
+          <p style="font-size:14px;line-height:1.55;margin-top:8px;white-space:pre-line;overflow-wrap:anywhere">${esc(x.message)}</p>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${x.statut!=='valide'?miniBtn('Valider',`echangeStatut('${x.id}','valide')`):''}
+          ${x.statut==='en_attente'?miniBtn('Refuser',`echangeStatut('${x.id}','refuse')`,1):''}
+          ${x.statut==='valide'?miniBtn('Retirer',`echangeStatut('${x.id}','refuse')`,1):''}
+          ${miniBtn('Supprimer',`echangeSupprimer('${x.id}')`,1)}
+        </div>
+      </div></div>`;
+  }).join(''):`<div class="center-msg">${echanges.length?'Aucun message pour ce filtre.':"Aucun message pour l'instant."}</div>`;
+  const optStat=[['en_attente','\u00c0 relire ('+n('en_attente')+')'],['valide','Valid\u00e9s ('+n('valide')+')'],['refuse','Refus\u00e9s ('+n('refuse')+')'],['','Tous ('+echanges.length+')']]
+    .map(([v,l])=>`<option value="${v}" ${fEchStatut===v?'selected':''}>${l}</option>`).join('');
+  const ids=[...new Set(echanges.map(x=>x.module_id))];
+  const optSeq=['<option value="">Toutes les s\u00e9quences</option>'].concat(ids.map(v=>`<option value="${esc(v)}" ${fEchSeq===v?'selected':''}>${esc(echSeqs[v]||'S\u00e9quence supprim\u00e9e')}</option>`)).join('');
+  app().innerHTML=`
+    ${tabs('echanges')}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.5rem">
+      <h2 style="font-size:20px;font-weight:700;color:var(--purple)">\u00c9changes entre participants</h2>
+      <button class="btn" onclick="loadEchanges()">Actualiser</button>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Les messages ne sont visibles des participants qu'apr\u00e8s avoir \u00e9t\u00e9 valid\u00e9s ici. V\u00e9rifiez qu'ils ne citent ni nom d'enfant, ni nom de coll\u00e8gue.</p>
+    ${erreurEchanges?`<div class="question-card" style="border-color:var(--danger-border)"><strong>\u26a0 ${esc(erreurEchanges)}</strong></div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+      <select class="form-select" style="width:auto;max-width:100%" onchange="fEchStatut=this.value;renderEchanges()">${optStat}</select>
+      <select class="form-select" style="width:auto;max-width:100%" onchange="fEchSeq=this.value;renderEchanges()">${optSeq}</select>
+    </div>
+    ${liste}`;
+}
+async function echangeStatut(id,statut){
+  const{data,error}=await db.from('echanges').update({statut,modere_le:new Date().toISOString()}).eq('id',id).select('id');
+  if(error){alert('Modification impossible : '+error.message);return;}
+  if(!data||!data.length){alert("Action refus\u00e9e : ce compte n'est pas autoris\u00e9 \u00e0 mod\u00e9rer les \u00e9changes.");return;}
+  const x=echanges.find(e=>e.id===id);if(x){x.statut=statut;x.modere_le=new Date().toISOString();}
+  renderEchanges();
+}
+async function echangeSupprimer(id){
+  if(!confirm('Supprimer d\u00e9finitivement ce message ?'))return;
+  const{data,error}=await db.from('echanges').delete().eq('id',id).select('id');
+  if(error){alert('Suppression impossible : '+error.message);return;}
+  if(!data||!data.length){alert("Action refus\u00e9e : ce compte n'est pas autoris\u00e9 \u00e0 mod\u00e9rer les \u00e9changes.");return;}
+  echanges=echanges.filter(e=>e.id!==id);
+  renderEchanges();
+}
+
 /* ===== NAVIGATION ONGLETS ===== */
 function tabs(active){
   const t=(id,label)=>`<button class="tab ${active===id?'on':''}" onclick="goTab('${id}')">${label}</button>`;
-  return `<div class="tabs">${t('quiz','Quiz')}${t('formations','Formations')}${t('seances','Séances')}</div>`;
+  return `<div class="tabs">${t('quiz','Quiz')}${t('formations','Formations')}${t('seances','Séances')}${t('echanges','Échanges')}</div>`;
 }
 function goTab(id){
   if(id==='quiz'){view='list';loadQuizzes();}
   else if(id==='seances'){loadTraces();}
   else if(id==='sites'){loadSites();}
+  else if(id==='echanges'){loadEchanges();}
   else{view='themes';loadThemes();}
 }
 
@@ -1566,6 +1645,26 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
 .m-dlg-rep ul{margin:8px 0 0 18px}
 .m-q [hidden],.m-dlg [hidden]{display:none!important}
 .m-do+.m-q,.m-do+.m-dlg{margin-top:1.25rem}
+/* \u00c9CHANGES ENTRE PARTICIPANTS (messages relus avant affichage) */
+.m-disc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.25rem;margin-bottom:1.25rem}
+.m-disc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--purple);margin-bottom:10px}
+.m-disc h3{font-size:18px;margin-bottom:8px}
+.m-disc-consigne{font-size:15px;font-weight:600;line-height:1.5;margin-bottom:8px}
+.m-disc-rappel{font-size:12.5px;line-height:1.5;color:var(--purple);background:var(--purple-light);border-radius:var(--radius);padding:8px 12px;margin-bottom:12px}
+.m-disc-liste{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.m-disc-msg{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+.m-disc-msg.attente{background:#fff;border-style:dashed}
+.m-disc-msg strong{font-size:13px;color:var(--purple)}
+.m-disc-msg time{font-size:11px;color:var(--text-light);margin-left:8px}
+.m-disc-msg p{font-size:14px;line-height:1.55;margin:4px 0 0;white-space:pre-line;overflow-wrap:anywhere}
+.m-disc-vide,.m-disc-aide{font-size:12.5px;line-height:1.5;color:var(--text-light)}
+.m-disc-form label{display:block;margin-bottom:6px}
+.m-disc-pied{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.m-disc-fb{font-size:13px;font-weight:600;margin-top:10px}
+.m-disc-fb.ok{color:var(--success-text)}
+.m-disc-fb.ko{color:var(--danger-text)}
+.m-disc-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.m-disc [hidden]{display:none!important}
 .m-do{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
 .m-do-col{border-radius:var(--radius);padding:16px 18px;border:1px solid}
 .m-do-col.ok{background:var(--success-bg);border-color:var(--success-border)}
@@ -1606,7 +1705,7 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
 `;
 
 /* ==========================================================
-   ÉDITEUR DE BLOCS — 10 types
+   ÉDITEUR DE BLOCS — 11 types
    ========================================================== */
 const BUCKET='images-formations';
 let curBlocs=[],curModule=null,delBlocs=[],curTrame=null;
@@ -1621,7 +1720,8 @@ const TYPES={
   essayer:{label:'À essayer',icon:'✓',desc:'Étapes à mettre en pratique'},
   image:{label:'Image',icon:'▣',desc:'Illustration et légende'},
   question:{label:'Question',icon:'✔',desc:'Choix de réponses avec correction'},
-  dialogue:{label:'Mise en situation',icon:'💬',desc:'Échange à compléter, réponse possible'}
+  dialogue:{label:'Mise en situation',icon:'💬',desc:'Échange à compléter, réponse possible'},
+  discussion:{label:'Échange',icon:'✉',desc:'Messages entre participants, relus avant affichage'}
 };
 
 function blocVide(type){
@@ -1635,7 +1735,8 @@ function blocVide(type){
     essayer:{label:'À essayer cette semaine',titre:'',etapes:[{titre:'',texte:''}],note:''},
     image:{url:'',alt:'',legende:''},
     question:{enonce:'',options:[{texte:'',juste:true},{texte:'',juste:false}],explication:''},
-    dialogue:{label:'Mise en situation',titre:'',contexte:'',repliques:[{qui:'',texte:''}],consigne:'Que répondez-vous ?',reponse_modele:'',points:['']}
+    dialogue:{label:'Mise en situation',titre:'',contexte:'',repliques:[{qui:'',texte:''}],consigne:'Que répondez-vous ?',reponse_modele:'',points:['']},
+    discussion:{label:'Échange avec les autres participants',titre:'',consigne:'',rappel:''}
   };
   return JSON.parse(JSON.stringify(c[type]));
 }
@@ -1868,6 +1969,17 @@ function editorFor(b,i){
           ${c.points.length>1?miniBtn('×',`delArr(${i},'points',${j})`,1):''}
         </div>`).join('')}
       ${miniBtn('+ Point',`addArr(${i},'points','')`)}`;
+
+    case 'discussion':return `
+      ${lbl('\u00c9tiquette (facultative)')}
+      ${inp(c.label,S('label'),'\u00c9change avec les autres participants')}
+      ${lbl('Titre (facultatif)')}
+      ${inp(c.titre,S('titre'),'Partagez un geste')}
+      ${lbl('Consigne : la question pos\u00e9e aux participants')}
+      ${ta(c.consigne,S('consigne'),3,'Quel geste vous aide \u00e0 rassurer un enfant \u00e0 son arriv\u00e9e ?')}
+      ${lbl('Rappel affich\u00e9 (facultatif, un rappel par d\u00e9faut est fourni)')}
+      ${ta(c.rappel,S('rappel'),2,"Merci de ne citer ni nom d'enfant, ni nom de coll\u00e8gue.")}
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Les messages envoy\u00e9s par les participants sont \u00e0 relire dans l'onglet \u00ab\u00a0\u00c9changes\u00a0\u00bb avant d'\u00eatre affich\u00e9s.</p>`;
 
     case 'image':return `
       ${c.url?`<div style="margin:8px 0"><img src="${esc(c.url)}" alt="" style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border)"></div>`:''}
@@ -2536,6 +2648,14 @@ function blocHTML(b){
         ${c.reponse_modele?`<p><strong>Une r\u00e9ponse possible :</strong> ${mdBold(c.reponse_modele)}</p>`:''}
         ${(c.points||[]).filter(p=>p&&p.trim()).length?`<ul>${c.points.filter(p=>p&&p.trim()).map(p=>`<li>${mdBold(p)}</li>`).join('')}</ul>`:''}
       </div>
+    </section>`;
+    case 'discussion':return `<section class="m-disc">
+      <div class="m-disc-label">${esc(c.label||'\u00c9change avec les autres participants')}</div>
+      ${c.titre?`<h3>${esc(c.titre)}</h3>`:''}
+      ${c.consigne?`<p class="m-disc-consigne">${mdBold(c.consigne)}</p>`:''}
+      <p class="m-disc-rappel">${esc(c.rappel||"Merci de ne citer ni nom d'enfant, ni nom de coll\u00e8gue. Les messages sont relus avant d'\u00eatre affich\u00e9s.")}</p>
+      <div class="m-disc-liste"><p class="m-disc-vide">Aper\u00e7u : les messages valid\u00e9s des participants appara\u00eetront ici.</p></div>
+      <textarea class="m-input" rows="3" placeholder="\u00c9crivez en une ou deux phrases\u2026" disabled></textarea>
     </section>`;
     case 'image':return c.url?`<figure class="m-fig">
       <img src="${esc(c.url)}" alt="${esc(c.alt||'')}">
