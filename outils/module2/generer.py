@@ -9,7 +9,7 @@ RACINE = os.path.dirname(os.path.dirname(ICI))
 sys.path.insert(0, os.path.join(ICI, ".."))
 sys.path.insert(0, ICI)
 from contenu import sql_sequence  # noqa: E402
-import seq1, seq2  # noqa: E402
+import seq1, seq2, seq3  # noqa: E402
 
 
 def comptage(blocs):
@@ -96,8 +96,32 @@ def partie34():
                                  "publie = false, sans trame."])
 
 
+def partie35():
+    s = seq3
+    entete = f"""-- ============================================================================
+-- PARTIE 35 — Version e-learning du module 2 : séquence 3/3 (Test d'une pratique et retour d'expérience)
+-- Source : projet pédagogique Koala Kids (partie 3 : accompagner les enfants dans leurs émotions,
+-- tempêtes émotionnelles, posture « boussole », attention portée aux paroles) et séance animée 3/3
+-- du module 2 (retour d'expérience en quatre questions, pratique commune sur deux semaines).
+-- Séquence en lecture seule d'environ 30 minutes : {len(s.BLOCS)} blocs ({comptage(s.BLOCS)}),
+-- dont 7 questions avec correction, 3 mises en situation, 3 temps de réflexion et un bloc « Échange ».
+-- LA SÉQUENCE RESTE EN BROUILLON (publie = false).
+-- Prérequis : partie 33 exécutée (thème e-learning du module 2), parties 25 et 30.
+-- À exécuter en 3 temps : 35.1, 35.2, puis 35c.
+-- Relançable : la séquence n'est créée qu'une fois, et les blocs ne sont ajoutés que si
+-- la séquence n'en contient aucun.
+-- Les prénoms (Ilyès, Anaïs, Naël) sont fictifs : ce ne sont pas des enfants du site.
+-- ============================================================================
+"""
+    return sql_sequence(entete=entete, partie=35, seq="3/3", theme_nom=s.THEME_NOM, partie_theme=33,
+                        titre=s.MODULE_TITRE, accroche=s.ACCROCHE, ordre=s.ORDRE, blocs=s.BLOCS,
+                        attendu=[f"3 lignes (séquences 1/3, 2/3 et 3/3) ; la 3/3 avec {len(s.BLOCS)} blocs ({comptage(s.BLOCS)}),",
+                                 "publie = false, sans trame."])
+
+
 if __name__ == "__main__":
-    for nom, f in (("partie-33-elearning-module2-seq1.sql", partie33), ("partie-34-elearning-module2-seq2.sql", partie34)):
+    for nom, f in (("partie-33-elearning-module2-seq1.sql", partie33), ("partie-34-elearning-module2-seq2.sql", partie34),
+                   ("partie-35-elearning-module2-seq3.sql", partie35)):
         chemin = os.path.join(RACINE, "sql", nom)
         with open(chemin, "w", encoding="utf-8") as fh:
             fh.write(f())
