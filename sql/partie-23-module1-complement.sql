@@ -63,14 +63,14 @@ declare mid public.module.id%type;
 begin
   select id into mid from public.module where titre like 'Module 1 % 2/3 %';
   if mid is null then raise notice '23.2 : séquence 2/3 introuvable'; return; end if;
-  if exists (select 1 from public.bloc where module_id = mid and contenu->>'intro' like 'Face à une tempête émotionnelle%') then
+  if exists (select 1 from public.bloc where module_id = mid and contenu->>'intro' like '**Face à une tempête émotionnelle%') then
     raise notice '23.2 : déjà exécuté'; return;
   end if;
 
   update public.bloc set ordre = ordre + 1 where module_id = mid and ordre >= 3;
 
   insert into public.bloc(module_id, type, contenu, ordre) values
-  (mid, 'comparaison', $kk${"intro": "Face à une tempête émotionnelle, la réaction de l'adulte apaise et construit, ou renforce l'insécurité.", "plutot": ["Accueillir l'émotion sans jugement : « Tu as le droit d'être en colère. »", "La nommer.", "Réconforter, puis aider à trouver des stratégies.", "Se dire que consoler n'est pas du laxisme : c'est aider le cerveau de l'enfant à mûrir."], "eviter": ["Nier ou minimiser : « Ce n'est rien. »", "Punir.", "Isoler l'enfant.", "Attendre qu'il se calme seul : il ne le peut pas encore."]}$kk$::jsonb, 3);
+  (mid, 'comparaison', $kk${"intro": "**Face à une tempête émotionnelle.** La réaction de l'adulte apaise et construit, ou renforce l'insécurité.", "plutot": ["Accueillir l'émotion sans jugement : « Tu as le droit d'être en colère. »", "La nommer.", "Réconforter, puis aider à trouver des stratégies.", "Se dire que consoler n'est pas du laxisme : c'est aider le cerveau de l'enfant à mûrir."], "eviter": ["Nier ou minimiser : « Ce n'est rien. »", "Punir.", "Isoler l'enfant.", "Attendre qu'il se calme seul : il ne le peut pas encore."]}$kk$::jsonb, 3);
 
   raise notice '23.2 : 1 bloc ajouté';
 end
