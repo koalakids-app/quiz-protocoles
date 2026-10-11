@@ -9,7 +9,7 @@ RACINE = os.path.dirname(os.path.dirname(ICI))
 sys.path.insert(0, os.path.join(ICI, ".."))
 sys.path.insert(0, ICI)
 from contenu import sql_sequence  # noqa: E402
-import seq1  # noqa: E402
+import seq1, seq2  # noqa: E402
 
 
 def comptage(blocs):
@@ -35,7 +35,7 @@ def partie33():
 -- À exécuter en 3 temps : 33.1, 33.2, puis 33c.
 -- Relançable : le thème et la séquence ne sont créés qu'une fois, et les blocs
 -- ne sont ajoutés que si la séquence n'en contient aucun.
--- Les prénoms (Mia, Rayan, Inès, Hugo) sont fictifs : ce ne sont pas des enfants du site.
+-- Les prénoms (Mia, Rayan, Nina, Malo) sont fictifs : ce ne sont pas des enfants du site.
 -- ============================================================================
 """
     gen = sql_sequence(entete=entete, partie=33, seq="1/3", theme_nom=s.THEME_NOM, partie_theme=33,
@@ -73,8 +73,32 @@ $do$;
     return sortie
 
 
+def partie34():
+    s = seq2
+    entete = f"""-- ============================================================================
+-- PARTIE 34 — Version e-learning du module 2 : séquence 2/3 (Analyse d'une situation vécue)
+-- Source : projet pédagogique Koala Kids (partie 3 : apprentissage des règles sociales,
+-- cadre commun, conflits entre enfants, violences éducatives ordinaires considérées comme
+-- des fautes professionnelles) et séance animée 2/3 du module 2 (quatre questions d'analyse).
+-- Séquence en lecture seule d'environ 30 minutes : {len(s.BLOCS)} blocs ({comptage(s.BLOCS)}),
+-- dont 7 questions avec correction, 3 mises en situation, 3 temps de réflexion et un bloc « Échange ».
+-- LA SÉQUENCE RESTE EN BROUILLON (publie = false).
+-- Prérequis : partie 33 exécutée (thème e-learning du module 2), parties 25 et 30.
+-- À exécuter en 3 temps : 34.1, 34.2, puis 34c.
+-- Relançable : la séquence n'est créée qu'une fois, et les blocs ne sont ajoutés que si
+-- la séquence n'en contient aucun.
+-- Les prénoms (Kenzo, Elio, Maya, Sofia, Ismaël, Louise, Gabin) sont fictifs : ce ne sont pas des enfants du site.
+-- ============================================================================
+"""
+    return sql_sequence(entete=entete, partie=34, seq="2/3", theme_nom=s.THEME_NOM, partie_theme=33,
+                        titre=s.MODULE_TITRE, accroche=s.ACCROCHE, ordre=s.ORDRE, blocs=s.BLOCS,
+                        attendu=[f"2 lignes (séquences 1/3 et 2/3) ; la 2/3 avec {len(s.BLOCS)} blocs ({comptage(s.BLOCS)}),",
+                                 "publie = false, sans trame."])
+
+
 if __name__ == "__main__":
-    chemin = os.path.join(RACINE, "sql", "partie-33-elearning-module2-seq1.sql")
-    with open(chemin, "w", encoding="utf-8") as f:
-        f.write(partie33())
-    print(chemin, "écrit")
+    for nom, f in (("partie-33-elearning-module2-seq1.sql", partie33), ("partie-34-elearning-module2-seq2.sql", partie34)):
+        chemin = os.path.join(RACINE, "sql", nom)
+        with open(chemin, "w", encoding="utf-8") as fh:
+            fh.write(f())
+        print(chemin, "écrit")

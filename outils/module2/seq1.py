@@ -1,7 +1,7 @@
 # Module 2 – séquence 1/3 e-learning : « Un pleur est un message ».
 # Sources : projet pédagogique Koala Kids (partie 3 : « Comment les enfants apprennent-ils à comprendre et à
 # réguler leurs émotions ? », attachement et réponse aux besoins, postures « port d'attache » et « boussole »)
-# et séance animée 1/3 du module 2 (trame). Rédigés librement, à valider : les cas (Mia, Rayan, Inès, Hugo),
+# et séance animée 1/3 du module 2 (trame). Rédigés librement, à valider : les cas (Mia, Rayan, Nina, Malo),
 # les dialogues, les réponses types, les options fausses des questions.
 # Emplacements prévus pour les visuels (à ajouter quand ils seront fournis) : après le bloc 2 (pleur), après
 # le bloc 13 (port d'attache / boussole).
@@ -39,7 +39,7 @@ BLOCS = [
     "texte": "On vient de reprendre un objet dangereux à Rayan, 22 mois. Il se jette par terre, hurle, tape du poing, puis cherche à mordre l'adulte qui se penche vers lui.",
     "analyse": "entre 1 et 3 ans, les enfants connaissent de véritables **tempêtes émotionnelles** : ils tapent, mordent, peuvent éprouver de vraies paniques, sans comprendre ce qui se passe ni pouvoir s'apaiser seuls. Il ne cherche pas à nuire. On reste près de lui, on le protège et on protège les autres, on ne le laisse pas seul avec sa détresse."},
    {"lettre": "C", "titre": "Elle ne pleure pas, mais quelque chose ne va pas",
-    "texte": "Inès, 16 mois, ne pleure pas. Dès qu'un bruit éclate, elle se raidit. Quand on s'approche, elle recule d'un pas, puis finit par s'asseoir seule dans un coin, le regard baissé.",
+    "texte": "Nina, 16 mois, ne pleure pas. Dès qu'un bruit éclate, elle se raidit. Quand on s'approche, elle recule d'un pas, puis finit par s'asseoir seule dans un coin, le regard baissé.",
     "analyse": "une émotion ne passe pas toujours par les larmes. Gestuelle, regard, mimiques, crispation, mouvement de recul, position de retrait : **le corps parle autant que les mots**. On s'approche doucement, on observe, on met des mots sur ce qu'on voit."}]}),
  qst("Mia pleure à son réveil sans cause apparente. Que **traduit** le plus justement son pleur ?",
   [("Un caprice : elle réclame de l'attention", False),
@@ -49,7 +49,7 @@ BLOCS = [
  txt("Lire le corps autant que les mots",
   "Les pleurs ne sont pas le seul langage des émotions. Soyez attentive aux **manifestations corporelles** : gestuelle, regards, mimiques, crispation, mouvement de recul, position de retrait, autant qu'aux paroles.",
   "Cela demande d'être disponible, et de **prendre du recul** pour ne pas confondre vos propres ressentis avec les siens : un jeune enfant est un autre, il ne pense pas le monde comme les adultes. Les enfants lisent d'ailleurs plus facilement les expressions des visages que les mots : ils ont besoin de bien voir votre visage, et surtout vos yeux."),
- qst("Inès ne pleure pas, mais se raidit, recule et se retire dans un coin. Que faire en premier ?",
+ qst("Nina ne pleure pas, mais se raidit, recule et se retire dans un coin. Que faire en premier ?",
   [("S'approcher doucement, observer, mettre des mots sur ce qu'on voit et rester disponible", True),
    ("Rien : elle ne pleure pas, donc elle va bien", False),
    ("Lui demander de sourire pour la rassurer", False)],
@@ -112,10 +112,10 @@ BLOCS = [
    ("« Tu es triste, je comprends. Je suis là. »", True)],
   "Les deux premières phrases **nient** l'émotion ou **détournent** l'attention. La troisième la **nomme**, la reconnaît comme légitime et dit que l'adulte reste disponible : c'est la posture de la boussole."),
  dlg("Un parent veut qu'on le laisse pleurer",
-     "17 h 20. Le papa d'Hugo, 18 mois, vous parle à voix basse en enfilant le manteau de son fils.",
-     [("Le papa d'Hugo", "À la maison, je le laisse pleurer dans sa chambre : il faut qu'il apprenne à se calmer seul. J'espère que vous faites pareil ici.")],
+     "17 h 20. Le papa de Malo, 18 mois, vous parle à voix basse en enfilant le manteau de son fils.",
+     [("Le papa de Malo", "À la maison, je le laisse pleurer dans sa chambre : il faut qu'il apprenne à se calmer seul. J'espère que vous faites pareil ici.")],
      "Que répondez-vous à ce parent ?",
-     "Je vois que vous voulez l'aider à devenir autonome. À son âge, Hugo ne peut pas encore apaiser seul une émotion trop grosse : il a besoin d'un adulte pour y arriver. Ici, quand il pleure, je reste près de lui, je nomme ce qu'il vit et je le console. Si vous le souhaitez, je vous raconte comment ça se passe.",
+     "Je vois que vous voulez l'aider à devenir autonome. À son âge, Malo ne peut pas encore apaiser seul une émotion trop grosse : il a besoin d'un adulte pour y arriver. Ici, quand il pleure, je reste près de lui, je nomme ce qu'il vit et je le console. Si vous le souhaitez, je vous raconte comment ça se passe.",
      ["Reconnaître l'intention du parent, sans le juger ni le dévaloriser.",
       "Expliquer : à cet âge, l'enfant ne peut pas apaiser seul une émotion trop grosse.",
       "Dire simplement ce que l'on fait ici : rester près, nommer, consoler.",
