@@ -1534,6 +1534,38 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
 .m-input{width:100%;padding:12px 14px;border:1.5px solid rgba(74,63,159,.25);border-radius:var(--radius);font-size:14px;font-family:inherit;color:var(--text);background:white;outline:none;resize:vertical;line-height:1.5}
 .m-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(74,63,159,.1)}
 .m-pause-note{font-size:12px;color:var(--purple);opacity:.7;margin-top:8px}
+
+/* QUESTIONS ET MISES EN SITUATION (e-learning) */
+.m-q,.m-dlg{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.25rem;margin-bottom:1.25rem}
+.m-q-label,.m-dlg-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--purple);margin-bottom:10px}
+.m-q-enonce{font-size:16px;font-weight:600;line-height:1.5;margin-bottom:12px}
+.m-q-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.m-q-opt{display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;padding:11px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius);font:inherit;font-size:14px;line-height:1.5;color:var(--text);cursor:pointer;transition:border-color .15s,background .15s}
+.m-q-opt:hover{border-color:var(--border-strong)}
+.m-q-mark{flex:0 0 18px;height:18px;margin-top:2px;border:1.5px solid var(--border-strong);border-radius:50%;background:white}
+.m-q[data-multi="1"] .m-q-mark{border-radius:4px}
+.m-q-opt.sel{border-color:var(--purple);background:var(--purple-light)}
+.m-q-opt.sel .m-q-mark{background:var(--purple);border-color:var(--purple);box-shadow:inset 0 0 0 3px white}
+.m-q[data-done="1"] .m-q-opt{cursor:default}
+.m-q-opt.juste{border-color:var(--success-border);background:var(--success-bg)}
+.m-q-opt.juste .m-q-mark{background:var(--success-border);border-color:var(--success-border);box-shadow:inset 0 0 0 3px white}
+.m-q-opt.faux{border-color:var(--danger-border);background:var(--danger-bg)}
+.m-q-opt.faux .m-q-mark{background:var(--danger-border);border-color:var(--danger-border);box-shadow:inset 0 0 0 3px white}
+.m-q-fb{font-size:14px;font-weight:600;padding:10px 14px;border-radius:var(--radius);margin-top:4px;background:var(--surface-2);border:1px solid var(--border)}
+.m-q-fb.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
+.m-q-fb.ko{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border)}
+.m-q-expl{font-size:14px;line-height:1.6;color:var(--text-muted);margin-top:10px}
+.m-dlg h3{font-size:18px;margin-bottom:8px}
+.m-dlg-ctx{font-size:14px;line-height:1.6;color:var(--text-muted);margin-bottom:12px}
+.m-dlg-bulle{background:var(--purple-light);border-radius:14px 14px 14px 4px;padding:10px 14px;margin:0 0 10px;max-width:92%}
+.m-dlg-bulle strong{display:block;font-size:12px;color:var(--purple);margin-bottom:2px}
+.m-dlg-bulle p{font-size:14px;line-height:1.55;margin:0}
+.m-dlg-consigne{font-size:15px;font-weight:600;margin:14px 0 8px}
+.m-dlg .btn{margin-top:10px}
+.m-dlg-rep{margin-top:12px;padding:12px 14px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);font-size:14px;line-height:1.6}
+.m-dlg-rep ul{margin:8px 0 0 18px}
+.m-q [hidden],.m-dlg [hidden]{display:none!important}
+.m-do+.m-q,.m-do+.m-dlg{margin-top:1.25rem}
 .m-do{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
 .m-do-col{border-radius:var(--radius);padding:16px 18px;border:1px solid}
 .m-do-col.ok{background:var(--success-bg);border-color:var(--success-border)}
@@ -1574,7 +1606,7 @@ const MOD_CSS=`.readbar{position:sticky;top:68px;z-index:99;height:3px;backgroun
 `;
 
 /* ==========================================================
-   ÉDITEUR DE BLOCS — 8 types
+   ÉDITEUR DE BLOCS — 10 types
    ========================================================== */
 const BUCKET='images-formations';
 let curBlocs=[],curModule=null,delBlocs=[],curTrame=null;
@@ -1587,7 +1619,9 @@ const TYPES={
   citation:{label:'Citation',icon:'“',desc:'Phrase mise en exergue'},
   comparaison:{label:'Plutôt / À éviter',icon:'⇄',desc:'Deux colonnes'},
   essayer:{label:'À essayer',icon:'✓',desc:'Étapes à mettre en pratique'},
-  image:{label:'Image',icon:'▣',desc:'Illustration et légende'}
+  image:{label:'Image',icon:'▣',desc:'Illustration et légende'},
+  question:{label:'Question',icon:'✔',desc:'Choix de réponses avec correction'},
+  dialogue:{label:'Mise en situation',icon:'💬',desc:'Échange à compléter, réponse possible'}
 };
 
 function blocVide(type){
@@ -1599,7 +1633,9 @@ function blocVide(type){
     citation:{texte:''},
     comparaison:{intro:'',plutot:[''],eviter:['']},
     essayer:{label:'À essayer cette semaine',titre:'',etapes:[{titre:'',texte:''}],note:''},
-    image:{url:'',alt:'',legende:''}
+    image:{url:'',alt:'',legende:''},
+    question:{enonce:'',options:[{texte:'',juste:true},{texte:'',juste:false}],explication:''},
+    dialogue:{label:'Mise en situation',titre:'',contexte:'',repliques:[{qui:'',texte:''}],consigne:'Que répondez-vous ?',reponse_modele:'',points:['']}
   };
   return JSON.parse(JSON.stringify(c[type]));
 }
@@ -1788,6 +1824,50 @@ function editorFor(b,i){
       ${miniBtn('+ Étape',`addArr(${i},'etapes',{titre:'',texte:''})`)}
       ${lbl('Note de fin (facultative)')}
       ${ta(c.note,S('note'),2)}`;
+
+    case 'question':return `
+      ${lbl('Énoncé de la question')}
+      ${ta(c.enonce,S('enonce'),2,'Un enfant de 9 mois pleure à la vue d\'un adulte inconnu. Que traduit sa réaction ?')}
+      ${lbl('Réponses proposées (cochez la ou les bonnes réponses)')}
+      ${c.options.map((o,j)=>`
+        <div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start">
+          <label title="Bonne réponse" style="display:flex;align-items:center;gap:4px;padding-top:9px;font-size:12px;white-space:nowrap">
+            <input type="checkbox" ${o.juste?'checked':''} onchange="setObjArr(${i},'options',${j},'juste',this.checked)"> juste</label>
+          ${ta(o.texte,`setObjArr(${i},'options',${j},'texte',this.value)`,2)}
+          ${c.options.length>2?miniBtn('×',`delArr(${i},'options',${j})`,1):''}
+        </div>`).join('')}
+      ${miniBtn('+ Réponse',`addArr(${i},'options',{texte:'',juste:false})`)}
+      ${lbl('Explication affichée après la validation (facultative)')}
+      ${ta(c.explication,S('explication'),3)}`;
+
+    case 'dialogue':return `
+      ${lbl('Étiquette')}
+      ${inp(c.label,S('label'),'Mise en situation')}
+      ${lbl('Titre')}
+      ${inp(c.titre,S('titre'),'Un parent hésite à partir')}
+      ${lbl('Contexte (facultatif)')}
+      ${ta(c.contexte,S('contexte'),2)}
+      ${lbl('Répliques entendues')}
+      ${c.repliques.map((r,j)=>`
+        <div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start">
+          <div style="flex:1">
+            ${inp(r.qui,`setObjArr(${i},'repliques',${j},'qui',this.value)`,'Une maman')}
+            <div style="margin-top:4px">${ta(r.texte,`setObjArr(${i},'repliques',${j},'texte',this.value)`,2)}</div>
+          </div>
+          ${c.repliques.length>1?miniBtn('×',`delArr(${i},'repliques',${j})`,1):''}
+        </div>`).join('')}
+      ${miniBtn('+ Réplique',`addArr(${i},'repliques',{qui:'',texte:''})`)}
+      ${lbl('Consigne')}
+      ${inp(c.consigne,S('consigne'),'Que répondez-vous ?')}
+      ${lbl('Réponse possible (affichée sur demande)')}
+      ${ta(c.reponse_modele,S('reponse_modele'),3)}
+      ${lbl('Pourquoi cette réponse : points d\'attention')}
+      ${c.points.map((p,j)=>`
+        <div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start">
+          ${ta(p,`setArr(${i},'points',${j},this.value)`,2)}
+          ${c.points.length>1?miniBtn('×',`delArr(${i},'points',${j})`,1):''}
+        </div>`).join('')}
+      ${miniBtn('+ Point',`addArr(${i},'points','')`)}`;
 
     case 'image':return `
       ${c.url?`<div style="margin:8px 0"><img src="${esc(c.url)}" alt="" style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border)"></div>`:''}
@@ -2363,6 +2443,31 @@ async function saveBlocs(){
 }
 
 /* ---------- APERÇU ---------- */
+/* Questions : choix, validation et correction immédiate (rien n'est enregistré) */
+function qChoisir(btn){
+  const s=btn.closest('.m-q');if(!s||s.dataset.done)return;
+  if(s.dataset.multi==='1'){btn.classList.toggle('sel');}
+  else{s.querySelectorAll('.m-q-opt').forEach(b=>{b.classList.remove('sel');b.setAttribute('aria-pressed','false');});btn.classList.add('sel');}
+  btn.setAttribute('aria-pressed',btn.classList.contains('sel')?'true':'false');
+}
+function qValider(btn){
+  const s=btn.closest('.m-q');if(!s||s.dataset.done)return;
+  const opts=[...s.querySelectorAll('.m-q-opt')],fb=s.querySelector('.m-q-fb');
+  if(!opts.some(o=>o.classList.contains('sel'))){fb.hidden=false;fb.className='m-q-fb';fb.textContent='Choisissez au moins une r\u00e9ponse.';return;}
+  let ok=true;
+  opts.forEach(o=>{const j=o.dataset.juste==='1',sel=o.classList.contains('sel');
+    if(j)o.classList.add('juste');else if(sel)o.classList.add('faux');
+    if(j!==sel)ok=false;});
+  s.dataset.done='1';btn.hidden=true;
+  fb.hidden=false;fb.className='m-q-fb '+(ok?'ok':'ko');
+  fb.textContent=ok?'Bonne r\u00e9ponse.':'Pas tout \u00e0 fait : les bonnes r\u00e9ponses sont indiqu\u00e9es en vert.';
+  const ex=s.querySelector('.m-q-expl');if(ex)ex.hidden=false;
+}
+function dlgReveler(btn){
+  const r=btn.closest('.m-dlg').querySelector('.m-dlg-rep');
+  r.hidden=false;btn.hidden=true;
+}
+
 function mdBold(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}
 
 function blocHTML(b){
@@ -2407,6 +2512,31 @@ function blocHTML(b){
       <ol class="m-try-list">${(c.etapes||[]).map(e=>`<li>${e.titre?`<strong>${esc(e.titre)}</strong> `:''}${mdBold(e.texte||'')}</li>`).join('')}</ol>
       ${c.note?`<p class="m-try-note">${mdBold(c.note)}</p>`:''}</div>`;
 
+    case 'question':{
+      const opts=(c.options||[]).filter(o=>o&&o.texte&&o.texte.trim());
+      const multi=opts.filter(o=>o.juste).length>1;
+      return `<section class="m-q" data-multi="${multi?1:0}">
+        <div class="m-q-label">Question${multi?' \u00b7 plusieurs r\u00e9ponses possibles':''}</div>
+        <p class="m-q-enonce">${mdBold(c.enonce||'')}</p>
+        <div class="m-q-opts">${opts.map(o=>`<button type="button" class="m-q-opt" aria-pressed="false" data-juste="${o.juste?1:0}" onclick="qChoisir(this)"><span class="m-q-mark"></span><span>${mdBold(o.texte)}</span></button>`).join('')}</div>
+        <button type="button" class="btn m-q-btn" onclick="qValider(this)">Valider ma r\u00e9ponse</button>
+        <div class="m-q-fb" hidden></div>
+        ${c.explication?`<div class="m-q-expl" hidden>${mdBold(c.explication)}</div>`:''}
+      </section>`;}
+    case 'dialogue':return `<section class="m-dlg">
+      <div class="m-dlg-label">${esc(c.label||'Mise en situation')}</div>
+      ${c.titre?`<h3>${esc(c.titre)}</h3>`:''}
+      ${c.contexte?`<p class="m-dlg-ctx">${mdBold(c.contexte)}</p>`:''}
+      ${(c.repliques||[]).filter(r=>r&&r.texte&&r.texte.trim()).map(r=>`<div class="m-dlg-bulle">${r.qui?`<strong>${esc(r.qui)}</strong>`:''}<p>${mdBold(r.texte)}</p></div>`).join('')}
+      ${c.consigne?`<p class="m-dlg-consigne">${mdBold(c.consigne)}</p>`:''}
+      <textarea class="m-input" rows="3" placeholder="\u00c9crivez votre r\u00e9ponse\u2026"></textarea>
+      <p class="m-pause-note">Votre r\u00e9ponse reste sur votre appareil. Elle n'est ni enregistr\u00e9e ni transmise.</p>
+      <button type="button" class="btn" onclick="dlgReveler(this)">Voir une r\u00e9ponse possible</button>
+      <div class="m-dlg-rep" hidden>
+        ${c.reponse_modele?`<p><strong>Une r\u00e9ponse possible :</strong> ${mdBold(c.reponse_modele)}</p>`:''}
+        ${(c.points||[]).filter(p=>p&&p.trim()).length?`<ul>${c.points.filter(p=>p&&p.trim()).map(p=>`<li>${mdBold(p)}</li>`).join('')}</ul>`:''}
+      </div>
+    </section>`;
     case 'image':return c.url?`<figure class="m-fig">
       <img src="${esc(c.url)}" alt="${esc(c.alt||'')}">
       ${c.legende?`<figcaption>${esc(c.legende)}</figcaption>`:''}</figure>`:'';
