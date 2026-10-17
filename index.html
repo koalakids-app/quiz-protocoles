@@ -262,10 +262,31 @@ async function boot(){
       return fail("Aucun quiz s\u00e9lectionn\u00e9.<br><small style='color:var(--text-light)'>Utilisez le lien qui vous a \u00e9t\u00e9 transmis pour acc\u00e9der \u00e0 votre quiz.</small>");
     }
   }catch(e){return fail("Erreur de connexion : "+e.message)}
+  sessRestaurer();
   render();
 }
 function fail(msg){
   app().innerHTML=`<div class="center-msg"><div style="font-size:38px;margin-bottom:8px">⚠</div>${msg}</div>`;
+}
+/* Progression conservée pour la session (sessionStorage) : ouvrir une formation depuis
+   le profil puis revenir en arrière recharge la page, qui repartait de zéro. Rien n'est
+   transmis ; `saved` évite d'enregistrer deux fois le même résultat. */
+let saved=false;
+const sessKey=()=>quiz&&!APERCU?'kk_quiz_'+quiz.id:null;
+function sessSauver(){
+  const k=sessKey();if(!k)return;
+  try{sessionStorage.setItem(k,JSON.stringify({user,answers,revealed,current,state,saved}));}catch(e){}
+}
+function sessEffacer(){const k=sessKey();if(k)try{sessionStorage.removeItem(k)}catch(e){}}
+function sessRestaurer(){
+  const k=sessKey();if(!k)return;
+  try{
+    const d=JSON.parse(sessionStorage.getItem(k)||'null');
+    if(!d||!Array.isArray(d.answers)||d.answers.length!==questions.length)return;
+    if(d.state!=='quiz'&&d.state!=='results')return;
+    user=d.user||user;answers=d.answers;revealed=d.revealed||revealed;
+    current=Math.max(0,Math.min(questions.length-1,d.current|0));state=d.state;saved=!!d.saved;
+  }catch(e){}
 }
 function resetAnswers(){
   current=0;
@@ -274,6 +295,7 @@ function resetAnswers(){
 }
 
 function render(){
+  sessSauver();
   if(state==='start')renderStart();
   else if(state==='quiz')renderQuiz();
   else renderResults();
@@ -404,6 +426,7 @@ function renderResults(){
 }
 
 async function saveResults(score,pct){
+  if(saved){const e=document.getElementById('save-status');if(e){e.textContent='✓ Résultat enregistré';e.className='save-status ok'}return}
   if(APERCU){const e=document.getElementById('save-status');if(e){e.textContent="Aper\u00e7u : r\u00e9sultat non enregistr\u00e9";e.className='save-status'}return}
   const detail=questions.map((q,i)=>({
     ordre:q.ordre,
@@ -430,6 +453,7 @@ async function saveResults(score,pct){
       ({error}=await db.from('resultats').insert(ligne));
     }
     if(error)throw error;
+    saved=true;sessSauver();
     if(el()){el().textContent='✓ Résultat enregistré';el().className='save-status ok'}
   }catch(e){
     if(el()){el().textContent='⚠ Erreur d\'enregistrement : '+e.message;el().className='save-status err'}
@@ -470,7 +494,7 @@ function startQuiz(){
   if(!p||!n||!st){alert('Merci de renseigner votre prénom, votre nom et votre statut avant de commencer.');return;}
   if(!c){alert('Merci de choisir votre crèche avant de commencer.');return;}
   user={prenom:p,nom:n,creche:c,statut:st};
-  resetAnswers();state='quiz';render();
+  saved=false;resetAnswers();state='quiz';render();
 }
 /* ===== MODE PROFIL (sans note) =====
    Aucune bonne ou mauvaise réponse : chaque option porte une « lecture »
@@ -674,6 +698,7 @@ async function saveResultsProfil(profil){
   };
   const el=()=>document.getElementById('save-status');
   if(APERCU){if(el()){el().textContent="Aper\u00e7u : profil non enregistr\u00e9";el().className='save-status'}return}
+  if(saved){if(el()){el().textContent='✓ Profil enregistré';el().className='save-status ok'}return}
   try{
     /* score/total/pourcentage restent obligatoires dans la table : 0 pour un
        profil, qui n'a pas de note. Les quiz de profil sont exclus de la
@@ -689,13 +714,14 @@ async function saveResultsProfil(profil){
       ({error}=await db.from('resultats').insert(ligne));
     }
     if(error)throw error;
+    saved=true;sessSauver();
     if(el()){el().textContent='✓ Profil enregistré';el().className='save-status ok'}
   }catch(e){
     if(el()){el().textContent='⚠ Erreur d\'enregistrement : '+e.message;el().className='save-status err'}
   }
 }
 
-function restartQuiz(){resetAnswers();state='start';render()}
+function restartQuiz(){saved=false;sessEffacer();resetAnswers();state='start';render()}
 function reviewErrors(){
   const errs=questions.reduce((a,_,i)=>{if(!isCorrect(i))a.push(i);return a;},[]);
   if(!errs.length)return;
