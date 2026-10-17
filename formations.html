@@ -340,8 +340,13 @@ let _luEnregistre=false;
 async function marquerLu(moduleId){
   if(!PRE_REF||_luEnregistre)return;
   _luEnregistre=true;
-  try{await db.from('formations_lu').upsert({module_id:moduleId,ref:PRE_REF},{onConflict:'module_id,ref'});}
-  catch(e){console.warn('[formations_lu]',e);}
+  /* insert et non upsert : l'anonyme n'a que le droit d'insertion (cf. sql/formations_lu.sql),
+     alors qu'un upsert (ON CONFLICT DO UPDATE) exige aussi select/update et était refusé. Un
+     doublon (23505) veut simplement dire que la lecture est déjà enregistrée. */
+  try{
+    const{error}=await db.from('formations_lu').insert({module_id:moduleId,ref:PRE_REF});
+    if(error&&error.code!=='23505'){console.warn('[formations_lu]',error);_luEnregistre=false;}
+  }catch(e){console.warn('[formations_lu]',e);_luEnregistre=false;}
 }
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mdBold=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
