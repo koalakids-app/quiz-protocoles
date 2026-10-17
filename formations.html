@@ -588,7 +588,10 @@ function lienPage(page,params){
   ['prenom','nom','statut','creche'].forEach(k=>{const v=(cur.get(k)||'').trim();if(v)q.set(k,v);});
   return page+'?'+q.toString();
 }
-const lienModule=id=>lienPage('formations.html',PRE_QUIZ?{module:id,quiz:PRE_QUIZ}:{module:id});
+/* Un lien direct vers un module (parcours=0 ou absent) ne montre que ce module : la
+   navigation vers les autres n'apparaît que si l'on arrive par le lien du parcours. */
+const PARCOURS=new URLSearchParams(location.search).get('parcours')==='1';
+const lienModule=id=>lienPage('formations.html',PRE_QUIZ?{module:id,quiz:PRE_QUIZ,parcours:1}:{module:id,parcours:1});
 const lienTheme=id=>lienPage('formations.html',PRE_QUIZ?{theme:id,quiz:PRE_QUIZ}:{theme:id});
 const lienQuiz=q=>lienPage('index.html',{quiz:q});
 
@@ -652,10 +655,10 @@ async function showModule(id){
 
   const nom=t?t.nom:'';
   // Quiz de fin : celui du lien, sinon celui rattach\u00e9 au th\u00e8me
-  const qz=PRE_QUIZ||(t&&t.quiz_id?String(t.quiz_id):'');
+  const qz=PARCOURS?(PRE_QUIZ||(t&&t.quiz_id?String(t.quiz_id):'')):PRE_QUIZ;
   // Position dans le parcours (modules publiés du même thème)
   let freres=[];
-  try{freres=await modulesDuTheme(m.theme_id);}catch(e){}
+  if(PARCOURS)try{freres=await modulesDuTheme(m.theme_id);}catch(e){}
   const pos=freres.findIndex(x=>x.id===id);
   const suivant=pos>=0?freres[pos+1]:null;
   const precedent=pos>0?freres[pos-1]:null;
