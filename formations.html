@@ -410,7 +410,7 @@ function blocHTML(b){
       ${(c.repliques||[]).filter(r=>r&&r.texte&&r.texte.trim()).map(r=>`<div class="m-dlg-bulle">${r.qui?`<strong>${esc(r.qui)}</strong>`:''}<p>${mdBold(r.texte)}</p></div>`).join('')}
       ${c.consigne?`<p class="m-dlg-consigne">${mdBold(c.consigne)}</p>`:''}
       <textarea class="m-input" rows="3" placeholder="\u00c9crivez votre r\u00e9ponse\u2026"></textarea>
-      <p class="m-pause-note">Votre r\u00e9ponse reste sur votre appareil. Elle n'est ni enregistr\u00e9e ni transmise.</p>
+      <p class="m-pause-note">Votre r\u00e9ponse reste sur votre appareil le temps de la session. Elle n'est ni enregistr\u00e9e ni transmise.</p>
       <button type="button" class="btn" onclick="dlgReveler(this)">Voir une r\u00e9ponse possible</button>
       <div class="m-dlg-rep" hidden>
         ${c.reponse_modele?`<p><strong>Une r\u00e9ponse possible :</strong> ${mdBold(c.reponse_modele)}</p>`:''}
@@ -461,8 +461,9 @@ function qChoisir(btn){
   if(s.dataset.multi==='1'){btn.classList.toggle('sel');}
   else{s.querySelectorAll('.m-q-opt').forEach(b=>{b.classList.remove('sel');b.setAttribute('aria-pressed','false');});btn.classList.add('sel');}
   btn.setAttribute('aria-pressed',btn.classList.contains('sel')?'true':'false');
+  repSauverQ(s);
 }
-function qValider(btn){
+function qValider(btn,restaure){
   const s=btn.closest('.m-q');if(!s||s.dataset.done)return;
   const opts=[...s.querySelectorAll('.m-q-opt')],fb=s.querySelector('.m-q-fb');
   if(!opts.some(o=>o.classList.contains('sel'))){fb.hidden=false;fb.className='m-q-fb';fb.textContent='Choisissez au moins une r\u00e9ponse.';return;}
@@ -474,10 +475,44 @@ function qValider(btn){
   fb.hidden=false;fb.className='m-q-fb '+(ok?'ok':'ko');
   fb.textContent=ok?'Bonne r\u00e9ponse.':'Pas tout \u00e0 fait : les bonnes r\u00e9ponses sont indiqu\u00e9es en vert.';
   const ex=s.querySelector('.m-q-expl');if(ex)ex.hidden=false;
+  if(!restaure)repSauverQ(s);
 }
-function dlgReveler(btn){
+/* Réponses conservées pour la session (sessionStorage) afin de survivre à un aller-retour
+   entre modules : les pages se rechargent à chaque navigation. Rien n'est transmis. */
+const _repKey=()=>_curModuleId?'kk_rep_'+_curModuleId:null;
+function repLire(){try{return JSON.parse(sessionStorage.getItem(_repKey())||'{}')||{};}catch(e){return {};}}
+function repEcrire(fn){
+  const k=_repKey();if(!k)return;
+  try{const d=repLire();fn(d);sessionStorage.setItem(k,JSON.stringify(d));}catch(e){}
+}
+const _repIdx=(el,sel)=>[...document.querySelectorAll(sel)].indexOf(el);
+function repSauverQ(s){
+  const i=_repIdx(s,'.m-q');if(i<0)return;
+  repEcrire(d=>{(d.q=d.q||{})[i]={sel:[...s.querySelectorAll('.m-q-opt')].map((o,j)=>o.classList.contains('sel')?j:-1).filter(j=>j>=0),done:!!s.dataset.done};});
+}
+function repRestaurer(){
+  const d=repLire();
+  document.querySelectorAll('.m-q').forEach((s,i)=>{
+    const r=d.q&&d.q[i];if(!r)return;
+    const opts=[...s.querySelectorAll('.m-q-opt')];
+    (r.sel||[]).forEach(j=>{if(opts[j]){opts[j].classList.add('sel');opts[j].setAttribute('aria-pressed','true');}});
+    if(r.done)qValider(s.querySelector('.m-q-btn'),true);
+  });
+  document.querySelectorAll('.m-dlg').forEach((s,i)=>{
+    const r=d.dlg&&d.dlg[i];if(!r)return;
+    s.querySelector('textarea').value=r.txt||'';
+    if(r.rev)dlgReveler(s.querySelector('.m-dlg-rep').previousElementSibling,true);
+  });
+}
+addEventListener('input',e=>{
+  const ta=e.target.closest&&e.target.closest('.m-dlg textarea');if(!ta)return;
+  const s=ta.closest('.m-dlg'),i=_repIdx(s,'.m-dlg');
+  repEcrire(d=>{((d.dlg=d.dlg||{})[i]=d.dlg[i]||{}).txt=ta.value;});
+});
+function dlgReveler(btn,restaure){
   const r=btn.closest('.m-dlg').querySelector('.m-dlg-rep');
   r.hidden=false;btn.hidden=true;
+  if(!restaure){const sc=btn.closest('.m-dlg'),i=_repIdx(sc,'.m-dlg');repEcrire(d=>{((d.dlg=d.dlg||{})[i]=d.dlg[i]||{}).rev=1;});}
 }
 
 /* \u00c9changes entre participants : lecture des messages valid\u00e9s (vue publique) et d\u00e9p\u00f4t d'un
@@ -655,6 +690,7 @@ async function showModule(id){
       ${suivant?`<a class="btn primary" href="${esc(lienModule(suivant.id))}">Suivant \u2192</a>`:(qz?`<a class="btn primary" href="${esc(lienQuiz(qz))}">Passer le quiz \u2192</a>`:'<span class="btn off">Suivant \u2192</span>')}
     </div>`:''}</div>`;
   window.scrollTo(0,0);
+  repRestaurer();
   initEchanges();
   // Module tenant enti\u00e8rement \u00e0 l'\u00e9cran : aucun \u00e9v\u00e9nement scroll ne se
   // d\u00e9clenchera jamais, donc rien ne marquerait la lecture sans ce filet.
