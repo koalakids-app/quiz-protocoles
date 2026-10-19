@@ -682,11 +682,12 @@ async function loadQuizzes(){
   if(error){app().innerHTML=`<div class="center-msg">⚠ ${esc(error.message)}</div>`;return;}
   quizzes=data||[];
   const counts={};
-  for(const q of quizzes){
-    const{count}=await db.from('questions').select('*',{count:'exact',head:true}).eq('quiz_id',q.id);
-    const{count:rc}=await db.from('resultats').select('*',{count:'exact',head:true}).eq('quiz_id',q.id);
+  await Promise.all(quizzes.map(async q=>{
+    const[{count},{count:rc}]=await Promise.all([
+      db.from('questions').select('*',{count:'exact',head:true}).eq('quiz_id',q.id),
+      db.from('resultats').select('*',{count:'exact',head:true}).eq('quiz_id',q.id)]);
     counts[q.id]={q:count||0,r:rc||0};
-  }
+  }));
   quizzes.forEach(q=>{q._c=counts[q.id]});
   render();
 }
@@ -1325,10 +1326,10 @@ async function loadThemes(){
   const{data,error}=await db.from('theme').select('*').order('ordre');
   if(error){app().innerHTML=`${tabs('formations')}<div class="center-msg">⚠ ${esc(error.message)}</div>`;return;}
   themes=data||[];
-  for(const t of themes){
+  await Promise.all(themes.map(async t=>{
     const{count}=await db.from('module').select('*',{count:'exact',head:true}).eq('theme_id',t.id);
     t._n=count||0;
-  }
+  }));
   view='themes';render();
 }
 
@@ -1436,10 +1437,10 @@ async function loadModules(){
   const{data,error}=await db.from('module').select('*').eq('theme_id',curTheme.id).order('ordre');
   if(error)return alert('Erreur : '+error.message);
   curModules=data||[];
-  for(const m of curModules){
+  await Promise.all(curModules.map(async m=>{
     const{count}=await db.from('bloc').select('*',{count:'exact',head:true}).eq('module_id',m.id);
     m._b=count||0;
-  }
+  }));
   view='modules';render();
 }
 
