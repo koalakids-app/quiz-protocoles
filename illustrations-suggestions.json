@@ -1,0 +1,1065 @@
+{
+ "themes": {
+  "4": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Léa empile puis renverse des cubes",
+    "s": "Enfant d'environ 18 mois assis sur un tapis, cubes en bois éparpillés, un adulte assis à côté",
+    "a": "Un jeune enfant joue avec des cubes en bois sur un tapis, un adulte est assis près de lui."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Tom montre sa construction",
+    "s": "Enfant de 2 ans qui désigne une tour de blocs à un adulte à sa hauteur",
+    "a": "Un enfant montre sa construction de blocs à un adulte."
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Dessin imposé pour les parents",
+    "s": "Table avec feuilles et feutres, adulte et plusieurs enfants autour",
+    "a": "Plusieurs enfants et un adulte autour d'une table de dessin."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Deux enfants, un seul seau",
+    "s": "Deux enfants de 18-24 mois qui tiennent chacun l'anse d'un même seau",
+    "a": "Deux jeunes enfants tiennent le même seau."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Proposition envahie d'objets",
+    "s": "Tapis de jeu encombré, objets éparpillés, enfants qui circulent sans s'arrêter",
+    "a": "Un espace de jeu encombré d'objets éparpillés."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Enfant qui quitte la proposition",
+    "s": "Enfant de 20 mois franchissant la porte d'une pièce voisine, vu de dos",
+    "a": "Un jeune enfant passe d'une pièce à une autre."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Deux propositions de jeu dès le matin",
+    "s": "Plan simple d'une salle avec deux coins de jeu ouverts et des flèches de circulation",
+    "a": "Plan d'une salle avec deux espaces de jeu reliés par des flèches."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Jeu par temps de pluie",
+    "s": "Enfants qui jouent dans la salle, fenêtre avec de la pluie, vêtements chauds",
+    "a": "Des enfants jouent à l'intérieur pendant qu'il pleut dehors."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "S'intéresser sans féliciter ni guider",
+    "s": "Adulte de profil qui observe un enfant en train de jouer, sans intervenir",
+    "a": "Un adulte observe un enfant qui joue."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Préparer les propositions de jeu",
+    "s": "Panier avec quatre balles identiques et quelques objets rangés sur une étagère basse",
+    "a": "Des objets identiques rangés dans un panier sur une étagère basse."
+   },
+   {
+    "t": "A",
+    "v": "Illustration",
+    "r": "Prévenir un collègue avant de quitter l'espace",
+    "s": "Deux adultes dans deux pièces, flèche entre eux pour le regard et la voix",
+    "a": "Deux adultes dans deux pièces voisines qui se préviennent."
+   }
+  ],
+  "5": [
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Colère d'un enfant de 2 ans",
+    "s": "Enfant assis par terre en colère, adulte à côté, visage calme",
+    "a": "Un enfant en colère est assis par terre, un adulte reste près de lui."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Émotions légitimes",
+    "s": "Série de pictogrammes d'émotions (joie, colère, tristesse, peur)",
+    "a": "Quatre visages exprimant des émotions différentes."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Retrouver Noé le matin",
+    "s": "Adulte accroupi qui accueille un enfant de 2 ans à la porte de la salle",
+    "a": "Un adulte accueille un enfant à son arrivée."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Enfant submergé par l'émotion",
+    "s": "Adulte accroupi près d'un enfant qui pleure, main posée sur son épaule",
+    "a": "Un adulte réconforte un enfant qui pleure."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Deux enfants tirent sur le même camion",
+    "s": "Deux enfants de 18 mois qui tiennent chacun un côté d'un camion de bois",
+    "a": "Deux jeunes enfants tirent sur un même camion en bois."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Objets identiques en quantité suffisante",
+    "s": "Plusieurs poupées identiques sur un tapis, enfants qui jouent côte à côte",
+    "a": "Plusieurs jouets identiques sur un tapis, des enfants jouent ensemble."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Relayer la parole de l'enfant",
+    "s": "Adulte entre deux enfants, penché vers celui qui n'est pas écouté",
+    "a": "Un adulte se place entre deux enfants pour les aider à se parler."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Un enfant en mord un autre",
+    "s": "Deux enfants de 2 ans assis, un adulte qui s'approche calmement",
+    "a": "Un adulte s'approche de deux jeunes enfants assis."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "« Qu'est-ce qu'on dit ? » au biscuit",
+    "s": "Enfant de 2 ans qui prend un biscuit dans une corbeille à table",
+    "a": "Un enfant prend un biscuit à table."
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Propos négatifs sur un enfant devant lui",
+    "s": "Deux adultes qui discutent à voix basse, un enfant au premier plan qui les regarde",
+    "a": "Deux adultes discutent pendant qu'un enfant les observe."
+   },
+   {
+    "t": "A",
+    "v": "Illustration",
+    "r": "Être à bout, demander de l'aide",
+    "s": "Adulte qui parle à une collègue dans le couloir, expression fatiguée",
+    "a": "Une professionnelle fatiguée parle à une collègue."
+   }
+  ],
+  "6": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Léa enfile seule ses chaussons",
+    "s": "Enfant de 20 mois assise qui tient un chausson, adulte à côté",
+    "a": "Une petite fille essaie d'enfiler ses chaussons."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Indépendance ou autonomie",
+    "s": "Schéma à deux colonnes « faire seul » et « décider par soi-même » avec pictogrammes",
+    "a": "Schéma comparant faire seul et décider par soi-même."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Sami refuse son manteau",
+    "s": "Enfant de 2 ans debout, bras croisés, manteau posé devant lui",
+    "a": "Un enfant debout refuse d'enfiler son manteau."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Observer sans comparer",
+    "s": "Adulte de profil qui observe plusieurs enfants occupés chacun à leur activité",
+    "a": "Un adulte observe des enfants qui jouent."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Lavage de mains en groupe avant le repas",
+    "s": "Lavabo bas avec plusieurs enfants en file devant, un seul adulte",
+    "a": "Plusieurs enfants attendent devant un lavabo à hauteur d'enfant."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Inès se tortille pendant le change",
+    "s": "Plan de change avec un bébé de 15 mois, jouet à portée, adulte qui l'accompagne",
+    "a": "Un bébé sur un plan de change attrape un jouet."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Quand change-t-on la couche",
+    "s": "Pictogrammes d'une couche, d'une horloge et d'un bébé qui se réveille",
+    "a": "Pictogrammes d'une couche et d'une horloge."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Parler à l'enfant pendant le soin",
+    "s": "Adulte qui regarde un bébé sur le plan de change et lui parle",
+    "a": "Un adulte parle à un bébé pendant un change."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Tom refuse de s'allonger pour le change",
+    "s": "Enfant de 2 ans et demi debout près du plan de change, adulte qui lui parle",
+    "a": "Un enfant debout près d'un plan de change."
+   },
+   {
+    "t": "C",
+    "v": "Illustration",
+    "r": "Passage à la propreté",
+    "s": "Petit pot, marchepied et toilettes adaptées dans une salle de bain de crèche",
+    "a": "Un pot et un marchepied dans une salle de bain de crèche."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "L'enfant participe au soin",
+    "s": "Enfant qui jette sa couche dans la poubelle à pédale avec l'aide d'un adulte",
+    "a": "Un enfant jette lui-même sa couche."
+   }
+  ],
+  "7": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Donner à manger à Jade en chaise haute",
+    "s": "Adulte assis à hauteur d'un bébé de 8 mois en chaise haute, bol et cuillère",
+    "a": "Un adulte assis face à un bébé en chaise haute."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Qui donne le rythme des cuillères",
+    "s": "Gros plan sur un bébé qui ouvre la bouche vers une cuillère tenue par l'adulte",
+    "a": "Un bébé ouvre la bouche vers une cuillère."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Lucas s'agite avant l'heure du biberon",
+    "s": "Bébé de 3 mois, main à la bouche, qui cherche du regard",
+    "a": "Un bébé de trois mois porte la main à sa bouche."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Rester en relation pendant le repas",
+    "s": "Adulte à table avec un enfant, regards échangés, rien d'autre sur la table",
+    "a": "Un adulte et un enfant se regardent pendant le repas."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Mathis se sert seul",
+    "s": "Enfant de 2 ans qui se sert avec une grande cuillère, un peu d'eau sur la table",
+    "a": "Un enfant se sert seul dans un plat."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Ce que l'enfant choisit au repas",
+    "s": "Schéma : les parties qui relèvent de l'adulte et celles qui relèvent de l'enfant",
+    "a": "Schéma partageant les choix entre adulte et enfant."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Enfants actifs pendant le repas",
+    "s": "Enfants qui portent leur plateau et débarrassent leurs assiettes",
+    "a": "Des enfants débarrassent leur assiette après le repas."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Yanis recrache le poisson",
+    "s": "Assiette avec un morceau de poisson mis de côté, enfant de 2 ans au deuxième plan",
+    "a": "Une assiette avec un morceau de poisson laissé de côté."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Alice repousse son assiette",
+    "s": "Assiette à moitié pleine repoussée au centre de la table",
+    "a": "Une assiette à moitié pleine est repoussée."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Refuser un aliment inconnu",
+    "s": "Enfant qui regarde un légume entier posé sur la table",
+    "a": "Un enfant observe un légume entier."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Entendre le « non » de l'enfant",
+    "s": "Enfant de 2 ans qui touche la purée avec les doigts, adulte souriant",
+    "a": "Un enfant touche sa purée avec les doigts."
+   }
+  ],
+  "8": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Camille a sommeil avant l'heure",
+    "s": "Enfant de 14 mois qui se frotte les yeux en tenant son doudou",
+    "a": "Un enfant se frotte les yeux en tenant son doudou."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Coucher un enfant éveillé ou endormi",
+    "s": "Deux pictogrammes d'un enfant, les yeux ouverts et les yeux fermés",
+    "a": "Pictogrammes d'un enfant éveillé et d'un enfant endormi."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Noa ne s'endort pas",
+    "s": "Enfant de 2 ans allongé sur son lit, yeux ouverts, dortoir calme",
+    "a": "Un enfant allongé dans un dortoir ne dort pas encore."
+   },
+   {
+    "t": "A",
+    "v": "Pictogramme",
+    "r": "Signes de fatigue",
+    "s": "Planche de pictogrammes : bâillement, yeux frottés, doudou, excitation, pâleur",
+    "a": "Pictogrammes des signes de fatigue."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Mila pleure après le coucher",
+    "s": "Bébé de 10 mois dans un lit à barreaux, adulte à proximité qui le regarde",
+    "a": "Un bébé dans un lit, un adulte reste près de lui."
+   },
+   {
+    "t": "C",
+    "v": "Illustration",
+    "r": "Rituels de coucher",
+    "s": "Doudou, lumière tamisée, livre posé près d'un lit",
+    "a": "Un doudou et un livre près d'un lit d'enfant."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Accompagner avec les mêmes gestes",
+    "s": "Adulte assis près d'un lit qui pose la main sur un enfant",
+    "a": "Un adulte pose la main sur un enfant dans son lit."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Ilyes se repose en pantalon confortable",
+    "s": "Enfant de 2 ans et demi qui s'allonge sur un lit bas, vêtements souples",
+    "a": "Un enfant s'allonge sur un lit bas."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Coucher Rose, 5 mois",
+    "s": "Lit de bébé vide, drap ajusté, aucun objet, couchage prévu pour un nourrisson",
+    "a": "Un lit de bébé avec un drap ajusté et sans objet."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Lit des enfants qui se déplacent",
+    "s": "Lit bas au sol dans un dortoir, enfant qui s'y installe seul",
+    "a": "Un lit bas au sol dans un dortoir de crèche."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Doudou et position choisie",
+    "s": "Enfant endormi sur le côté, doudou dans les bras",
+    "a": "Un enfant dort sur le côté avec son doudou."
+   }
+  ],
+  "9": [
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "Gabin tousse après un morceau de pomme",
+    "s": "Pictogramme d'un morceau de pomme et d'un enfant qui tousse (schéma du protocole)",
+    "a": "Pictogramme d'un enfant qui tousse après avoir avalé un morceau d'aliment.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "Lina s'étouffe en silence",
+    "s": "Schéma officiel de la désobstruction chez le nourrisson (Croix-Rouge)",
+    "a": "Schéma de la prise en charge d'un nourrisson qui s'étouffe.",
+    "d": 1
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Massage cardiaque",
+    "s": "Mannequin nourrisson de formation, sans geste visible",
+    "a": "Mannequin de formation pour nourrisson.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Réviser les gestes d'urgence",
+    "s": "Séance de formation aux premiers secours dans la crèche (avec autorisation)",
+    "a": "Une équipe s'entraîne aux gestes de premiers secours.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "Tom convulse",
+    "s": "Pictogramme d'un enfant allongé sur un tapis, espace dégagé autour",
+    "a": "Pictogramme d'un enfant allongé sur un tapis.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Zoé a bu du produit d'entretien",
+    "s": "Chariot de ménage avec flacons, rangé près d'une porte",
+    "a": "Un chariot de ménage avec des flacons."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Signes d'allergie qui imposent le 15",
+    "s": "Planche de pictogrammes : lèvres gonflées, urticaire, gêne respiratoire, malaise",
+    "a": "Pictogrammes des signes d'une réaction allergique.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Pictogramme",
+    "r": "Rester près de l'enfant en détresse",
+    "s": "Pictogramme d'un adulte penché sur un enfant et d'un téléphone",
+    "a": "Un adulte reste auprès d'un enfant, un téléphone est à portée.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Hugo se brûle l'avant-bras",
+    "s": "Tasse renversée sur une table, flaque d'eau, aucun enfant visible",
+    "a": "Une tasse renversée sur une table."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Signes après un choc à la tête",
+    "s": "Planche de pictogrammes : vomissements, somnolence, pleurs inhabituels, bosse",
+    "a": "Pictogrammes des signes d'alerte après un choc à la tête.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Schéma",
+    "r": "Prévention de la mort inattendue du nourrisson",
+    "s": "Affiche de prévention officielle : couchage sur le dos, lit nu, 20 °C",
+    "a": "Affiche de prévention pour le couchage des nourrissons.",
+    "d": 1
+   }
+  ],
+  "10": [
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Jules : fièvre, mou, taches rouges",
+    "s": "Bébé abattu dans les bras d'un adulte, thermomètre frontal",
+    "a": "Un bébé fiévreux dans les bras d'un adulte."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Inès a de la fièvre mais joue",
+    "s": "Enfant de 2 ans qui joue avec des cubes, joues rouges",
+    "a": "Un enfant joue malgré les joues rouges."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Règles du paracétamol",
+    "s": "Tableau du protocole : dose, délai, fiche de transmission (document de la crèche)",
+    "a": "Extrait du protocole de la crèche sur le paracétamol.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Chercher les signes de gravité",
+    "s": "Thermomètre et feuille de transmission aux parents sur une table",
+    "a": "Un thermomètre et une feuille de transmission."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Sirop entamé sans ordonnance",
+    "s": "Flacon de sirop ouvert sur une table d'accueil",
+    "a": "Un flacon de sirop entamé posé sur une table."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Pharmacie de la crèche",
+    "s": "Armoire à pharmacie fermée à clé, étagère haute, contenu rangé",
+    "a": "Une armoire à pharmacie de crèche rangée en hauteur."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Vérifier ordonnance et boîte d'origine",
+    "s": "Boîte de médicament, ordonnance et registre de soins côte à côte",
+    "a": "Une boîte de médicament, une ordonnance et le registre de soins."
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Maé a les yeux rouges",
+    "s": "Gros plan sur un enfant aux yeux rouges avec un écoulement",
+    "a": "Un enfant avec les yeux rouges et un écoulement."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Éviction en cas de maladie",
+    "s": "Tableau d'éviction du protocole (document de la crèche)",
+    "a": "Extrait du protocole d'éviction de la crèche.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "Vomissements et diarrhée après le repas",
+    "s": "Plan du repas du jour avec les deux enfants repérés (schéma)",
+    "a": "Schéma d'un repas avec deux enfants malades.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Renforcer l'hygiène en cas d'épidémie",
+    "s": "Gants jetables, spray désinfectant et lavage de mains",
+    "a": "Des gants jetables, un désinfectant et un lavabo."
+   }
+  ],
+  "11": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Fumée dans la cuisine",
+    "s": "Vue de la cuisine de la crèche avec détecteur de fumée au plafond",
+    "a": "La cuisine d'une crèche avec un détecteur de fumée."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Le sac d'évacuation",
+    "s": "Sac d'évacuation ouvert avec son contenu, accroché près de la sortie",
+    "a": "Un sac d'évacuation ouvert avec son contenu."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Arrivée au point de rassemblement",
+    "s": "Groupe d'enfants et d'adultes réunis sur le parking, panneau de rassemblement",
+    "a": "Un groupe réuni à un point de rassemblement."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Lit d'évacuation et exercices",
+    "s": "Lit d'évacuation à roulettes dans un couloir",
+    "a": "Un lit d'évacuation dans un couloir de crèche."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Intrusion malveillante",
+    "s": "Porte d'entrée de la crèche avec interphone, vue de l'intérieur",
+    "a": "La porte d'entrée d'une crèche avec son interphone."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Responsable de la mise en sûreté",
+    "s": "Organigramme : qui décide, qui alerte, qui rassure",
+    "a": "Organigramme de la mise en sûreté.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Hugo pleure pendant la mise à l'abri",
+    "s": "Local sans fenêtre, lumière éteinte, adultes assis avec les enfants (mise en scène)",
+    "a": "Un adulte assis avec des enfants dans un local sans fenêtre."
+   },
+   {
+    "t": "A",
+    "v": "Schéma",
+    "r": "Local de mise à l'abri",
+    "s": "Plan de la crèche avec le local de mise à l'abri entouré",
+    "a": "Plan d'une crèche avec le local de mise à l'abri.",
+    "d": 1
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Appeler les secours",
+    "s": "Fiche « message d'alerte » (qui, où, quoi, combien) de la crèche",
+    "a": "Fiche du message d'alerte aux secours.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Alerte canicule",
+    "s": "Thermomètre d'ambiance affichant 30 °C, volets fermés",
+    "a": "Un thermomètre d'ambiance et des volets fermés."
+   },
+   {
+    "t": "A",
+    "v": "Pictogramme",
+    "r": "Garder son calme, protéger la victime",
+    "s": "Pictogramme d'un adulte et d'un enfant, panneau de sécurité",
+    "a": "Pictogramme d'un adulte qui protège un enfant.",
+    "d": 1
+   }
+  ],
+  "12": [
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "8 enfants, 2 professionnels",
+    "s": "Tableau d'encadrement des sorties de la crèche (document du site)",
+    "a": "Tableau du nombre d'enfants autorisés par professionnel.",
+    "d": 1
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Professionnels diplômés en sortie",
+    "s": "Pictogrammes de professionnels avec ou sans diplôme",
+    "a": "Pictogrammes de professionnels diplômés.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "5 enfants laissés avec un seul professionnel",
+    "s": "Salle de jeu avec un seul adulte et plusieurs enfants",
+    "a": "Un adulte seul avec plusieurs enfants dans une salle."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Vérifier le tableau avant la sortie",
+    "s": "Tableau d'encadrement affiché dans l'entrée",
+    "a": "Un tableau d'encadrement affiché à l'entrée de la crèche."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Sac de sortie oublié",
+    "s": "Rue devant la crèche, groupe d'enfants avec poussette",
+    "a": "Un groupe d'enfants et une poussette devant la crèche."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Contenu du sac de sortie",
+    "s": "Sac de sortie ouvert avec trousse, couches, eau, numéros utiles",
+    "a": "Un sac de sortie ouvert avec son contenu."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Vérifier les dates de péremption",
+    "s": "Trousse de secours ouverte avec produits datés",
+    "a": "Une trousse de secours avec les dates de péremption."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Poussette double déjà pleine",
+    "s": "Poussette double avec deux enfants et un troisième debout à côté",
+    "a": "Une poussette double avec deux enfants et un enfant debout."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "S'éloigner pour parler à un voisin",
+    "s": "Trottoir avec un adulte qui s'éloigne, groupe d'enfants au second plan",
+    "a": "Un adulte s'éloigne d'un groupe d'enfants sur un trottoir."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Joindre quelqu'un pendant la sortie",
+    "s": "Pictogramme d'un téléphone portable et d'un numéro de crèche",
+    "a": "Un téléphone portable et un numéro de crèche.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Main donnée ou poussette tenue",
+    "s": "Enfants qui marchent en tenant la poussette, numéro de crèche affiché",
+    "a": "Des enfants marchent en tenant une poussette."
+   }
+  ],
+  "13": [
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Hématome sur un bébé de 8 mois",
+    "s": "Illustration neutre d'un adulte observant un bébé sur un plan de change (aucune lésion montrée)",
+    "a": "Un adulte regarde attentivement un bébé sur un plan de change."
+   },
+   {
+    "t": "C",
+    "v": "Pictogramme",
+    "r": "Signes de maltraitance",
+    "s": "Planche de pictogrammes : peur, retrait, blessures inexpliquées, comportements inhabituels",
+    "a": "Pictogrammes de signes d'alerte chez un enfant.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Famille isolée suivie par les services sociaux",
+    "s": "Silhouette d'une famille devant une porte fermée",
+    "a": "Silhouette d'une famille devant une porte."
+   },
+   {
+    "t": "A",
+    "v": "Illustration",
+    "r": "Partager ses inquiétudes avec la responsable",
+    "s": "Deux adultes qui échangent dans un bureau",
+    "a": "Deux professionnelles échangent dans un bureau."
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Enfant qui te préoccupe depuis plusieurs jours",
+    "s": "Silhouette d'un enfant en retrait dans un coin de la salle",
+    "a": "Un enfant seul dans un coin de la salle."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Information préoccupante",
+    "s": "Schéma du circuit : professionnel, direction, cellule départementale",
+    "a": "Schéma du circuit de l'information préoccupante.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Pictogramme",
+    "r": "Danger immédiat",
+    "s": "Pictogrammes des numéros 17, 15 et 119",
+    "a": "Pictogrammes des numéros d'urgence.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Schéma",
+    "r": "Vers qui se tourner en cas de doute",
+    "s": "Fiche des contacts : responsable, référent santé, PMI, 119",
+    "a": "Fiche des contacts en cas de doute.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Collègue qui secoue un enfant",
+    "s": "Illustration neutre de deux adultes face à face dans une salle (aucune violence montrée)",
+    "a": "Deux adultes se parlent dans une salle de crèche."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Maltraitance dans le mode d'accueil",
+    "s": "Schéma des types de maltraitance institutionnelle",
+    "a": "Schéma des formes de maltraitance en structure.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Illustration",
+    "r": "Organisation qui met les enfants en difficulté",
+    "s": "Planning d'équipe avec cases vides, salle pleine d'enfants",
+    "a": "Un planning d'équipe incomplet et une salle de jeu bien remplie."
+   }
+  ],
+  "14": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Main touche la couche souillée",
+    "s": "Plan de change avec gants et lave-mains à proximité",
+    "a": "Un plan de change avec des gants et un lavabo."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Les étapes du lavage des mains",
+    "s": "Schéma des étapes du lavage des mains (affiche du protocole)",
+    "a": "Affiche des étapes du lavage des mains.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Travailler en chaussettes",
+    "s": "Chaussures de crèche rangées à l'entrée de la salle",
+    "a": "Des chaussures de crèche rangées à l'entrée."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Moments de lavage des mains",
+    "s": "Lavabo, distributeur de savon et essuie-mains jetable",
+    "a": "Un lavabo avec savon et essuie-mains jetables."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Aspirateur avant l'arrivée des enfants",
+    "s": "Aspirateur rangé dans un local d'entretien",
+    "a": "Un aspirateur rangé dans un local."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Ordre de nettoyage des sols et sanitaires",
+    "s": "Schéma de l'ordre : zones propres vers zones sales",
+    "a": "Schéma de l'ordre de nettoyage des locaux.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Laver bavoirs, torchons, blouses et lavettes",
+    "s": "Machine à laver, panier de linge trié par catégories",
+    "a": "Un panier de linge trié devant une machine à laver."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Balayage humide, pas d'aspirateur ni d'éponge",
+    "s": "Balai à plat avec bandeau humide sur un sol",
+    "a": "Un balai à plat avec bandeau humide."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Vomi sur une peluche",
+    "s": "Peluche posée sur un tapis, bac à linge sale à côté",
+    "a": "Une peluche sur un tapis et un bac à linge sale."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Fréquence de nettoyage des jouets",
+    "s": "Tableau de fréquence : par jouet, par jour, par semaine",
+    "a": "Tableau de la fréquence de nettoyage des jouets.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Feuille de traçabilité",
+    "s": "Feuille de traçabilité remplie, stylo posé dessus",
+    "a": "Une feuille de traçabilité de nettoyage."
+   }
+  ],
+  "15": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Sonde à 8 °C à la livraison",
+    "s": "Sonde thermomètre plantée dans une barquette sur un plan de travail",
+    "a": "Une sonde thermomètre dans une barquette."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Températures des plats chauds",
+    "s": "Échelle de température avec zones à respecter (affiche du protocole)",
+    "a": "Échelle de températures pour les plats chauds.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Un bébé dort pendant le repas",
+    "s": "Plat conservé couvert au réfrigérateur, étiquette avec le nom",
+    "a": "Un plat couvert et étiqueté dans un réfrigérateur."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Relever les températures",
+    "s": "Thermomètre de réfrigérateur et feuille de relevé",
+    "a": "Un thermomètre de réfrigérateur et une feuille de relevé."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Quatre biberons préparés à l'avance",
+    "s": "Plan de travail avec quatre biberons alignés",
+    "a": "Quatre biberons alignés sur un plan de travail."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Préparer un biberon de lait en poudre",
+    "s": "Schéma des étapes de préparation du biberon",
+    "a": "Schéma des étapes de préparation d'un biberon.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Réchauffer le lait maternel",
+    "s": "Chauffe-biberon à côté d'un micro-ondes",
+    "a": "Un chauffe-biberon et un micro-ondes."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Biberon entamé et étiquette",
+    "s": "Biberon étiqueté avec nom, date et heure",
+    "a": "Un biberon avec une étiquette de nom, date et heure."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Panier repas non hermétique",
+    "s": "Boîte repas ouverte, sans nom, posée sur un plan de travail",
+    "a": "Une boîte repas non fermée et sans nom."
+   },
+   {
+    "t": "C",
+    "v": "Photo",
+    "r": "Plat témoin",
+    "s": "Petite boîte étiquetée rangée au réfrigérateur",
+    "a": "Une boîte étiquetée conservée au réfrigérateur."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Faire un gâteau selon la procédure",
+    "s": "Tablier, charlotte et œufs cassés dans un récipient à part",
+    "a": "Un tablier, une charlotte et des œufs dans un récipient."
+   }
+  ],
+  "16": [
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Contrôle de la PMI à la porte",
+    "s": "Porte d'entrée avec interphone et feuille de présence",
+    "a": "La porte d'entrée d'une crèche avec une feuille de présence."
+   },
+   {
+    "t": "C",
+    "v": "Schéma",
+    "r": "Questions pour le référent PMI",
+    "s": "Schéma : sujets de l'équipe, sujets de la direction",
+    "a": "Schéma des sujets à traiter avec le référent PMI.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Le référent PMI veut la direction",
+    "s": "Deux adultes à l'entrée, un téléphone en main",
+    "a": "Deux adultes à l'entrée de la crèche."
+   },
+   {
+    "t": "A",
+    "v": "Photo",
+    "r": "Vérifier l'identité d'un contrôleur",
+    "s": "Carte professionnelle présentée à une porte",
+    "a": "Une carte professionnelle présentée à une porte."
+   },
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "Danger immédiat en l'absence de direction",
+    "s": "Fiche des numéros d'urgence affichée (15, 17, 18, 112)",
+    "a": "Une fiche des numéros d'urgence.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Illustration",
+    "r": "Demande particulière d'un parent",
+    "s": "Parent et professionnelle à l'accueil, un document en main",
+    "a": "Un parent et une professionnelle discutent à l'accueil."
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Repas non livrés",
+    "s": "Entrée vide du local repas, bac de livraison absent",
+    "a": "Un local repas sans livraison."
+   },
+   {
+    "t": "A",
+    "v": "Schéma",
+    "r": "Qui contacter en l'absence de la direction",
+    "s": "Liste ordonnée des contacts (secours, coordination, direction, santé)",
+    "a": "Liste ordonnée des personnes à contacter.",
+    "d": 1
+   },
+   {
+    "t": "S",
+    "v": "Photo",
+    "r": "Se blesser en déplaçant un meuble",
+    "s": "Petit meuble de la salle avec un cahier d'accident du travail",
+    "a": "Un meuble de la salle et un cahier d'accident."
+   },
+   {
+    "t": "S",
+    "v": "Schéma",
+    "r": "13 enfants, un professionnel absent",
+    "s": "Tableau de l'effectif avec ratio enfants-professionnels",
+    "a": "Tableau du ratio enfants et professionnels.",
+    "d": 1
+   },
+   {
+    "t": "A",
+    "v": "Schéma",
+    "r": "Prévenir quand l'effectif est insuffisant",
+    "s": "Planning de la semaine avec une case d'absence",
+    "a": "Planning de la semaine avec une absence.",
+    "d": 1
+   }
+  ]
+ }
+}

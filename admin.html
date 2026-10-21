@@ -169,6 +169,7 @@ const db=_sb.createClient(SUPABASE_URL,SUPABASE_KEY);
 const letters=['A','B','C','D','E','F'];
 const app=()=>document.getElementById('app');
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let filtreSansImage=false;
 let view='login',quizzes=[],curQuiz=null,curQuestions=[],results=[],filterCreche='',filterStatut='';
 let themes=[],curTheme=null,curModules=[];
 let curAxes=[],allModules=[];
@@ -688,7 +689,11 @@ async function loadQuizzes(){
       db.from('resultats').select('*',{count:'exact',head:true}).eq('quiz_id',q.id)]);
     counts[q.id]={q:count||0,r:rc||0};
   }));
-  quizzes.forEach(q=>{q._c=counts[q.id]});
+  /* Questions sans image, par quiz (une seule requête) : sert au compteur et au filtre de la liste. */
+  const{data:imgs}=await db.from('questions').select('quiz_id,image_url');
+  const sans={};
+  (imgs||[]).forEach(x=>{if(!x.image_url)sans[x.quiz_id]=(sans[x.quiz_id]||0)+1;});
+  quizzes.forEach(q=>{q._c=counts[q.id];q._c.si=sans[q.id]||0;});
   render();
 }
 
@@ -701,7 +706,7 @@ function renderList(){
           <h3 style="font-size:16px;font-weight:700">${esc(q.titre)}</h3>
           <p style="font-size:13px;color:var(--text-muted);margin-top:2px">${esc(q.description)}</p>
           <p style="font-size:12px;color:var(--text-light);margin-top:6px">
-            ${q._c.q} question${q._c.q>1?'s':''} · ${q._c.r} résultat${q._c.r>1?'s':''} ·
+            ${q._c.q} question${q._c.q>1?'s':''}${q._c.si?` (<span style="color:var(--orange);font-weight:600">${q._c.si} sans image</span>)`:''} · ${q._c.r} résultat${q._c.r>1?'s':''} ·
             ${q.mode==='profil'?'<span style="color:var(--purple);font-weight:600">Profil sans note</span> · ':''}<span style="color:${q.publie?'var(--success-text)':'var(--text-light)'}">${q.publie?'● Publié':'○ Brouillon'}</span>
           </p>
         </div>
@@ -716,12 +721,14 @@ function renderList(){
         <button class="btn" style="padding:7px 14px;font-size:13px;color:var(--danger-text)" onclick="deleteQuiz('${q.id}')">Supprimer</button>
       </div>
     </div>`;
+  const liste=filtreSansImage?quizzes.filter(q=>(q._c.si||0)>0):quizzes;
+  const totalSansImage=quizzes.reduce((a,q)=>a+(q._c.si||0),0);
   const GROUPES=[['pedagogie','Projet pédagogique'],['protocoles','Protocoles']];
   const rang=q=>Number.isInteger(q.ordre)?q.ordre:9999;
-  const sections=GROUPES.map(([code,nom])=>[nom,quizzes.filter(q=>q.bloc===code).sort((x,y)=>rang(x)-rang(y))]);
-  const autres=quizzes.filter(q=>!GROUPES.some(([c])=>c===q.bloc));
+  const sections=GROUPES.map(([code,nom])=>[nom,liste.filter(q=>q.bloc===code).sort((x,y)=>rang(x)-rang(y))]);
+  const autres=liste.filter(q=>!GROUPES.some(([c])=>c===q.bloc));
   if(autres.length)sections.push([sections.some(([,l])=>l.length)?'Autres quiz':'Mes quiz',autres]);
-  const items=quizzes.length?sections.filter(([,l])=>l.length).map(([nom,l])=>`
+  const items=liste.length?sections.filter(([,l])=>l.length).map(([nom,l])=>`
     <h3 style="font-size:15px;font-weight:700;color:var(--purple);margin:1.5rem 0 .75rem;padding-bottom:6px;border-bottom:2px solid var(--purple-light)">${esc(nom)} <span style="font-weight:500;color:var(--text-light);font-size:13px">· ${l.length} quiz</span></h3>${l.map(carte).join('')}`).join(''):`<div class="center-msg">Aucun quiz. Créez le premier.</div>`;
   app().innerHTML=`
     ${tabs('quiz')}
@@ -729,6 +736,7 @@ function renderList(){
       <h2 style="font-size:20px;color:var(--purple)">Mes quiz</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <input type="file" accept="application/json" id="import-json-input" style="display:none" onchange="importQuizJSON(this)">
+        <button class="btn" onclick="toggleSansImage()" title="N'afficher que les quiz dont des questions n'ont pas d'image">${filtreSansImage?'✓ ':''}Questions sans image (${totalSansImage})</button>
         <button class="btn" onclick="document.getElementById('import-json-input').click()">⇪ Importer JSON</button>
         <button class="btn purple" onclick="newQuiz()">+ Nouveau quiz</button>
       </div>
@@ -739,6 +747,8 @@ function renderList(){
     </p>${items}
     <p style="font-size:12px;color:var(--text-light);margin-top:1rem">Lien salariées : ${esc(base)}?quiz=IDENTIFIANT</p>`;
 }
+
+function toggleSansImage(){filtreSansImage=!filtreSansImage;render();}
 
 function quizBase(){
   let u=location.href.split('?')[0].split('#')[0];
@@ -899,7 +909,79 @@ async function openQuiz(id){
   curQuestions=data||[];
   curAxes=[];allModules=[];
   if(curQuiz.mode==='profil')await chargerAxesEdit(id);
+  await chargerIllu();
   view='edit';render();
+}
+
+/* ---------- AIDE À L'ILLUSTRATION ----------
+   Pour les quiz « profil » des thèmes 4 à 16 : suggestion de scène, texte alternatif et prompt
+   à copier dans un générateur d'images. Les suggestions sont dans illustrations-suggestions.json,
+   rangées par numéro de thème puis par rang de la question (colonne ordre) ; le texte de la
+   question visée est rappelé pour repérer un décalage si les questions ont été réordonnées.
+   Le style commun et les consignes sont définis ici, une seule fois. Protocoles (thèmes 9 à 16) :
+   schémas, pictogrammes et gestes de secours ne se génèrent pas, on reprend le document officiel. */
+let ILLU=null;
+const ILLU_STYLE="Illustration en papier découpé (paper-cut), couleurs violet et orange sur fond crème, ombres douces, style chaleureux et simple, format paysage 2:1.";
+const ILLU_FIN="Aucun texte, aucune lettre, aucune bulle dans l'image. Mains à cinq doigts, anatomie et proportions naturelles, visages détendus, expressions lisibles.";
+const ILLU_REGLE={
+  S:"Montre seulement la situation, jamais la bonne réaction : les adultes ont une posture neutre et attentive, mains au repos, sans geste ni expression qui indique ce qu'il faut faire.",
+  C:"Image simple qui illustre la notion, sans la réponse à la question.",
+  A:"Image calme du quotidien, sans indication de ce qu'il faut faire."
+};
+const ILLU_PROS=["professionnelle aux cheveux bruns courts","professionnel aux cheveux châtains et barbe courte","professionnelle à la peau foncée et aux cheveux crépus attachés","professionnelle aux cheveux blonds attachés","professionnelle aux cheveux gris courts","professionnelle aux cheveux noirs mi-longs"];
+const ILLU_ENFS=["enfant aux cheveux bouclés bruns","enfant aux cheveux roux","enfant à la peau foncée et aux cheveux crépus","enfant aux cheveux blonds","enfant aux cheveux noirs lisses","enfant à la peau mate et aux cheveux châtains"];
+const ILLU_DOC="Ne pas générer : un geste ou un document faux peut être appris. Reprendre le schéma, l'affiche ou le protocole officiel de la crèche (Croix-Rouge, ARS, PMI, HAS) ou un pictogramme normalisé.";
+async function chargerIllu(){
+  if(ILLU)return;
+  try{const r=await fetch('illustrations-suggestions.json',{cache:'no-cache'});ILLU=r.ok?((await r.json()).themes||{}):{};}
+  catch(e){ILLU={};}
+}
+function illuPour(i){
+  if(!curQuiz||curQuiz.mode!=='profil'||!ILLU)return null;
+  const q=curQuestions[i],m=/^Th[èe]me\s+(\d+)\b/i.exec(curQuiz.titre||'');
+  if(!q||q._new||!m||!Number.isInteger(q.ordre))return null;
+  const e=(ILLU[m[1]]||[])[q.ordre];
+  return e?{...e,theme:+m[1],k:(+m[1]-4)*11+q.ordre}:null;
+}
+function illuDoc(e){return e.theme>=9&&!!e.d;}
+function illuPrompt(e){
+  if(illuDoc(e))return ILLU_DOC;
+  const dessin=e.v==='Schéma'||e.v==='Pictogramme';
+  const entree=e.v==='Schéma'?'Schéma simple et lisible, sans texte, avec pictogrammes et flèches':e.v==='Pictogramme'?'Planche de pictogrammes en papier découpé, sans texte':'Scène';
+  const persos=dessin?'':' Personnages si présents : '+ILLU_PROS[e.k%6]+' ; '+ILLU_ENFS[e.k%6]+'.';
+  const proto=e.theme>=9?' Aucun geste médical, aucune blessure ni sang visibles.':'';
+  return ILLU_STYLE+' '+entree+' : '+e.s+'.'+persos+' '+ILLU_REGLE[e.t]+proto+' '+ILLU_FIN;
+}
+function illuAide(i){
+  const e=illuPour(i);if(!e)return'';
+  const doc=illuDoc(e);
+  return `<details style="margin-top:8px;border:1px dashed var(--border);border-radius:8px;padding:8px 10px">
+    <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--purple)">Aide à l'illustration · ${esc(e.v)}${doc?' · document officiel':''}</summary>
+    <p style="font-size:12px;color:var(--text-muted);margin:8px 0 2px">Suggestion pour : « ${esc(e.r)} »</p>
+    <p style="font-size:13px;margin:0 0 8px">${esc(e.s)}</p>
+    ${doc?`<p style="font-size:12px;color:var(--orange);margin:0 0 8px">${esc(ILLU_DOC)}</p>`
+      :`<textarea readonly rows="5" id="illu-p-${i}" class="form-input" style="font-size:12px;resize:vertical;margin-bottom:6px">${esc(illuPrompt(e))}</textarea>`}
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      ${doc?'':`<button class="btn" style="padding:4px 10px;font-size:12px" onclick="copierIllu(${i})">Copier le prompt</button>`}
+      <button class="btn" style="padding:4px 10px;font-size:12px" onclick="utiliserAltIllu(${i})">${curQuestions[i].image_url?'Utiliser le texte alternatif proposé':'Copier le texte alternatif'}</button>
+      <span id="illu-m-${i}" style="font-size:12px;color:var(--text-muted)"></span>
+    </div>
+  </details>`;
+}
+function illuMsg(i,t){const m=document.getElementById('illu-m-'+i);if(m){m.textContent=t;setTimeout(()=>{if(m.textContent===t)m.textContent='';},3000);}}
+function illuCopier(i,texte,ok){
+  const secours=()=>{const ta=document.getElementById('illu-p-'+i);if(ta&&texte===ta.value){ta.select();illuMsg(i,'Sélectionné : copiez avec Ctrl+C.');}else prompt('Copiez ce texte :',texte);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(texte).then(()=>illuMsg(i,ok),secours);
+  else secours();
+}
+function copierIllu(i){const ta=document.getElementById('illu-p-'+i);if(ta)illuCopier(i,ta.value,'Prompt copié.');}
+function utiliserAltIllu(i){
+  const e=illuPour(i);if(!e)return;
+  if(curQuestions[i].image_url){
+    curQuestions[i].image_alt=e.a;
+    const inp=document.getElementById('qalt-'+i);if(inp)inp.value=e.a;
+    illuMsg(i,'Texte alternatif mis à jour : pensez à enregistrer.');
+  }else illuCopier(i,e.a,'Texte alternatif copié : collez-le après avoir ajouté l\'image.');
 }
 
 function renderEdit(){
@@ -916,7 +998,7 @@ function renderEdit(){
       </div>`).join('');
     return `<div class="question-card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">
-        <span class="q-badge" style="margin:0">Question ${i+1}</span>
+        <div style="display:flex;align-items:center;gap:8px"><span class="q-badge" style="margin:0">Question ${i+1}</span>${q.image_url?'':'<span style="font-size:11px;font-weight:600;color:var(--orange)">sans image</span>'}</div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           <label style="font-size:12px;color:var(--text-muted);display:${isP?'none':'flex'};align-items:center;gap:4px">
             <input type="checkbox" ${q.multi?'checked':''} onchange="setMulti(${i},this.checked)"
@@ -938,7 +1020,8 @@ function renderEdit(){
           ${q.image_url?`<button class="btn" style="padding:5px 12px;font-size:12px;color:var(--danger-text)" onclick="removeQImg(${i})">Retirer</button>`:''}
           <span id="qup-${i}" style="font-size:12px;color:var(--text-muted)"></span>
         </div>
-        ${q.image_url?`<input class="form-input" style="padding:6px 10px;font-size:12px;margin-top:6px" placeholder="Texte alternatif (decrit l'image)" value="${esc(q.image_alt)}" onchange="setQAlt(${i},this.value)">`:''}
+        ${q.image_url?`<input class="form-input" id="qalt-${i}" style="padding:6px 10px;font-size:12px;margin-top:6px" placeholder="Texte alternatif (decrit l'image)" value="${esc(q.image_alt)}" onchange="setQAlt(${i},this.value)">`:''}
+        ${illuAide(i)}
       </div>
       ${opts}
       ${q.options.length<6?`<button class="btn" style="padding:5px 12px;font-size:12px;margin-top:4px" onclick="addOption(${i})">+ Option</button>`:''}
