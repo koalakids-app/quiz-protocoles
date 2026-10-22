@@ -17,3 +17,12 @@
 
 Tant que cette version n'est pas déployée, « Envoyer la semaine » dans l'onglet Parcours quiz
 détecte l'absence de réponse à la sonde et envoie deux mails (un par quiz) au lieu d'un.
+
+## `{referent}` dans les messages
+
+`liste-destinataires-quiz.ts` est la fonction du projet gestion-stock : même code que
+`supabase/functions/liste-destinataires-quiz/index.ts`, plus un indicateur `referent: true` sur
+les personnes qui ont une fiche « referents ». Tous les référents sont rattachés à une fiche
+employé, donc listés comme employés : sans cet indicateur, l'admin ne pouvait pas les repérer.
+Déployée sur le projet gestion-stock (`juyrceadazrovlitxceb`, version 10) ; à recopier dans le
+dépôt gestion-stock. L'admin lit ensuite `referent` pour remplacer `{referent}` crèche par crèche.

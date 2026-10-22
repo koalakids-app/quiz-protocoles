@@ -28,7 +28,7 @@ const fonctions = {
     destinataires: [
       { ref: 'a', civilite: 'Mme', prenom: 'Amina', nom: 'Diallo', email: 'amina@ex.fr', creche: 'Toulon', statut: 'Éducatrice' },
       { ref: 'b', civilite: 'M.', prenom: 'Max', nom: 'Roux', email: 'max@ex.fr', creche: 'Toulon', statut: 'Éducateur' },
-      { ref: 'c', civilite: 'Mme', prenom: 'Sophie', nom: 'Martin', email: 'sophie@ex.fr', creche: 'Toulon', statut: 'Salarié(e) en poste', origine: 'referents' },
+      { ref: 'c', civilite: 'Mme', prenom: 'Sophie', nom: 'Martin', email: 'sophie@ex.fr', creche: 'Toulon', statut: 'Salarié(e) en poste', origine: 'employes', referent: true },
     ],
     envois: [],
   },

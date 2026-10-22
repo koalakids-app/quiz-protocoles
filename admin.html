@@ -410,10 +410,10 @@ function envMajActions(){
     b(`✉ Envoyer à ${nNeuf} personne${nNeuf>1?'s':''}`,'envLancer(false)','primary',nNeuf===0)+
     (nRel?b(`↻ Relancer ${nRel} personne${nRel>1?'s':''} déjà contactée${nRel>1?'s':''}`,'envLancer(true)','purple',false):'');
 }
-/* {referent} : référent·e de la crèche de la personne, d'après la liste du réseau
-   (fiches « referents » de gestion-stock). Sans fiche trouvée : « votre référent(e) ». */
+/* {referent} : référent·e de la crèche de la personne. La liste du réseau (gestion-stock) marque
+   `referent:true` les personnes qui ont une fiche « referents ». Aucun trouvé : « votre référent(e) ». */
 function referentDe(creche){
-  const noms=[...new Set(ENV.reseau.filter(d=>d.origine==='referents'&&d.creche===creche).map(d=>(d.prenom+' '+(d.nom||'')).trim()).filter(Boolean))];
+  const noms=[...new Set(ENV.reseau.filter(d=>(d.referent===true||d.origine==='referents')&&d.creche===creche).map(d=>(d.prenom+' '+(d.nom||'')).trim()).filter(Boolean))];
   return noms.join(' ou ');
 }
 const SANS_REFERENT='votre référent(e)';
