@@ -532,12 +532,11 @@ function modeleSemaine(n,dates){
   return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : voici le lien du quiz « {quiz} ». Comptez environ 10 minutes. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n{lien}\n\nMerci de le faire cette semaine, pendant la sieste si possible.\n\nCordialement,\nL'équipe Koalakids`;
 }
 const objetSemaine=n=>'Parcours quiz, semaine '+n+' : {quiz}';
-/* Quiz d'un thème : d'abord par le titre (« Thème 4 »), sinon par le rang dans son bloc. */
+/* Quiz d'un thème : par son titre « Thème N — … », comme le planning de Mon espace
+   (js/planning-quiz.js dans gestion-stock). Les deux doivent retrouver les mêmes quiz. */
 function quizDuTheme(bloc,t){
-  const dansBloc=quizzes.filter(q=>q.bloc===bloc);
-  const parTitre=dansBloc.find(q=>new RegExp('th[eè]me\\s*0?'+t+'(?!\\d)','i').test(q.titre||''));
-  if(parTitre)return parTitre;
-  return dansBloc.find(q=>q.ordre===t)||(bloc==='protocoles'?dansBloc.find(q=>q.ordre===t-8):null)||null;
+  const re=new RegExp('^Th[èe]me\\s+'+t+'\\b','i');
+  return quizzes.find(q=>re.test(q.titre||''))||null;
 }
 const cleP=r=>(String(r.prenom||'').trim()+'|'+String(r.nom||'').trim()).toLowerCase();
 async function loadParcours(){
@@ -596,7 +595,7 @@ function renderParcours(){
     <h2 style="font-size:20px;color:var(--purple);margin-bottom:.25rem">Parcours quiz</h2>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">16 quiz, deux par semaine, du 26 octobre au 18 décembre 2026.</p>
     ${parcErr?`<div class="question-card" style="color:var(--danger-text);font-size:13px">⚠ ${esc(parcErr)}</div>`:''}
-    ${manquants?`<div class="question-card" style="font-size:13px"><b style="color:var(--danger-text)">⚠ ${manquants} quiz du planning sont introuvables.</b> Ils sont reconnus par leur bloc (Projet pédagogique ou Protocoles) et par « Thème N » dans le titre, ou par leur rang dans le bloc.</div>`:''}
+    ${manquants?`<div class="question-card" style="font-size:13px"><b style="color:var(--danger-text)">⚠ ${manquants} quiz du planning sont introuvables.</b> Un quiz est reconnu à son titre, qui doit commencer par « Thème N » (comme dans Mon espace).</div>`:''}
     ${brouillons.length?`<div class="question-card" style="font-size:13px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
       <span><b>${brouillons.length} quiz du parcours sont encore en brouillon</b> : leur lien ne fonctionne pas tant qu'ils ne sont pas publiés.</span>
       <button class="btn purple" style="padding:7px 14px;font-size:13px" onclick="publierParcours()">Publier les ${brouillons.length} quiz</button></div>`:''}
