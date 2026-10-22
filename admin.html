@@ -293,7 +293,7 @@ function renderEnvoi(){
     ${tabs(tab)}
     <button class="btn" style="margin-bottom:1rem" onclick="retourEnvoi()">← Retour</button>
     <h2 style="font-size:20px;color:var(--purple);margin-bottom:.25rem">Envoyer par mail</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:1.25rem"><b>${esc(ENV.titre)}</b>${ENV.semaine?' <b>+ '+esc(ENV.semaine.second.titre)+'</b> · semaine '+ENV.semaine.n+' du parcours (2 mails par personne)':' · '+(ENV.kind==='quiz'?'quiz':'module de formation')}</p>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:1.25rem"><b>${esc(ENV.titre)}</b>${ENV.semaine?' <b>+ '+esc(ENV.semaine.second.titre)+'</b> · semaine '+ENV.semaine.n+' du parcours ('+(ENV.semaine.unique?'1 mail avec les 2 liens':'2 mails par personne')+')':' · '+(ENV.kind==='quiz'?'quiz':'module de formation')}</p>
 
     <div class="question-card">
       <h3 style="font-size:15px;margin-bottom:10px">1. Choisir les personnes</h3>
@@ -341,7 +341,7 @@ function renderEnvoi(){
 
     <div class="question-card">
       <h3 style="font-size:15px;margin-bottom:4px">3. Rédiger le message</h3>
-      <p style="font-size:12px;color:var(--text-light);margin-bottom:10px">Un seul message pour tous. <code>{prenom}</code>, <code>{nom}</code> et <code>{civilite}</code> sont remplacés pour chaque personne (<code>{quiz}</code> par le titre du quiz) ; <code>{lien}</code> devient un lien cliquable (s’il est absent, un bouton est ajouté en bas du mail).</p>
+      <p style="font-size:12px;color:var(--text-light);margin-bottom:10px">Un seul message pour tous. <code>{prenom}</code>, <code>{nom}</code> et <code>{civilite}</code> sont remplacés pour chaque personne (<code>{quiz}</code> par le titre du quiz${ENV.semaine&&ENV.semaine.unique?' ; <code>{lien2}</code> et <code>{quiz2}</code> pour le deuxième quiz':''}) ; <code>{lien}</code> devient un lien cliquable (s’il est absent, un bouton est ajouté en bas du mail).</p>
       <div class="form-group"><label class="form-label">Objet</label><input class="form-input" id="env-objet" value="${esc(ENV.objet)}" oninput="ENV.objet=this.value;envApercu()"></div>
       <div class="form-group"><label class="form-label">Message</label>
         <textarea class="form-input" id="env-message" rows="12" oninput="ENV.message=this.value;envApercu()">${esc(ENV.message)}</textarea></div>
@@ -411,20 +411,20 @@ function envMajActions(){
     (nRel?b(`↻ Relancer ${nRel} personne${nRel>1?'s':''} déjà contactée${nRel>1?'s':''}`,'envLancer(true)','purple',false):'');
 }
 function envRemplacer(t,p){
-  return String(t).replace(/\{quiz\}/gi,ENV&&ENV.titre||'').replace(/\{prenom\}/gi,p.prenom||'').replace(/\{nom\}/gi,p.nom||'').replace(/\{civilite\}/gi,p.civilite||'');
+  return String(t).replace(/\{quiz\}/gi,ENV&&ENV.titre||'').replace(/\{quiz2\}/gi,ENV&&ENV.semaine&&ENV.semaine.second.titre||'').replace(/\{prenom\}/gi,p.prenom||'').replace(/\{nom\}/gi,p.nom||'').replace(/\{civilite\}/gi,p.civilite||'');
 }
 function envApercu(){
   const el=document.getElementById('env-apercu');if(!el)return;
   const p=personnes().find(x=>ENV.sel.has(x.email))||{prenom:'Prénom',nom:'Nom',civilite:'Mme'};
   const lien='<a href="#" onclick="return false" style="color:var(--purple);font-weight:700">[lien personnel de '+esc(p.prenom)+']</a>';
-  const txt=esc(envRemplacer(ENV.message,p)).replace(/\{lien\}/gi,lien).replace(/\n/g,'<br>');
+  const txt=esc(envRemplacer(ENV.message,p)).replace(/\{lien\}/gi,lien).replace(/\{lien2\}/gi,lien.replace('[lien personnel','[2e lien personnel')).replace(/\n/g,'<br>');
   const bouton=/\{lien\}/i.test(ENV.message)?'':'<p style="text-align:center;margin-top:14px"><span style="display:inline-block;background:var(--orange);color:#fff;font-weight:700;padding:9px 20px;border-radius:10px">Accéder au questionnaire</span></p>';
   el.innerHTML='<div style="font-size:12px;color:var(--text-light);margin-bottom:8px">Objet : '+esc(envRemplacer(ENV.objet,p))+' · pour '+esc(p.prenom)+' '+esc(p.nom)+'</div>'+txt+bouton;
 }
 function envModele(type){
   if(!confirm('Remplacer le message actuel par ce modèle ?'))return;
   if(type==='candidat'){ENV.message=MODELE_CANDIDAT;ENV.objet='Votre candidature — entretien et questionnaire préparatoire';}
-  else if(ENV.semaine){ENV.message=modeleSemaine(ENV.semaine.n,ENV.semaine.dates);ENV.objet=objetSemaine(ENV.semaine.n);}
+  else if(ENV.semaine){ENV.message=messageSemaine(ENV.semaine);ENV.objet=objetSemaine(ENV.semaine.n,ENV.semaine.unique);}
   else{ENV.message=ENV.parcours?modeleParcours(ENV.parcours.nom,ENV.parcours.nb):modeleMessage(ENV.kind,ENV.titre);ENV.objet=ENV.kind==='quiz'?'Votre questionnaire - Koalakids':'Votre formation - Koalakids';}
   document.getElementById('env-message').value=ENV.message;
   document.getElementById('env-objet').value=ENV.objet;
@@ -458,21 +458,23 @@ async function envLancer(relance){
   let objet=ENV.objet.trim();
   if(relance&&!/^rappel/i.test(objet))objet='Rappel - '+objet;
   const cibleQuiz=[{id:ENV.id,titre:ENV.titre}];
-  if(ENV.semaine)cibleQuiz.push({id:ENV.semaine.second.id,titre:ENV.semaine.second.titre});
-  const mails=cibleQuiz.length>1?'\n\n'+cibleQuiz.length+' mails par personne, un par quiz :\n- '+cibleQuiz.map(c=>c.titre).join('\n- '):'';
+  const unique=!!(ENV.semaine&&ENV.semaine.unique);
+  if(ENV.semaine&&!unique)cibleQuiz.push({id:ENV.semaine.second.id,titre:ENV.semaine.second.titre});
+  const mails=unique?'\n\n1 mail par personne, avec les liens de :\n- '+ENV.titre+'\n- '+ENV.semaine.second.titre:cibleQuiz.length>1?'\n\n'+cibleQuiz.length+' mails par personne, un par quiz :\n- '+cibleQuiz.map(c=>c.titre).join('\n- '):'';
   if(!confirm((relance?'Relancer ':'Envoyer à ')+cibles.length+' personne'+(cibles.length>1?'s':'')+' ?\n\nObjet : '+objet+mails))return;
   ENV.busy=true;envMajActions();
   const etat=document.getElementById('env-etat');
   const tous=[];
   for(const c of cibleQuiz){
-    const objetC=objet.replace(/\{quiz\}/gi,c.titre),messageC=message.replace(/\{quiz\}/gi,c.titre);
+    const sub=t=>t.replace(/\{quiz\}/gi,c.titre).replace(/\{quiz2\}/gi,unique?ENV.semaine.second.titre:'');
+    const objetC=sub(objet),messageC=sub(message);
     const part=[];
     try{
       for(let i=0;i<cibles.length;i+=40){
         etat.className='save-status';
         etat.textContent='Envoi en cours'+(cibleQuiz.length>1?' ('+c.titre+')':'')+'… '+Math.min(i,cibles.length)+' / '+cibles.length;
         const lot=cibles.slice(i,i+40).map(p=>({ref:p.ref,civilite:p.civilite,prenom:p.prenom,nom:p.nom,email:p.email,creche:p.creche,statut:p.statut,source:p.source}));
-        const r=await appelFn('envoyer-quiz',{kind:ENV.kind,item_id:c.id,objet:objetC,message:messageC,expediteur:ENV.exp,relance,destinataires:lot});
+        const r=await appelFn('envoyer-quiz',{kind:ENV.kind,item_id:c.id,...(unique?{item_id_2:ENV.semaine.second.id}:{}),objet:objetC,message:messageC,expediteur:ENV.exp,relance,destinataires:lot});
         part.push(...(r.resultats||[]));
       }
     }catch(e){
@@ -531,7 +533,11 @@ let parcRes=[],parcErr='',parcCreche='';
 function modeleSemaine(n,dates){
   return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : voici le lien du quiz « {quiz} ». Comptez environ 10 minutes. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n{lien}\n\nMerci de le faire cette semaine, pendant la sieste si possible.\n\nCordialement,\nL'équipe Koalakids`;
 }
-const objetSemaine=n=>'Parcours quiz, semaine '+n+' : {quiz}';
+function modeleSemaineUnique(n,dates){
+  return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : deux quiz à faire cette semaine, d'environ 10 minutes chacun. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n1. « {quiz} »\n{lien}\n\n2. « {quiz2} »\n{lien2}\n\nMerci de les faire cette semaine, pendant la sieste si possible.\n\nCordialement,\nL'équipe Koalakids`;
+}
+const objetSemaine=(n,unique)=>'Parcours quiz, semaine '+n+(unique?'':' : {quiz}');
+const messageSemaine=sem=>sem.unique?modeleSemaineUnique(sem.n,sem.dates):modeleSemaine(sem.n,sem.dates);
 /* Quiz d'un thème : par son titre « Thème N — … », comme le planning de Mon espace
    (js/planning-quiz.js dans gestion-stock). Les deux doivent retrouver les mêmes quiz. */
 function quizDuTheme(bloc,t){
@@ -565,7 +571,7 @@ function renderParcours(){
       <h3 style="font-size:16px;font-weight:700">Semaine ${w.n} <span style="font-weight:500;color:var(--text-muted);font-size:13px">· ${w.dates}${w.note?' ('+w.note+')':''}</span></h3>
       ${ligne('Pédagogie',w.ped,w.qp)}${ligne('Protocoles',w.pro,w.qr)}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-        <button class="btn primary" style="padding:7px 14px;font-size:13px" onclick="envoyerSemaine(${w.n})" ${pret?'':'disabled title="Les deux quiz doivent exister et être publiés."'}>✉ Envoyer la semaine (2 mails)</button>
+        <button class="btn primary" style="padding:7px 14px;font-size:13px" onclick="envoyerSemaine(${w.n})" ${pret?'':'disabled title="Les deux quiz doivent exister et être publiés."'}>✉ Envoyer la semaine</button>
       </div></div>`;}).join('');
   const rattrapage=`<div class="question-card" style="margin-bottom:12px">
     <h3 style="font-size:16px;font-weight:700">Semaine 9 <span style="font-weight:500;color:var(--text-muted);font-size:13px">· 21 – 24 déc. (ven. 25 déc. férié)</span></h3>
@@ -623,9 +629,13 @@ async function envoyerSemaine(n){
   if(!qp||!qr||!qp.publie||!qr.publie)return alert('Les deux quiz de la semaine doivent exister et être publiés.');
   await openEnvoi('quiz',qp.id);
   if(!ENV)return;
-  ENV.semaine={n:w.n,dates:w.dates,second:{id:qr.id,titre:qr.titre}};
-  ENV.objet=objetSemaine(w.n);
-  ENV.message=modeleSemaine(w.n,w.dates);
+  /* Un seul mail avec les deux liens si la version à jour de envoyer-quiz est déployée
+     (elle répond à la sonde), sinon deux mails, un par quiz. */
+  let unique=false;
+  try{const r=await appelFn('envoyer-quiz',{sonde:true});unique=!!(r&&r.deux_liens===true);}catch(e){}
+  ENV.semaine={n:w.n,dates:w.dates,unique,second:{id:qr.id,titre:qr.titre}};
+  ENV.objet=objetSemaine(w.n,unique);
+  ENV.message=messageSemaine(ENV.semaine);
   renderEnvoi();
 }
 

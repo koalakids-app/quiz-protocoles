@@ -74,6 +74,7 @@ function scriptFauxSupabase(donnees, options = {}) {
     functions:{invoke(nom,o){
       const corps=(o&&o.body)||{};window.__appels=window.__appels||[];window.__appels.push({nom,corps});
       const reponses=OPTS.fonctions||{};
+      if(nom==='envoyer-quiz'&&corps.sonde)return OPTS.deuxLiens?Promise.resolve({data:{ok:true,deux_liens:true},error:null}):Promise.resolve({data:null,error:{message:'Quiz ou module manquant'}});
       if(nom==='liste-destinataires')return Promise.resolve({data:reponses[nom]||{creches:[],destinataires:[],envois:[]},error:null});
       return Promise.resolve({data:{resultats:(corps.destinataires||[]).map(d=>({email:d.email,prenom:d.prenom,nom:d.nom,etat:'envoye'}))},error:null});
     }},

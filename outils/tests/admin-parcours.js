@@ -51,6 +51,7 @@ const fonctions = {
   ok(await bouton(2).isDisabled(), 'semaine 2 (brouillons) : envoi désactivé');
   ok(await bouton(5).isDisabled(), 'semaine 5 (quiz thème 16 absent) : envoi désactivé');
   ok(await bouton(1).isEnabled(), 'semaine 1 (deux quiz publiés) : envoi possible');
+  const sondes = () => p.evaluate(() => window.__appels.filter(a => a.corps.sonde).length);
 
   // Suivi : « amina diallo » (casse, espace) est la même personne ; S1 complète, S4 à moitié.
   const ligneAmina = p.locator('tr', { hasText: 'Amina Diallo' });
@@ -61,11 +62,12 @@ const fonctions = {
   // Envoi de la semaine 1.
   await bouton(1).click(); await p.waitForTimeout(600);
   const envoi = await p.locator('#app').innerText();
-  ok(envoi.includes('Thème 1 · Projet') && envoi.includes('Thème 9 · Protocole') && envoi.includes('2 mails par personne'), 'écran d\'envoi : les deux quiz de la semaine');
+  ok(envoi.includes('Thème 1 · Projet') && envoi.includes('Thème 9 · Protocole') && envoi.includes('2 mails par personne'), 'ancienne fonction (pas de réponse à la sonde) : repli sur deux mails');
+  ok((await sondes()) === 1, 'la sonde est envoyée une fois');
   ok((await p.locator('#env-objet').inputValue()).includes('semaine 1'), 'objet prérempli avec la semaine');
   await p.locator('#env-all').check(); await p.waitForTimeout(200);
   await p.getByRole('button', { name: /Envoyer à 2 personnes/ }).click(); await p.waitForTimeout(800);
-  const appels = await p.evaluate(() => window.__appels.filter(a => a.nom === 'envoyer-quiz'));
+  const appels = await p.evaluate(() => window.__appels.filter(a => a.nom === 'envoyer-quiz' && !a.corps.sonde));
   ok(appels.length === 2 && appels[0].corps.item_id === 'p1' && appels[1].corps.item_id === 'r9', 'deux envois : thème 1 puis thème 9');
   ok(appels.every(a => a.corps.destinataires.length === 2), 'mêmes deux personnes pour chaque quiz');
   ok(appels[0].corps.objet.includes('Thème 1') && appels[1].corps.objet.includes('Thème 9') && !appels.some(a => /\{quiz\}/.test(a.corps.objet + a.corps.message)), '{quiz} remplacé par le titre dans l\'objet et le message');
@@ -82,5 +84,28 @@ const fonctions = {
 
   ok(erreurs.length === 0, 'aucune erreur JavaScript' + (erreurs.length ? ' : ' + erreurs.join(' | ') : ''));
   await navigateur.close();
+
+  // Fonction à jour (répond à la sonde) : un seul mail avec les deux liens.
+  const seconde = await ouvrir(JSON.parse(JSON.stringify(donnees)), { session: true, fonctions, deuxLiens: true }, { width: 1000, height: 900 });
+  const erreurs2 = [];
+  const q = await page(seconde.contexte, erreurs2, []);
+  await q.goto(`${URL_BASE}/admin.html`); await q.waitForTimeout(1500);
+  await q.evaluate(() => goTab('parcours')); await q.waitForTimeout(600);
+  await q.locator('.question-card', { hasText: 'Semaine 1 ' }).getByRole('button', { name: /Envoyer la semaine/ }).click(); await q.waitForTimeout(600);
+  const ecran = await q.locator('#app').innerText();
+  ok(ecran.includes('1 mail avec les 2 liens'), 'fonction à jour : un seul mail annoncé');
+  const msg = await q.locator('#env-message').inputValue();
+  ok(msg.includes('{lien}') && msg.includes('{lien2}') && msg.includes('{quiz2}'), 'modèle avec {lien} et {lien2}');
+  ok(!(await q.locator('#env-objet').inputValue()).includes('{quiz}'), 'objet sans titre de quiz');
+  ok((await q.locator('#env-apercu').innerText()).includes('Thème 9 · Protocole') && (await q.locator('#env-apercu').innerText()).includes('2e lien'), 'aperçu : titre du 2e quiz et 2e lien');
+  await q.locator('#env-all').check(); await q.waitForTimeout(200);
+  await q.getByRole('button', { name: /Envoyer à 2 personnes/ }).click(); await q.waitForTimeout(800);
+  const envois = await q.evaluate(() => window.__appels.filter(a => a.nom === 'envoyer-quiz' && !a.corps.sonde));
+  ok(envois.length === 1 && envois[0].corps.item_id === 'p1' && envois[0].corps.item_id_2 === 'r9', 'un seul appel avec les deux quiz');
+  ok(envois[0].corps.destinataires.length === 2, 'pour les deux personnes');
+  ok(!/\{quiz2?\}/.test(envois[0].corps.message) && envois[0].corps.message.includes('« Thème 1 · Projet »') && envois[0].corps.message.includes('« Thème 9 · Protocole »'), 'titres des deux quiz dans le message');
+  ok(envois[0].corps.message.includes('{lien}') && envois[0].corps.message.includes('{lien2}'), '{lien} et {lien2} laissés au serveur');
+  ok(erreurs2.length === 0, 'aucune erreur JavaScript (fonction à jour)');
+  await seconde.navigateur.close();
   bilan();
 })();
