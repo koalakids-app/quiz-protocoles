@@ -28,6 +28,7 @@ const fonctions = {
     destinataires: [
       { ref: 'a', civilite: 'Mme', prenom: 'Amina', nom: 'Diallo', email: 'amina@ex.fr', creche: 'Toulon', statut: 'Éducatrice' },
       { ref: 'b', civilite: 'M.', prenom: 'Max', nom: 'Roux', email: 'max@ex.fr', creche: 'Toulon', statut: 'Éducateur' },
+      { ref: 'c', civilite: 'Mme', prenom: 'Sophie', nom: 'Martin', email: 'sophie@ex.fr', creche: 'Toulon', statut: 'Salarié(e) en poste', origine: 'referents' },
     ],
     envois: [],
   },
@@ -66,13 +67,13 @@ const fonctions = {
   ok((await sondes()) === 1, 'la sonde est envoyée une fois');
   ok((await p.locator('#env-objet').inputValue()).includes('semaine 1'), 'objet prérempli avec la semaine');
   await p.locator('#env-all').check(); await p.waitForTimeout(200);
-  await p.getByRole('button', { name: /Envoyer à 2 personnes/ }).click(); await p.waitForTimeout(800);
+  await p.getByRole('button', { name: /Envoyer à 3 personnes/ }).click(); await p.waitForTimeout(800);
   const appels = await p.evaluate(() => window.__appels.filter(a => a.nom === 'envoyer-quiz' && !a.corps.sonde));
   ok(appels.length === 2 && appels[0].corps.item_id === 'p1' && appels[1].corps.item_id === 'r9', 'deux envois : thème 1 puis thème 9');
-  ok(appels.every(a => a.corps.destinataires.length === 2), 'mêmes deux personnes pour chaque quiz');
+  ok(appels.every(a => a.corps.destinataires.length === 3), 'mêmes trois personnes pour chaque quiz');
   ok(appels[0].corps.objet.includes('Thème 1') && appels[1].corps.objet.includes('Thème 9') && !appels.some(a => /\{quiz\}/.test(a.corps.objet + a.corps.message)), '{quiz} remplacé par le titre dans l\'objet et le message');
   ok(appels.every(a => a.corps.message.includes('{lien}')), '{lien} conservé pour le serveur');
-  ok((await p.locator('#app').innerText()).includes('4 envoyé'), 'récapitulatif : 4 mails envoyés');
+  ok((await p.locator('#app').innerText()).includes('6 envoyé'), 'récapitulatif : 6 mails envoyés');
   await p.getByRole('button', { name: 'Terminer' }).click(); await p.waitForTimeout(600);
   ok((await p.locator('h2').first().innerText()).includes('Parcours quiz'), 'Terminer ramène au parcours');
 
@@ -99,12 +100,14 @@ const fonctions = {
   ok(!(await q.locator('#env-objet').inputValue()).includes('{quiz}'), 'objet sans titre de quiz');
   ok((await q.locator('#env-apercu').innerText()).includes('Thème 9 · Protocole') && (await q.locator('#env-apercu').innerText()).includes('2e lien'), 'aperçu : titre du 2e quiz et 2e lien');
   await q.locator('#env-all').check(); await q.waitForTimeout(200);
-  await q.getByRole('button', { name: /Envoyer à 2 personnes/ }).click(); await q.waitForTimeout(800);
+  ok((await q.locator('#env-apercu').innerText()).includes('Sophie Martin'), 'aperçu : le référent est affiché');
+  await q.getByRole('button', { name: /Envoyer à 3 personnes/ }).click(); await q.waitForTimeout(800);
   const envois = await q.evaluate(() => window.__appels.filter(a => a.nom === 'envoyer-quiz' && !a.corps.sonde));
   ok(envois.length === 1 && envois[0].corps.item_id === 'p1' && envois[0].corps.item_id_2 === 'r9', 'un seul appel avec les deux quiz');
-  ok(envois[0].corps.destinataires.length === 2, 'pour les deux personnes');
+  ok(envois[0].corps.destinataires.length === 3, 'pour les trois personnes');
   ok(!/\{quiz2?\}/.test(envois[0].corps.message) && envois[0].corps.message.includes('« Thème 1 · Projet »') && envois[0].corps.message.includes('« Thème 9 · Protocole »'), 'titres des deux quiz dans le message');
   ok(envois[0].corps.message.includes('{lien}') && envois[0].corps.message.includes('{lien2}'), '{lien} et {lien2} laissés au serveur');
+  ok(envois[0].corps.message.includes('vu avec Sophie Martin.') && !/\{referent\}/.test(envois[0].corps.message), '{referent} remplacé par le référent de la crèche');
   ok(erreurs2.length === 0, 'aucune erreur JavaScript (fonction à jour)');
   await seconde.navigateur.close();
   bilan();

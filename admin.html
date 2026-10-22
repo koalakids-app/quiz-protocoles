@@ -341,7 +341,7 @@ function renderEnvoi(){
 
     <div class="question-card">
       <h3 style="font-size:15px;margin-bottom:4px">3. Rédiger le message</h3>
-      <p style="font-size:12px;color:var(--text-light);margin-bottom:10px">Un seul message pour tous. <code>{prenom}</code>, <code>{nom}</code> et <code>{civilite}</code> sont remplacés pour chaque personne (<code>{quiz}</code> par le titre du quiz${ENV.semaine&&ENV.semaine.unique?' ; <code>{lien2}</code> et <code>{quiz2}</code> pour le deuxième quiz':''}) ; <code>{lien}</code> devient un lien cliquable (s’il est absent, un bouton est ajouté en bas du mail).</p>
+      <p style="font-size:12px;color:var(--text-light);margin-bottom:10px">Un seul message pour tous. <code>{prenom}</code>, <code>{nom}</code> et <code>{civilite}</code> sont remplacés pour chaque personne (<code>{referent}</code> par le référent de sa crèche ; <code>{quiz}</code> par le titre du quiz${ENV.semaine&&ENV.semaine.unique?' ; <code>{lien2}</code> et <code>{quiz2}</code> pour le deuxième quiz':''}) ; <code>{lien}</code> devient un lien cliquable (s’il est absent, un bouton est ajouté en bas du mail).</p>
       <div class="form-group"><label class="form-label">Objet</label><input class="form-input" id="env-objet" value="${esc(ENV.objet)}" oninput="ENV.objet=this.value;envApercu()"></div>
       <div class="form-group"><label class="form-label">Message</label>
         <textarea class="form-input" id="env-message" rows="12" oninput="ENV.message=this.value;envApercu()">${esc(ENV.message)}</textarea></div>
@@ -410,8 +410,16 @@ function envMajActions(){
     b(`✉ Envoyer à ${nNeuf} personne${nNeuf>1?'s':''}`,'envLancer(false)','primary',nNeuf===0)+
     (nRel?b(`↻ Relancer ${nRel} personne${nRel>1?'s':''} déjà contactée${nRel>1?'s':''}`,'envLancer(true)','purple',false):'');
 }
+/* {referent} : référent·e de la crèche de la personne, d'après la liste du réseau
+   (fiches « referents » de gestion-stock). Sans fiche trouvée : « votre référent(e) ». */
+function referentDe(creche){
+  const noms=[...new Set(ENV.reseau.filter(d=>d.origine==='referents'&&d.creche===creche).map(d=>(d.prenom+' '+(d.nom||'')).trim()).filter(Boolean))];
+  return noms.join(' ou ');
+}
+const SANS_REFERENT='votre référent(e)';
+const avecReferent=(t,creche)=>String(t).replace(/\{referent\}/gi,()=>referentDe(creche)||SANS_REFERENT);
 function envRemplacer(t,p){
-  return String(t).replace(/\{quiz\}/gi,ENV&&ENV.titre||'').replace(/\{quiz2\}/gi,ENV&&ENV.semaine&&ENV.semaine.second.titre||'').replace(/\{prenom\}/gi,p.prenom||'').replace(/\{nom\}/gi,p.nom||'').replace(/\{civilite\}/gi,p.civilite||'');
+  return avecReferent(t,p.creche).replace(/\{quiz\}/gi,ENV&&ENV.titre||'').replace(/\{quiz2\}/gi,ENV&&ENV.semaine&&ENV.semaine.second.titre||'').replace(/\{prenom\}/gi,p.prenom||'').replace(/\{nom\}/gi,p.nom||'').replace(/\{civilite\}/gi,p.civilite||'');
 }
 function envApercu(){
   const el=document.getElementById('env-apercu');if(!el)return;
@@ -461,7 +469,9 @@ async function envLancer(relance){
   const unique=!!(ENV.semaine&&ENV.semaine.unique);
   if(ENV.semaine&&!unique)cibleQuiz.push({id:ENV.semaine.second.id,titre:ENV.semaine.second.titre});
   const mails=unique?'\n\n1 mail par personne, avec les liens de :\n- '+ENV.titre+'\n- '+ENV.semaine.second.titre:cibleQuiz.length>1?'\n\n'+cibleQuiz.length+' mails par personne, un par quiz :\n- '+cibleQuiz.map(c=>c.titre).join('\n- '):'';
-  if(!confirm((relance?'Relancer ':'Envoyer à ')+cibles.length+' personne'+(cibles.length>1?'s':'')+' ?\n\nObjet : '+objet+mails))return;
+  const sansRef=/\{referent\}/i.test(message+' '+objet)?[...new Set(cibles.map(p=>p.creche))].filter(c=>!referentDe(c)):[];
+  const avertRef=sansRef.length?'\n\n⚠ Aucun référent trouvé pour : '+sansRef.map(c=>c||'(sans crèche)').join(', ')+'.\nLe mail dira « '+SANS_REFERENT+' » pour ces personnes.':'';
+  if(!confirm((relance?'Relancer ':'Envoyer à ')+cibles.length+' personne'+(cibles.length>1?'s':'')+' ?\n\nObjet : '+objet+mails+avertRef))return;
   ENV.busy=true;envMajActions();
   const etat=document.getElementById('env-etat');
   const tous=[];
@@ -469,13 +479,18 @@ async function envLancer(relance){
     const sub=t=>t.replace(/\{quiz\}/gi,c.titre).replace(/\{quiz2\}/gi,unique?ENV.semaine.second.titre:'');
     const objetC=sub(objet),messageC=sub(message);
     const part=[];
+    // Un message par crèche : {referent} y est remplacé avant l'envoi.
+    const groupes=[...new Set(cibles.map(p=>p.creche))].map(cr=>cibles.filter(p=>p.creche===cr));
     try{
-      for(let i=0;i<cibles.length;i+=40){
-        etat.className='save-status';
-        etat.textContent='Envoi en cours'+(cibleQuiz.length>1?' ('+c.titre+')':'')+'… '+Math.min(i,cibles.length)+' / '+cibles.length;
-        const lot=cibles.slice(i,i+40).map(p=>({ref:p.ref,civilite:p.civilite,prenom:p.prenom,nom:p.nom,email:p.email,creche:p.creche,statut:p.statut,source:p.source}));
-        const r=await appelFn('envoyer-quiz',{kind:ENV.kind,item_id:c.id,...(unique?{item_id_2:ENV.semaine.second.id}:{}),objet:objetC,message:messageC,expediteur:ENV.exp,relance,destinataires:lot});
-        part.push(...(r.resultats||[]));
+      for(const g of groupes){
+        const objetG=avecReferent(objetC,g[0].creche),messageG=avecReferent(messageC,g[0].creche);
+        for(let i=0;i<g.length;i+=40){
+          etat.className='save-status';
+          etat.textContent='Envoi en cours'+(cibleQuiz.length>1?' ('+c.titre+')':'')+'… '+part.length+' / '+cibles.length;
+          const lot=g.slice(i,i+40).map(p=>({ref:p.ref,civilite:p.civilite,prenom:p.prenom,nom:p.nom,email:p.email,creche:p.creche,statut:p.statut,source:p.source}));
+          const r=await appelFn('envoyer-quiz',{kind:ENV.kind,item_id:c.id,...(unique?{item_id_2:ENV.semaine.second.id}:{}),objet:objetG,message:messageG,expediteur:ENV.exp,relance,destinataires:lot});
+          part.push(...(r.resultats||[]));
+        }
       }
     }catch(e){
       // Les lots d'avant sont partis : on les montre quand même, avec l'erreur du lot interrompu.
@@ -531,10 +546,10 @@ const PLAN_PARCOURS=[
  {n:8,dates:'14 – 18 déc.',ped:8,pro:12}];
 let parcRes=[],parcErr='',parcCreche='';
 function modeleSemaine(n,dates){
-  return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : voici le lien du quiz « {quiz} ». Comptez environ 10 minutes. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n{lien}\n\nMerci de le faire cette semaine, pendant la sieste si possible.\n\nCordialement,\nL'équipe Koalakids`;
+  return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : voici le lien du quiz « {quiz} ». Comptez environ 10 minutes. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n{lien}\n\nMerci de le faire cette semaine, loin des enfants, lors d'un temps de détachement vu avec {referent}.\n\nCordialement,\nL'équipe Koalakids`;
 }
 function modeleSemaineUnique(n,dates){
-  return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : deux quiz à faire cette semaine, d'environ 10 minutes chacun. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n1. « {quiz} »\n{lien}\n\n2. « {quiz2} »\n{lien2}\n\nMerci de les faire cette semaine, pendant la sieste si possible.\n\nCordialement,\nL'équipe Koalakids`;
+  return `Bonjour {prenom},\n\nSemaine ${n} du parcours quiz (${dates}) : deux quiz à faire cette semaine, d'environ 10 minutes chacun. Il n'y a pas de bonne ou de mauvaise réponse : le quiz donne un repère par axe. Un quiz commencé se reprend là où vous l'avez laissé.\n\n1. « {quiz} »\n{lien}\n\n2. « {quiz2} »\n{lien2}\n\nMerci de les faire cette semaine, loin des enfants, lors d'un temps de détachement vu avec {referent}.\n\nCordialement,\nL'équipe Koalakids`;
 }
 const objetSemaine=(n,unique)=>'Parcours quiz, semaine '+n+(unique?'':' : {quiz}');
 const messageSemaine=sem=>sem.unique?modeleSemaineUnique(sem.n,sem.dates):modeleSemaine(sem.n,sem.dates);
