@@ -17,6 +17,7 @@
  *
  * Dans la page, après le chargement :
  *   window.__ecritures   liste des insert / upsert / update / delete reçus.
+ *   window.__appels      appels de fonctions serveur (functions.invoke) : {nom, corps}.
  *   window.__refuse      true : update et delete ne touchent aucune ligne (simule un
  *                        compte non autorisé par les règles de sécurité).
  *
@@ -70,6 +71,12 @@ function scriptFauxSupabase(donnees, options = {}) {
   window.supabase={createClient(){return{
     from:table,
     rpc(){return Promise.resolve({data:null,error:null})},
+    functions:{invoke(nom,o){
+      const corps=(o&&o.body)||{};window.__appels=window.__appels||[];window.__appels.push({nom,corps});
+      const reponses=OPTS.fonctions||{};
+      if(nom==='liste-destinataires')return Promise.resolve({data:reponses[nom]||{creches:[],destinataires:[],envois:[]},error:null});
+      return Promise.resolve({data:{resultats:(corps.destinataires||[]).map(d=>({email:d.email,prenom:d.prenom,nom:d.nom,etat:'envoye'}))},error:null});
+    }},
     auth:{
       onAuthStateChange(){},
       getSession(){return Promise.resolve({data:{session:OPTS.session?{user:{id:'test-admin'}}:null}})},
