@@ -19,7 +19,7 @@ Rien ici n'est déployé avec le site : ce dossier n'est lu que par les dévelop
 | `tests/admin-echanges.js` | Teste l'onglet « Échanges » de l'admin (relecture des messages). |
 | `tests/admin-parcours.js` | Teste l'onglet « Parcours quiz » de l'admin (planning, envoi de la semaine, suivi). |
 | `securite-bd/` | Banc d'essai des règles de sécurité de la base : PostgreSQL local jetable et essais d'abus. |
-| `envoi-quiz/` | Version de la fonction serveur `envoyer-quiz` qui permet un mail avec deux liens (à déployer à la main, voir `LISEZ-MOI.md`). |
+| `envoi-quiz/` | Fonctions serveur : `envoyer-quiz` (projet quiz) qui permet un mail avec deux liens (à déployer à la main, voir `LISEZ-MOI.md`). |
 | `exemples/` | Contenu du module 1 écrit avec `contenu.py`, et `regenerer.py` qui le vérifie. |
 | `module2/` | Contenu du module 2 e-learning (`seq1.py` à `seq3.py`, `quiz.py`, `visuels.py`), `generer.py` qui écrit les parties 33 à 37, et `decouper_visuels.py` qui découpe l'infographie en visuels de `images/module2/`. |
 
