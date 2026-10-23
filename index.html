@@ -213,6 +213,20 @@ const PRE={
   ref:(PARAMS.get('ref')||'').trim()
 };
 
+/* Quiz ouvert sans lien personnel (pas de ?ref=) : on retrouve la r\u00e9f\u00e9rence de la
+   fiche m\u00e9moris\u00e9e sur cet appareil lors d'un passage pr\u00e9c\u00e9dent par le lien personnel,
+   \u00e0 condition que le pr\u00e9nom et le nom saisis soient les m\u00eames. */
+const normNom=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+try{if(PRE.ref)localStorage.setItem('kk_ref_fiche',JSON.stringify({ref:PRE.ref,prenom:normNom(PRE.prenom),nom:normNom(PRE.nom)}))}catch(e){}
+function refFiche(){
+  if(PRE.ref)return PRE.ref;
+  try{
+    const m=JSON.parse(localStorage.getItem('kk_ref_fiche')||'null');
+    if(m&&m.ref&&m.prenom===normNom(user.prenom)&&m.nom===normNom(user.nom))return m.ref;
+  }catch(e){}
+  return '';
+}
+
 const app=()=>document.getElementById('app');
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -444,7 +458,7 @@ async function saveResults(score,pct){
     /* La r\u00e9f\u00e9rence du dossier, quand le quiz a \u00e9t\u00e9 ouvert depuis un lien de
        stage. Elle n'ouvre rien : elle sert \u00e0 rattacher ce r\u00e9sultat \u00e0 la bonne
        fiche c\u00f4t\u00e9 application cr\u00e8ches. */
-    if(PRE.ref)ligne.ref=PRE.ref;
+    const refF=refFiche();if(refF)ligne.ref=refF;
     let{error}=await db.from('resultats').insert(ligne);
     /* Colonne `ref` absente (script quiz-01 non ex\u00e9cut\u00e9) : on enregistre quand
        m\u00eame le r\u00e9sultat plut\u00f4t que de le perdre \u2014 la personne a r\u00e9pondu. */
@@ -707,7 +721,7 @@ async function saveResultsProfil(profil){
       quiz_id:quiz.id,prenom:user.prenom,nom:user.nom,creche:user.creche||null,statut:user.statut||null,
       score:0,total:questions.length,pourcentage:0,detail:detail
     };
-    if(PRE.ref)ligne.ref=PRE.ref;
+    const refF=refFiche();if(refF)ligne.ref=refF;
     let{error}=await db.from('resultats').insert(ligne);
     if(error&&/ref/i.test(error.message||'')){
       delete ligne.ref;
