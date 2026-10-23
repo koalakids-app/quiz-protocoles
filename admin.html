@@ -180,8 +180,10 @@ let recoveryMode=/type=recovery/.test(location.hash);
 db.auth.onAuthStateChange((ev)=>{
   if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;view='setpwd';render();}
 });
+const ADMIN_UID='d1d86385-9b4f-45e0-8feb-9a790da79ef7';
 async function boot(){
   const{data}=await db.auth.getSession();
+  if(data.session&&data.session.user.id!==ADMIN_UID&&!recoveryMode){await db.auth.signOut();view='login';render();return;}
   if(data.session&&recoveryMode){view='setpwd';render();}
   else if(data.session){view='list';await loadQuizzes();}
   else{view='login';render();}
@@ -825,6 +827,8 @@ async function login(){
   err.textContent='Connexion…';
   const{error}=await db.auth.signInWithPassword({email,password});
   if(error){err.textContent='⚠ '+error.message;return;}
+  const{data:ss}=await db.auth.getSession();
+  if(!ss.session||ss.session.user.id!==ADMIN_UID){await db.auth.signOut();err.textContent='⚠ Accès réservé à l’administration.';return;}
   view='list';await loadQuizzes();
 }
 async function logout(){await db.auth.signOut();view='login';render();}
