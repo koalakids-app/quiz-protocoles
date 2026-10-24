@@ -1,0 +1,59 @@
+# Publie sur GitHub Pages uniquement ce dont le navigateur a besoin.
+# sql/, outils/, scripts Python, fichiers de contenu source et documentation
+# restent dans le dépôt mais ne sont PAS servis par le site.
+name: Déployer le site (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Préparer le dossier publié
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='/.git' \
+            --exclude='/.github' \
+            --exclude='/.gitignore' \
+            --exclude='/.keepalive' \
+            --exclude='/sql' \
+            --exclude='/outils' \
+            --exclude='/README.md' \
+            --exclude='/module-retrouvailles.json' \
+            --exclude='/quiz-pleurs.json' \
+            --exclude='/_site' \
+            --exclude='*.sql' \
+            --exclude='*.py' \
+            --exclude='*.md' \
+            ./ _site/
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
