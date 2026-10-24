@@ -226,6 +226,12 @@ function refFiche(){
   }catch(e){}
   return '';
 }
+/* Message de fin d'un quiz de profil. « dans Mon espace » seulement quand le résultat y
+   apparaît vraiment : lien personnel (réf. présente) et pas un dossier de stage. */
+function libProfilEnregistre(){
+  const dansEspace=!!refFiche()&&!/stagiaire/i.test(user.statut||'');
+  return '✓ Profil enregistré'+(dansEspace?' dans Mon espace':'');
+}
 
 const app=()=>document.getElementById('app');
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -712,7 +718,7 @@ async function saveResultsProfil(profil){
   };
   const el=()=>document.getElementById('save-status');
   if(APERCU){if(el()){el().textContent="Aper\u00e7u : profil non enregistr\u00e9";el().className='save-status'}return}
-  if(saved){if(el()){el().textContent='✓ Profil enregistré';el().className='save-status ok'}return}
+  if(saved){if(el()){el().textContent=libProfilEnregistre();el().className='save-status ok'}return}
   try{
     /* score/total/pourcentage restent obligatoires dans la table : 0 pour un
        profil, qui n'a pas de note. Les quiz de profil sont exclus de la
@@ -729,7 +735,7 @@ async function saveResultsProfil(profil){
     }
     if(error)throw error;
     saved=true;sessSauver();
-    if(el()){el().textContent='✓ Profil enregistré';el().className='save-status ok'}
+    if(el()){el().textContent=libProfilEnregistre();el().className='save-status ok'}
   }catch(e){
     if(el()){el().textContent='⚠ Erreur d\'enregistrement : '+e.message;el().className='save-status err'}
   }
