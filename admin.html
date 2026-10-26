@@ -1321,6 +1321,10 @@ async function openResults(id){
   results=data||[];filterCreche='';filterStatut='';view='results';render();
 }
 
+function lienFiche(r){
+  const nom=`${esc(r.prenom)} ${esc(r.nom)}`;
+  return r.ref?`<a href="https://koalakids-app.github.io/gestion-stock/employes.html?employe=${encodeURIComponent(r.ref)}" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700" title="Ouvrir la fiche">${nom}</a>`:`<strong>${nom}</strong>`;
+}
 function filtered(){
   return results.filter(r=>
     (!filterCreche||r.creche===filterCreche)&&
@@ -1352,7 +1356,7 @@ function renderResults(){
   }
 
   const rows=list.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:8px;font-size:13px"><strong>${esc(r.prenom)} ${esc(r.nom)}</strong></td>
+      <td style="padding:8px;font-size:13px">${lienFiche(r)}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.statut||'—')}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche||'—')}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted);white-space:nowrap">${new Date(r.passe_le).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
@@ -1507,7 +1511,7 @@ function renderResultsProfil(){
     </div>`;
   }).join('');
   const rows=list.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:8px;font-size:13px"><strong>${nomCourt(r)}</strong></td>
+      <td style="padding:8px;font-size:13px">${lienFiche(r)}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.statut||'—')}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted)">${esc(r.creche||'—')}</td>
       <td style="padding:8px;font-size:12px;color:var(--text-muted);white-space:nowrap">${new Date(r.passe_le).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})}</td>
