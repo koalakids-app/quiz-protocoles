@@ -569,7 +569,7 @@ async function loadParcours(){
   const q=await db.from('quiz').select('*').order('cree_le',{ascending:false});
   if(q.error){parcErr=q.error.message;quizzes=[];}else quizzes=q.data||[];
   parcRes=[];
-  const r=await db.from('resultats').select('quiz_id,prenom,nom,creche,passe_le,ref,score,total,pourcentage').limit(10000);
+  const r=await db.from('resultats').select('quiz_id,prenom,nom,creche,passe_le,ref,score,total,pourcentage,detail').limit(10000);
   if(r.error)parcErr=parcErr||r.error.message;else parcRes=r.data||[];
   render();
 }
@@ -601,9 +601,12 @@ function renderParcours(){
     p.ids.add(r.quiz_id);if(r.creche&&!p.creche)p.creche=r.creche;
     if(r.ref&&!p.ref)p.ref=r.ref;
     const qz=quizzes.find(x=>x.id===r.quiz_id);
-    if(qz&&qz.mode!=='profil'&&r.total>0)p.pcts.push(r.pourcentage);
+    if(qz&&qz.mode==='profil'){
+      const ax=axesDe(r);
+      if(ax.length)p.pcts.push(Math.round(ax.filter(a=>a.niveau==='appui').length/ax.length*100));
+    }else if(r.total>0)p.pcts.push(r.pourcentage);
   });
-  const creches=[...new Set(Object.values(pers).map(p=>p.creche).filter(Boolean))].sort();
+  const creches=[...new Set([...SITES,...Object.values(pers).map(p=>p.creche).filter(Boolean)])].sort();
   const liste=Object.values(pers).filter(p=>!parcCreche||p.creche===parcCreche)
     .sort((a,b)=>(a.nom||'').localeCompare(b.nom||'','fr')||(a.prenom||'').localeCompare(b.prenom||'','fr'));
   const case_=(p,w)=>{
@@ -612,12 +615,12 @@ function renderParcours(){
     return `<td style="padding:7px 6px;text-align:center;font-weight:700;color:${c[1]}">${c[0]}</td>`;
   };
   const tauxCase=p=>{
-    if(!p.pcts.length)return '<td style="padding:7px 10px;text-align:center;color:var(--text-light)" title="Quiz sans note">—</td>';
+    if(!p.pcts.length)return '<td style="padding:7px 10px;text-align:center;color:var(--text-light)" title="Aucun résultat exploitable">—</td>';
     const m=Math.round(p.pcts.reduce((a,b)=>a+b,0)/p.pcts.length);
     return `<td style="padding:7px 10px;text-align:center;font-weight:700;color:${m>=80?'var(--success-text)':m>=60?'var(--purple)':'var(--danger-text)'}">${m}%</td>`;
   };
   const suivi=liste.length?`<div class="question-card" style="padding:0;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
-    <tr style="border-bottom:2px solid var(--border)"><th style="padding:8px 12px;text-align:left">Personne</th>${semaines.map(w=>`<th style="padding:8px 6px">S${w.n}</th>`).join('')}<th style="padding:8px 10px;white-space:nowrap" title="Moyenne des quiz notés. Les quiz « profil » ne sont pas notés.">Taux de réussite</th></tr>
+    <tr style="border-bottom:2px solid var(--border)"><th style="padding:8px 12px;text-align:left">Personne</th>${semaines.map(w=>`<th style="padding:8px 6px">S${w.n}</th>`).join('')}<th style="padding:8px 10px;white-space:nowrap" title="Quiz notés : moyenne des notes. Quiz « profil » (sans note) : part des axes en « point d'appui »">Taux de réussite</th></tr>
     ${liste.map(p=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px">${p.ref?`<a href="https://koalakids-app.github.io/gestion-stock/employes.html?employe=${encodeURIComponent(p.ref)}" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700" title="Ouvrir la fiche">${esc(p.prenom)} ${esc(p.nom)}</a>`:`<b>${esc(p.prenom)} ${esc(p.nom)}</b>`}${p.creche?'<br><span style="font-size:12px;color:var(--text-muted)">'+esc(p.creche)+'</span>':''}</td>${semaines.map(w=>case_(p,w)).join('')}${tauxCase(p)}</tr>`).join('')}
     </table></div>`
     :'<div class="question-card"><p style="font-size:13px;color:var(--text-muted)">Aucun résultat pour l\'instant sur les quiz du parcours.</p></div>';
@@ -1333,7 +1336,7 @@ function filtered(){
 function renderResults(){
   if(curQuiz&&curQuiz.mode==='profil')return renderResultsProfil();
   const list=filtered();
-  const creches=[...new Set(results.map(r=>r.creche).filter(Boolean))].sort();
+  const creches=[...new Set([...SITES,...results.map(r=>r.creche).filter(Boolean)])].sort();
   const statuts=[...new Set(results.map(r=>r.statut).filter(Boolean))].sort();
   const moy=list.length?Math.round(list.reduce((a,r)=>a+r.pourcentage,0)/list.length):0;
 
@@ -1492,7 +1495,7 @@ function axesVus(){
 }
 function renderResultsProfil(){
   const list=filtered();
-  const creches=[...new Set(results.map(r=>r.creche).filter(Boolean))].sort();
+  const creches=[...new Set([...SITES,...results.map(r=>r.creche).filter(Boolean)])].sort();
   const statuts=[...new Set(results.map(r=>r.statut).filter(Boolean))].sort();
   const vus=axesVus();
   const nomCourt=r=>`${esc(r.prenom)} ${esc(r.nom)}`;
