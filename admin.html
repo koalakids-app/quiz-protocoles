@@ -1541,7 +1541,7 @@ function renderResultsProfil(){
         </select>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:1rem"><button class="btn" onclick="exportCSV()">Exporter en CSV</button></div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn" onclick="exportCSV()">Exporter en CSV</button><button class="btn" onclick="exportCSVReponsesProfil()">Exporter les réponses (CSV)</button></div>
     ${list.length?`<h3 style="font-size:15px;color:var(--purple);margin:.5rem 0">Besoins par axe de formation</h3>
       <div class="question-card" style="padding:8px 12px;margin-bottom:1.25rem">${synth}</div>
       <h3 style="font-size:15px;color:var(--purple);margin:.5rem 0">Profil de chaque personne</h3>
@@ -1549,11 +1549,49 @@ function renderResultsProfil(){
         <tr style="text-align:left;font-size:11px;color:var(--text-light);text-transform:uppercase"><th style="padding:6px 8px">Personne</th><th style="padding:6px 8px">Statut</th><th style="padding:6px 8px">Crèche</th><th style="padding:6px 8px">Date</th>${vus.map(a=>`<th style="padding:6px 8px;text-align:center">${esc(a.libelle)}</th>`).join('')}<th></th></tr>
         ${rows}</table></div>`:'<div class="center-msg">Aucun profil pour ce filtre.</div>'}`;
 }
+const reponsesDe=r=>(r&&r.detail&&Array.isArray(r.detail.reponses))?r.detail.reponses:[];
 function detailProfil(r){
-  const ax=axesDe(r);
-  if(!ax.length)return alert('Aucun détail enregistré pour ce résultat.');
-  const txt=ax.map(a=>`${a.libelle} : ${(NIV_ADM[a.niveau]||{}).label||a.niveau} (appui ${a.appui}, en construction ${a.construction}, à accompagner ${a.accompagner})`).join('\n');
-  alert(`${r.prenom} ${r.nom}\n\n${txt}`);
+  const ax=axesDe(r),rep=reponsesDe(r);
+  if(!ax.length&&!rep.length)return alert('Aucun détail enregistré pour ce résultat.');
+  const axes=ax.map(a=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px"><strong>${esc(a.libelle)}</strong> <span style="color:var(--text-muted);font-size:12px">· appui ${a.appui}, en construction ${a.construction}, à accompagner ${a.accompagner}</span></span>${chipNiv(a.niveau)}</div>`).join('');
+  const libAxe=code=>(ax.find(x=>x.code===code)||{}).libelle||code||'';
+  const qs=rep.length?rep.slice().sort((x,y)=>(x.ordre||0)-(y.ordre||0)).map((q,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--text-muted)">Q${i+1}${q.axe?' · '+esc(libAxe(q.axe)):''}</div>
+      <div style="font-size:13px;font-weight:600;margin:2px 0 6px">${esc(q.enonce)}</div>
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <span style="font-size:13px">${q.reponse==null?'<em style="color:var(--text-light)">Sans réponse</em>':esc(q.reponse)}</span>${q.lecture?chipNiv(q.lecture):''}</div>
+    </div>`).join(''):'<p style="font-size:13px;color:var(--text-muted)">Les réponses question par question ne sont pas enregistrées pour ce résultat.</p>';
+  const old=document.getElementById('detail-profil');if(old)old.remove();
+  const o=document.createElement('div');
+  o.id='detail-profil';
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto';
+  o.onclick=e=>{if(e.target===o)o.remove();};
+  o.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;padding:20px 22px">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px">
+      <div><h3 style="font-size:17px;color:var(--purple)">${esc(r.prenom)} ${esc(r.nom)}</h3>
+        <p style="font-size:12px;color:var(--text-muted)">${esc(curQuiz.titre)}${r.creche?' · '+esc(r.creche):''} · ${new Date(r.passe_le).toLocaleDateString('fr-FR')}</p></div>
+      <button class="btn" onclick="document.getElementById('detail-profil').remove()">Fermer</button></div>
+    ${axes?`<h4 style="font-size:14px;color:var(--purple);margin:.5rem 0 .25rem">Profil par axe</h4>${axes}`:''}
+    <h4 style="font-size:14px;color:var(--purple);margin:1rem 0 .25rem">Réponses question par question</h4>${qs}</div>`;
+  document.body.appendChild(o);
+}
+function exportCSVReponsesProfil(){
+  const lines=[['Prénom','Nom','Statut','Crèche','Date','N°','Axe','Question','Réponse donnée','Lecture'].join(';')];
+  filtered().forEach(r=>{
+    const ax=axesDe(r);
+    reponsesDe(r).slice().sort((x,y)=>(x.ordre||0)-(y.ordre||0)).forEach((q,i)=>{
+      const axe=(ax.find(x=>x.code===q.axe)||{}).libelle||q.axe||'';
+      const lec=q.lecture?((NIV_ADM[q.lecture]||{}).label||q.lecture):'';
+      lines.push([r.prenom,r.nom,r.statut||'',r.creche||'',new Date(r.passe_le).toLocaleString('fr-FR'),i+1,axe,q.enonce,q.reponse==null?'':q.reponse,lec]
+        .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';'));
+    });
+  });
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='reponses-'+curQuiz.titre.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.csv';
+  a.click();
 }
 function exportCSVProfil(){
   const list=filtered(),vus=axesVus();
