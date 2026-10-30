@@ -145,6 +145,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 .profil h3{font-size:15px;font-weight:700;color:var(--purple);margin:1.75rem 0 .75rem}
 .axe-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
 .axe-card p{font-size:14px;color:var(--text-muted);margin-top:6px;line-height:1.55}
+.axe-det{margin-top:10px}
+.axe-det summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--purple)}
+.det-q{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+.det-enonce{font-size:14px;font-weight:600;line-height:1.45}
+.det-rep{margin-top:6px;padding:8px 10px;border:1px solid;border-radius:8px;font-size:14px;line-height:1.45}
+.det-lab{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);margin-bottom:2px}
+.det-verdict{margin-top:6px;font-size:13px;line-height:1.45;font-weight:600}
+.det-verdict.ok{color:var(--success-text)}
+.det-verdict.ko,.det-verdict.rep{color:var(--success-text);background:var(--success-bg);border:1px solid var(--success-border);border-radius:8px;padding:6px 10px}
 .axe-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .axe-head strong{font-size:15px}
 .axe-chip{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 10px;border-radius:20px;border:1px solid;white-space:nowrap}
@@ -532,6 +541,8 @@ const AIDES_Q={
   auto:"Choisis la réponse qui te ressemble le plus, sans te juger."
 };
 function isProfil(){return !!quiz&&quiz.mode==='profil'}
+/* À l'impression, les détails de réponses sont dépliés. */
+window.addEventListener('beforeprint',()=>document.querySelectorAll('.axe-det').forEach(d=>{d.open=true}));
 
 async function chargerAxes(){
   try{
@@ -626,6 +637,42 @@ function calculerProfil(){
   liste.sort((a,b)=>a.ordre-b.ordre);
   return liste;
 }
+/* Réponses repères d'une question : les options lues « point d'appui ». */
+function reperes(q){
+  if(!Array.isArray(q.lectures))return [];
+  return q.options.map((o,i)=>q.lectures[i]==='appui'?o:null).filter(o=>o!==null);
+}
+/* Détail des réponses d'un axe, question par question, avec la réponse repère.
+   Connaissance : bonne réponse / réponse attendue. Autres types : lecture de la
+   réponse choisie + pratique repère, sans parler de « faux ». */
+function detailAxeHtml(code){
+  const items=questions.map((q,i)=>({q,i})).filter(x=>(x.q.axe||'general')===code);
+  if(!items.length)return '';
+  const lignes=items.map(({q,i})=>{
+    const l=lectureReponse(i);
+    const n=l&&NIVEAUX[l];
+    const rep=reperes(q);
+    const choisie=answers[i]==null?'':q.options[answers[i]];
+    const connaissance=q.type_question==='connaissance';
+    let verdict='';
+    if(connaissance&&l){
+      verdict=l==='appui'
+        ?`<div class="det-verdict ok">✓ Bonne réponse</div>`
+        :`<div class="det-verdict ko">La réponse attendue était : ${rep.map(esc).join(' / ')}</div>`;
+    }else if(l&&l!=='appui'&&rep.length){
+      verdict=`<div class="det-verdict rep">Pratique repère : ${rep.map(esc).join(' / ')}</div>`;
+    }
+    return `<div class="det-q">
+      <div class="det-enonce">${esc(q.enonce)}</div>
+      <div class="det-rep" style="border-color:${n?n.bord:'var(--border)'};background:${n?n.fond:'var(--surface)'}">
+        <span class="det-lab">Ta réponse${n?` · <b style="color:${n.couleur}">${n.label}</b>`:''}</span>
+        ${esc(choisie)||'<i>Pas de réponse</i>'}
+      </div>
+      ${verdict}
+    </div>`;
+  }).join('');
+  return `<details class="axe-det"><summary>Voir mes réponses en détail (${items.length})</summary>${lignes}</details>`;
+}
 function lienModule(id){
   let u=location.href.split('?')[0].split('#')[0];
   u=u.replace(/\/index(\.html)?\/?$/i,'/formations.html');
@@ -673,6 +720,7 @@ function renderProfil(){
     return `<div class="axe-card" style="border-left:5px solid ${n.bord}">
       <div class="axe-head"><strong>${esc(p.libelle)}</strong><span class="axe-chip" style="background:${n.fond};color:${n.couleur};border-color:${n.bord}">${n.label}</span></div>
       ${texte?`<p>${esc(texte)}</p>`:''}
+      ${detailAxeHtml(p.code)}
     </div>`;
   }).join('');
   const aSuivre=profil.filter(p=>p.niveau!=='appui')
