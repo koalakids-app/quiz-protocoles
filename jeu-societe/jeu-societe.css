@@ -152,3 +152,10 @@ button{font-family:inherit;cursor:pointer}
 /* Affiché dans l'onglet « Jeu » de l'administration : l'en-tête est celui de la page hôte */
 .integre .hd{display:none}
 .integre .app{padding-top:8px}
+
+/* Jeu en ligne */
+.code-grand{font-family:'Baloo 2',cursive;font-size:52px;font-weight:800;letter-spacing:10px;color:var(--violet);line-height:1.1}
+.bloc.erreur{border-color:#D64545;background:#FDE3E3;font-weight:700}
+.tour .qui small{font-size:14px;color:var(--muted);font-weight:700}
+.pied .aide{margin:0;align-self:center}
+.bt:disabled{filter:grayscale(.4)}
