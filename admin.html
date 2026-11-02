@@ -207,6 +207,7 @@ function render(){
   else if(view==='sites')renderSites();
   else if(view==='echanges')renderEchanges();
   else if(view==='parcours')renderParcours();
+  else if(view==='jeu')renderJeu();
 }
 
 /* ===== ENVOI DIRECT PAR MAIL (quiz et modules) ===== */
@@ -744,10 +745,31 @@ async function echangeSupprimer(id){
   renderEchanges();
 }
 
+/* ===== JEU DE SOCIÉTÉ « LE SENTIER DU KOALA » ===== */
+function renderJeu(){
+  const url=new URL('jeu-societe.html',location.href).href;
+  app().innerHTML=`${tabs('jeu')}
+  <div style="max-width:1100px;margin:0 auto">
+    <h2 style="font-size:20px;color:var(--purple);margin-bottom:.25rem">Le Sentier du Koala</h2>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:.75rem">Jeu de société pour les équipes et les parents : développement de l\u2019enfant, pédagogie, protocoles, relation aux familles. À animer sur une tablette lors d\u2019une formation ou d\u2019un atelier parents. Aucun compte n\u2019est nécessaire pour jouer et rien n\u2019est enregistré.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem">
+      <a class="btn purple" href="${url}" target="_blank" rel="noopener">Ouvrir en plein écran</a>
+      <button class="btn" onclick="jeuCopierLien()">Copier le lien à envoyer</button>
+      <span id="jeu-msg" class="save-status"></span>
+    </div>
+    <iframe src="jeu-societe.html?integre=1" title="Le Sentier du Koala" style="width:100%;height:78vh;min-height:560px;border:2px solid var(--border,#E7E0F2);border-radius:14px;background:#fff"></iframe>
+  </div>`;
+}
+async function jeuCopierLien(){
+  const url=new URL('jeu-societe.html',location.href).href,m=document.getElementById('jeu-msg');
+  try{await navigator.clipboard.writeText(url);m.className='save-status ok';m.textContent='\u2713 Lien copié';}
+  catch(e){m.className='save-status';m.textContent=url;}
+}
+
 /* ===== NAVIGATION ONGLETS ===== */
 function tabs(active){
   const t=(id,label)=>`<button class="tab ${active===id?'on':''}" onclick="goTab('${id}')">${label}</button>`;
-  return `<div class="tabs">${t('quiz','Quiz')}${t('parcours','Parcours quiz')}${t('formations','Formations')}${t('seances','Séances')}${t('echanges','Échanges')}</div>`;
+  return `<div class="tabs">${t('quiz','Quiz')}${t('parcours','Parcours quiz')}${t('formations','Formations')}${t('seances','Séances')}${t('echanges','Échanges')}${t('jeu','Jeu')}</div>`;
 }
 function goTab(id){
   if(id==='quiz'){view='list';loadQuizzes();}
@@ -755,6 +777,7 @@ function goTab(id){
   else if(id==='seances'){loadTraces();}
   else if(id==='sites'){loadSites();}
   else if(id==='echanges'){loadEchanges();}
+  else if(id==='jeu'){view='jeu';render();}
   else{view='themes';loadThemes();}
 }
 
