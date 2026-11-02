@@ -244,6 +244,75 @@
   D('x', "Dire « tu as bien essayé » plutôt que « tu es le meilleur » : qu'est-ce que cela change pour l'enfant ?",
     "Pistes : on valorise l'effort et pas la comparaison, l'enfant ose recommencer et accepte l'échec comme une étape de l'apprentissage.");
 
+  /* ───────── 😴 Sommeil et 🍽️ alimentation (rangés dans les thèmes existants) ───────── */
+  Q('pro', 'x', "Que met-on dans le lit d'un bébé de 3 mois pour la nuit ?",
+    "Une gigoteuse adaptée à la saison, et rien d'autre", "Un tour de lit et des peluches pour le protéger", "Un oreiller plat et une couette légère",
+    "Un lit nu, un matelas ferme et une gigoteuse : tout objet mou (tour de lit, peluche, couette, oreiller) augmente le risque d'étouffement.");
+  Q('dev', 'x', "À quel âge les bébés commencent-ils à faire des nuits plus longues (5-6 heures d'affilée) ?",
+    "Souvent entre 3 et 6 mois, avec de grandes différences d'un enfant à l'autre", "Dès la naissance", "Pas avant 2 ans",
+    "Le sommeil se construit progressivement. Comparer son bébé à celui des autres n'aide pas : on s'appuie sur ses besoins à lui.");
+  Q('dev', 'x', "Un bébé de 8 mois se réveille plusieurs fois par nuit. C'est…",
+    "Fréquent : son sommeil se construit par cycles courts et la séparation peut l'inquiéter", "Le signe qu'il a faim à chaque réveil", "La preuve qu'on le câline trop",
+    "Un rituel du coucher rassurant, des repères réguliers et une présence calme aident l'enfant à se rendormir.");
+  Q('dev', 'x', "À partir de quel âge de nombreux enfants arrêtent-ils la sieste ?",
+    "Souvent entre 3 et 5 ans, selon l'enfant", "Dès 1 an", "Vers 8 ans",
+    "Il n'y a pas d'âge officiel. En collectivité, on propose un temps calme à ceux qui ne dorment plus.");
+  Q('dev', 'x', "Quels signes montrent qu'un tout-petit est fatigué ?",
+    "Bâillements, yeux frottés, agitation ou irritabilité, regard dans le vide", "Il demande toujours lui-même à aller se coucher", "Il rit beaucoup et court partout : il est en pleine forme",
+    "Un enfant trop fatigué peut devenir très excité. On le couche dès les premiers signes, sans attendre qu'il craque.");
+  Q('par', 'p', "Pour endormir son enfant, quelle est la bonne méthode ?",
+    "Il n'y en a pas une seule : un rituel rassurant et des repères réguliers comptent plus que la technique", "Le laisser pleurer des heures pour qu'il apprenne", "L'endormir toujours dans les bras, sans exception",
+    "Chaque famille et chaque enfant sont différents. L'essentiel : un cadre prévisible, une présence rassurante et la possibilité, peu à peu, de s'endormir sans dépendre d'un seul geste.");
+  Q('par', 'p', "Faire dormir un nourrisson dans le lit des parents, c'est…",
+    "Déconseillé : il dort plus sûrement dans son propre lit, près des parents", "Recommandé pour qu'il dorme mieux", "Sans risque si l'on fait attention",
+    "Le couchage partagé augmente le risque de mort inattendue du nourrisson (couette, oreillers, fatigue des parents). Un lit à côté du vôtre permet de rester proche.");
+  Q('pro', 'e', "Pendant la sieste en crèche, la surveillance consiste à…",
+    "Garder un adulte à proximité et contrôler régulièrement, à vue et à l'écoute, selon le protocole de l'établissement", "Passer toutes les deux heures", "Se fier au babyphone sans entrer dans la pièce",
+    "On note l'heure du coucher et du réveil pour les transmissions. Les bébés demandent une attention particulière.");
+  Q('pro', 'x', "Un enfant dort encore à l'heure du goûter. Que faire ?",
+    "Respecter son sommeil autant que possible, et le réveiller en douceur (voix, lumière, caresse) si c'est nécessaire", "Le réveiller brusquement pour qu'il s'habitue aux horaires", "Le laisser dormir jusqu'au soir quoi qu'il arrive",
+    "On adapte les horaires aux besoins de l'enfant. Une sieste trop tardive peut retarder l'endormissement du soir, d'où l'intérêt d'en parler avec la famille.");
+  Q('ped', 'e', "Pour un bon temps de sieste en collectivité, on propose…",
+    "Un coin calme et tamisé, un rituel d'endormissement et le doudou à portée", "Une salle lumineuse avec de la musique forte", "Un coucher en même temps pour tous, quelle que soit la fatigue",
+    "Chaque enfant a son rythme : on accueille les petits dormeurs d'abord et on garde un environnement apaisant.");
+  Q('pro', 'x', "À quel âge peut-on commencer la diversification alimentaire ?",
+    "Entre 4 et 6 mois (pas avant 4 mois révolus)", "Dès 2 mois", "Après 1 an",
+    "Avant 4 mois, le système digestif n'est pas prêt. On introduit les aliments un par un, par petites quantités, sans forcer.");
+  Q('pro', 'x', "Peut-on ajouter du sel ou du sucre dans les repas d'un bébé ?",
+    "Non : on n'ajoute ni sel ni sucre", "Un peu de sel pour le goût", "Du sucre pour qu'il aime les légumes",
+    "Les reins d'un bébé sont immatures et les goûts se forment tôt. On valorise les saveurs naturelles et les herbes.");
+  Q('pro', 'x', "Quels aliments doivent être évités entiers avant 4-5 ans (risque d'étouffement) ?",
+    "Les fruits à coque (cacahuètes, noisettes) et le raisin entier", "La compote", "Le yaourt nature",
+    "On coupe les raisins, tomates cerises et saucisses dans la longueur, et on reste auprès de l'enfant qui mange.");
+  Q('par', 'x', "Quelle boisson proposer à un enfant pour étancher sa soif ?",
+    "L'eau", "Un jus de fruits à volonté", "Un soda léger",
+    "L'eau suffit. Les jus et sodas habituent au goût sucré et favorisent les caries.");
+  Q('pro', 'e', "Une maman apporte du lait maternel pour son bébé. À la réception, que faites-vous ?",
+    "Vérifier l'étiquette (nom, date, heure) et le mettre tout de suite au réfrigérateur", "Le laisser sur le plan de travail jusqu'au repas", "Le mélanger à du lait infantile pour gagner de la place",
+    "On respecte la chaîne du froid et le protocole de l'établissement sur la conservation et la réchauffe du lait maternel.");
+  Q('pro', 'e', "Un enfant allergique à l'œuf (PAI) : le plat du jour contient de la mayonnaise. Que faire ?",
+    "Ne pas lui en donner et lui servir un repas conforme à son PAI", "Retirer la mayonnaise et lui donner le reste", "Lui en donner un tout petit peu",
+    "Même une trace peut déclencher une réaction. On évite aussi les contacts entre ustensiles et on garde la trousse d'urgence accessible.");
+  Q('par', 'p', "Mon enfant refuse de manger. Que faire ?",
+    "Éviter de forcer, de punir ou de promettre un dessert ; proposer, accompagner et manger ensemble", "Promettre un dessert s'il finit son assiette", "Le laisser grignoter toute la journée",
+    "L'appétit varie d'un jour à l'autre. À table, un cadre calme, sans écran, avec des horaires réguliers aide à retrouver le plaisir de manger.");
+  Q('ped', 'x', "Un bébé veut manger seul et met de la nourriture partout. L'adulte…",
+    "Le laisse explorer avec les mains puis la cuillère : c'est un apprentissage", "Le nourrit lui-même pour que ce soit propre", "Lui interdit de toucher la nourriture",
+    "Toucher, sentir, goûter : l'enfant découvre les aliments avec tous ses sens. On protège les vêtements et on reste tolérant face au désordre.");
+  Q('pro', 'x', "Quel lait donner à un bébé de 8 mois qui n'est pas allaité ?",
+    "Un lait infantile adapté à son âge", "Du lait de vache entier", "Une boisson végétale (amande, avoine, soja)",
+    "Avant 1 an, le lait de vache et les boissons végétales ne couvrent pas les besoins du bébé (fer, graisses, vitamines).");
+  Q('pro', 'e', "Avant de préparer ou de servir le repas des enfants, l'adulte…",
+    "Se lave les mains au savon, surtout après un change", "Met simplement un tablier par-dessus sa tenue", "Passe un peu de gel sur des mains visiblement sales",
+    "Un gel ne remplace pas le savon sur des mains souillées. L'hygiène des mains est la base de la sécurité des repas.");
+  Q('pro', 'x', "Comment vérifier la température d'un biberon ?",
+    "Quelques gouttes sur l'intérieur du poignet : tiède, ni chaud ni froid", "Le goûter avec la tétine", "Le passer 2 minutes au micro-ondes",
+    "Le micro-ondes chauffe de façon inégale et crée des points brûlants. On chauffe au bain-marie ou au chauffe-biberon.");
+  D('x', "Quels rituels du coucher ou de la sieste fonctionnent bien pour vous (en famille ou en crèche) ?",
+    "Pistes : lumière tamisée, histoire ou chanson toujours identique, câlin, doudou, signaux de fin de journée, chuchoter pour annoncer ce qui va se passer.");
+  D('x', "Comment rendre le temps du repas agréable pour un enfant qui mange peu ou refuse de goûter ?",
+    "Pistes : manger avec lui, présenter de petites quantités, nommer les aliments, le laisser se servir, éviter les récompenses et les pressions, patience (8 à 10 essais).");
+
   window.KK_JEU_CARTES = CARTES;
 
   /* Cartes « Chance » */
