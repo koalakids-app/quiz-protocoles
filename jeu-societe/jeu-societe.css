@@ -175,3 +175,11 @@ button{font-family:inherit;cursor:pointer}
 .chrono-choix .choix{justify-content:center;text-align:center;font-weight:800;padding:12px 4px}
 @media(max-width:380px){.chrono-choix{grid-template-columns:repeat(2,1fr)}}
 @media(prefers-reduced-motion:reduce){.chrono-barre i{transition:none}}
+
+/* Collaboration et classement */
+.coop-info{background:#F1EEFC;border-radius:12px;padding:8px 12px;margin:0 0 10px;font-size:14px;font-weight:700}
+.classement{width:100%;border-collapse:collapse;font-size:15px}
+.classement th{text-align:left;font-size:12px;color:var(--muted);padding:4px 6px;border-bottom:2px solid var(--line)}
+.classement td{padding:9px 6px;border-bottom:1px solid var(--line);font-weight:700}
+.classement tr.premier td{background:#FFF8E1}
+@media(max-width:420px){.classement{font-size:13px}.classement th,.classement td{padding:7px 4px}}

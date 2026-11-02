@@ -45,6 +45,7 @@
   for (var i = 1; i < FIN; i++) PLAN[i] = MOTIF[(i - 1) % MOTIF.length];
   PLAN[FIN] = 'arrivee';
 
+  var TOURS_COOP = 16;                // en collaboration : nombre de tours dont dispose le groupe pour arriver
   var CLE = 'kk_jeu_partie';          // animateur ou appareil unique (localStorage)
   var CLE_CLIENT = 'kk_jeu_client';   // joueur sur son téléphone (sessionStorage)
   var DES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
@@ -61,7 +62,7 @@
   var monId = null;
   var attente = null;                 // action attendue par l'arbitre : { types, res }
   var enBoucle = false;
-  var config = { mode: 'local', public: 'equipe', chrono: 60, nb: 3, noms: [], nom: '', code: '', erreur: '' };
+  var config = { mode: 'local', public: 'equipe', coop: false, chrono: 60, nb: 3, noms: [], nom: '', code: '', erreur: '' };
   var qrCache = { lien: null, node: null };
   var chronoDebut = { id: null, t: 0 }, timerChrono = null;
   var pistes = null, reglesOuvertes = false, derniereCarte = '', dernierToast = 0, timerDe = null, focusAvant = null;
@@ -173,7 +174,7 @@
   }
   function nouvelEtat(extra) {
     var e = { rev: 0, phase: 'jeu', public: config.public, joueurs: [], tour: 0, nbTours: 0, vus: {}, stats: {}, rates: [], premier: -1, fini: false,
-      de: null, carte: null, toast: null, enligne: false, code: null, chrono: config.chrono };
+      de: null, carte: null, toast: null, enligne: false, code: null, chrono: config.chrono, coop: !!config.coop, budget: TOURS_COOP, victoire: false };
     THEMES_QUIZ.concat(['partage']).forEach(function (k) { e.stats[k] = { ok: 0, total: 0 }; });
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
@@ -249,6 +250,7 @@
       var suivante = j.pos + sens;
       if (suivante < 0 || suivante > FIN) break;
       j.pos = suivante;
+      if (etat.coop) etat.joueurs.forEach(function (x) { x.pos = j.pos; });   // le groupe avance ensemble
       maj();
       await pause(260);
     }
@@ -278,12 +280,14 @@
   function libelleCase(n) { return n === 0 ? 'au départ' : 'à la case ' + n; }
   function suivant() {
     etat.nbTours++;
+    if (etat.coop && etat.nbTours >= etat.budget) { terminerPartie(); return; }   // plus de tours : fin de la partie
     etat.tour = (etat.tour + 1) % etat.joueurs.length;
     etat.de = null; etat.carte = null;
     maj();
   }
   function arrivee(j) {
     etat.premier = etat.joueurs.indexOf(j);
+    if (etat.coop) etat.victoire = true;
     terminerPartie();
   }
   function terminerPartie() {
@@ -323,7 +327,8 @@
     if (!bon && etat.origine < j.pos) etat.carte.retour = etat.origine;
     var s = etat.stats[cat] || (etat.stats[cat] = { ok: 0, total: 0 });
     s.total++;
-    if (bon) s.ok++; else if (etat.rates.indexOf(c.id) < 0) etat.rates.push(c.id);
+    j.total = (j.total || 0) + 1;
+    if (bon) { s.ok++; j.ok = (j.ok || 0) + 1; } else if (etat.rates.indexOf(c.id) < 0) etat.rates.push(c.id);
     maj();
     await att(['continuer']);
     etat.carte = null;
@@ -400,14 +405,14 @@
           '<span class="ic" aria-hidden="true">' + p.ico + '</span><span><b>' + esc(p.nom) + '</b><small>' + esc(p.desc) + '</small></span></button>';
       });
       h += '</div></div>';
-      h += blocChrono();
+      h += blocFacon() + blocChrono();
       if (config.mode === 'creer') {
-        h += '<div class="bloc"><h3>3. Votre prénom</h3><div class="noms"><label><span class="pion" aria-hidden="true">' + PIONS[0] + '</span>' +
+        h += '<div class="bloc"><h3>4. Votre prénom</h3><div class="noms"><label><span class="pion" aria-hidden="true">' + PIONS[0] + '</span>' +
           '<input id="monNom" type="text" maxlength="24" value="' + esc(config.nom) + '" placeholder="Votre prénom" autocomplete="given-name"></label></div>' +
           '<p style="font-size:13px;color:var(--muted);margin-top:8px">Vous êtes l\'animateur·rice : gardez votre téléphone ouvert pendant la partie. Les autres rejoindront avec le code à l\'écran (jusqu\'à ' + MAX_LIGNE + ' joueur·ses).</p></div>';
         h += '<div class="actions"><button class="bt bt-gros" id="btnCreer" type="button">🎉 <span>Créer la partie</span></button></div>';
       } else {
-        h += '<div class="bloc"><h3>3. Combien d\'équipes ?</h3><div class="nb-equipes">' +
+        h += '<div class="bloc"><h3>4. Combien d\'équipes ?</h3><div class="nb-equipes">' +
           '<button type="button" id="moins" aria-label="Une équipe de moins">−</button>' +
           '<output id="nb" aria-live="polite">' + config.nb + '</output>' +
           '<button type="button" id="plus" aria-label="Une équipe de plus">+</button></div><div class="noms" id="noms"></div></div>';
@@ -433,6 +438,12 @@
         app.querySelectorAll('[data-public]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
       });
     });
+    app.querySelectorAll('[data-facon]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        config.coop = b.getAttribute('data-facon') === 'coop';
+        app.querySelectorAll('[data-facon]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      });
+    });
     app.querySelectorAll('[data-chrono]').forEach(function (b) {
       b.addEventListener('click', function () {
         config.chrono = +b.getAttribute('data-chrono');
@@ -448,8 +459,18 @@
     on('btnOublier', function () { oublier(); ecranAccueil(); });
     on('btnRevenir', function () { rejoindre(client.code, client.nom); });
   }
+  function blocFacon() {
+    function b(coop, ico, titre, desc) {
+      return '<button class="choix" type="button" data-facon="' + (coop ? 'coop' : 'opp') + '" aria-pressed="' + (!!config.coop === coop) + '">' +
+        '<span class="ic" aria-hidden="true">' + ico + '</span><span><b>' + esc(titre) + '</b><small>' + esc(desc) + '</small></span></button>';
+    }
+    return '<div class="bloc"><h3>2. Façon de jouer</h3><div class="choix-liste" role="group" aria-label="Façon de jouer">' +
+      b(false, '⚔️', 'En opposition', "Chaque équipe avance de son côté : la première arrivée gagne, avec un classement à la fin") +
+      b(true, '🤝', 'En collaboration', "Tout le groupe avance ensemble : atteignez l'eucalyptus avant la fin des " + TOURS_COOP + ' tours') +
+      '</div></div>';
+  }
   function blocChrono() {
-    var h = '<div class="bloc"><h3>2. ⏱ Temps pour répondre</h3><div class="chrono-choix" role="group" aria-label="Temps pour répondre">';
+    var h = '<div class="bloc"><h3>3. ⏱ Temps pour répondre</h3><div class="chrono-choix" role="group" aria-label="Temps pour répondre">';
     [[0, 'Sans limite'], [30, '30 s'], [60, '1 min'], [90, '1 min 30']].forEach(function (o) {
       h += '<button class="choix" type="button" data-chrono="' + o[0] + '" aria-pressed="' + (config.chrono === o[0]) + '">' + o[1] + '</button>';
     });
@@ -591,7 +612,7 @@
     if (!voile.hidden) fermerModale();
     var lien = lienPartie();
     var h = '<section class="accueil"><div class="big" aria-hidden="true">🎉</div><h2>Salle d\'attente</h2>' +
-      '<div class="bloc" style="text-align:center"><p>Code de la partie</p><div class="code-grand" aria-label="Code ' + esc(etat.code.split('').join(' ')) + '">' + esc(etat.code) + '</div>' +
+      '<div class="bloc" style="text-align:center"><p>Code de la partie · ' + (etat.coop ? '🤝 en collaboration' : '⚔️ en opposition') + '</p><div class="code-grand" aria-label="Code ' + esc(etat.code.split('').join(' ')) + '">' + esc(etat.code) + '</div>' +
       '<div class="qr" id="qr" role="img" aria-label="QR code pour rejoindre la partie"></div>' +
       '<p style="font-size:13px;color:var(--muted);margin-top:6px">Scannez le QR code avec l\'appareil photo du téléphone, ou ouvrez ce jeu, choisissez « Je rejoins une partie » et saisissez le code.</p>' +
       (hote ? '<div class="actions" style="margin-top:10px"><button class="bt bt-second" id="btnLien" type="button">🔗 Copier le lien</button>' +
@@ -685,6 +706,8 @@
     var occupe = !!(etat.de || etat.carte) || (!actif);
     document.getElementById('tour').innerHTML = '<div class="qui">' + j.pion + ' ' + esc(j.nom) + (ligne && actif ? ' <small>(vous)</small>' : '') + '</div>' +
       '<div class="msg" aria-live="polite">' + esc(msg) + '</div>' +
+      (etat.coop ? '<div class="coop-info">🤝 En collaboration · ☀️ Tours restants : <b>' + Math.max(0, etat.budget - etat.nbTours) + '</b> · 🌿 Groupe : <b>' +
+        etat.joueurs.reduce(function (t, x) { return t + x.feuilles; }, 0) + '</b></div>' : '') +
       '<div class="de-zone"><div class="de' + (etat.de && etat.de.roule ? ' roule' : '') + '" id="de" role="img" aria-label="Dé">' + face + '</div>' +
       '<button class="bt bt-gros" data-act="lancer" type="button"' + (occupe ? ' disabled' : '') + '>🎲 <span>Lancer le dé</span></button></div>' +
       (ligne && hote && !actif ? '<p style="margin-top:10px"><button class="bt bt-second" data-act="passer" type="button">⏭ Passer le tour de ' + esc(j.nom) + '</button></p>' : '');
@@ -695,7 +718,7 @@
     document.getElementById('score').innerHTML = etat.joueurs.map(function (x, i) {
       return '<li class="' + (i === etat.tour ? 'actif' : '') + '"><span class="p" aria-hidden="true">' + x.pion + '</span>' +
         '<span class="nom">' + esc(x.nom) + (ligne && x.id === monId ? ' (vous)' : '') + '</span><span class="f">' + x.feuilles + ' 🌿</span>' +
-        '<span class="case-n">case ' + x.pos + '/' + FIN + '</span></li>';
+        (etat.coop ? '' : '<span class="case-n">case ' + x.pos + '/' + FIN + '</span>') + '</li>';
     }).join('');
   }
 
@@ -784,20 +807,55 @@
   }
 
   /* ───────── Bilan ───────── */
+  /* Classement : l'arrivée en premier d'abord, puis la case atteinte, puis les feuilles ; ex æquo = même rang */
+  function classementHtml() {
+    var l = etat.joueurs.map(function (j, i) { return { j: j, arrive: i === etat.premier }; });
+    l.sort(function (a, b) { return (b.arrive - a.arrive) || (b.j.pos - a.j.pos) || (b.j.feuilles - a.j.feuilles); });
+    l.forEach(function (x, k) {
+      var p = l[k - 1];
+      x.rang = (k > 0 && !x.arrive && !p.arrive && p.j.pos === x.j.pos && p.j.feuilles === x.j.feuilles) ? p.rang : k + 1;
+    });
+    var medailles = ['🥇', '🥈', '🥉'];
+    return '<div class="bloc"><h3>Classement</h3><table class="classement"><thead><tr><th scope="col">Rang</th><th scope="col">Équipe</th><th scope="col">Case</th>' +
+      '<th scope="col">🌿</th><th scope="col">Réponses justes</th></tr></thead><tbody>' + l.map(function (x) {
+        var j = x.j;
+        return '<tr' + (x.rang === 1 ? ' class="premier"' : '') + '><td>' + (medailles[x.rang - 1] || x.rang) + '</td>' +
+          '<td>' + j.pion + ' ' + esc(j.nom) + (enLigne() && j.id === monId ? ' (vous)' : '') + '</td>' +
+          '<td>' + (x.arrive ? '🌳' : j.pos + '/' + FIN) + '</td><td>' + j.feuilles + '</td><td>' + ((j.total || 0) ? (j.ok || 0) + '/' + j.total : '—') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
   function rendreBilan() {
     if (!voile.hidden) fermerModale();
     var joueurs = etat.joueurs;
-    var meilleur = joueurs.reduce(function (m, x) { return x.feuilles > m.feuilles ? x : m; }, joueurs[0]);
-    var gagnants = joueurs.filter(function (x) { return x.feuilles === meilleur.feuilles; });
-    var arrive = etat.premier >= 0 ? joueurs[etat.premier] : null;
-    var h = '<section class="bilan"><div class="accueil"><div class="big" aria-hidden="true">🌳</div></div>' +
-      '<h2>' + (arrive ? 'Bravo, ' + esc(arrive.nom) + ' !' : 'Fin de la partie') + '</h2>' +
-      '<p class="sous" style="text-align:center;color:var(--muted)">' + (arrive ? 'Arrivé·e en premier au grand eucalyptus.' : 'Voici le bilan de votre partie.') + '</p>' +
-      '<div class="podium">' +
-      (arrive ? '<div class="prix"><div class="ic" aria-hidden="true">' + arrive.pion + '</div><b>Le premier à l\'arrivée</b>' + esc(arrive.nom) + '</div>' : '') +
-      '<div class="prix"><div class="ic" aria-hidden="true">🌿</div><b>Le plus de feuilles</b>' +
-      gagnants.map(function (x) { return x.pion + ' ' + esc(x.nom); }).join(', ') + ' · ' + meilleur.feuilles + ' 🌿</div></div>';
-
+    var coop = !!etat.coop, h;
+    if (coop) {
+      var total = joueurs.reduce(function (t, x) { return t + x.feuilles; }, 0);
+      var okT = joueurs.reduce(function (t, x) { return t + (x.ok || 0); }, 0), toT = joueurs.reduce(function (t, x) { return t + (x.total || 0); }, 0);
+      var epuise = etat.nbTours >= etat.budget, caseG = joueurs[0].pos;
+      h = '<section class="bilan"><div class="accueil"><div class="big" aria-hidden="true">' + (etat.victoire ? '🎉' : '🌱') + '</div></div>' +
+        '<h2>' + (etat.victoire ? 'Bravo, vous y êtes arrivés ensemble !' : (epuise ? 'Presque !' : 'Fin de la partie')) + '</h2>' +
+        '<p class="sous" style="text-align:center;color:var(--muted)">' + (etat.victoire
+          ? 'Le groupe a atteint le grand eucalyptus en ' + etat.nbTours + ' tours sur ' + etat.budget + '.'
+          : (epuise ? 'Le temps est écoulé : le groupe était à la case ' + caseG + ' sur ' + FIN + '. Retentez en vous aidant des « à retenir ».' : 'Le groupe était à la case ' + caseG + ' sur ' + FIN + '.')) + '</p>' +
+        '<div class="podium"><div class="prix"><div class="ic" aria-hidden="true">🌿</div><b>Feuilles du groupe</b>' + total + ' 🌿</div>' +
+        '<div class="prix"><div class="ic" aria-hidden="true">✅</div><b>Bonnes réponses</b>' + (toT ? okT + ' sur ' + toT : '—') + '</div></div>' +
+        '<div class="bloc"><h3>La contribution de chacun·e</h3><ul class="score">' + joueurs.map(function (x) {
+          return '<li><span class="p" aria-hidden="true">' + x.pion + '</span><span class="nom">' + esc(x.nom) + (enLigne() && x.id === monId ? ' (vous)' : '') + '</span>' +
+            '<span class="f">' + ((x.total || 0) ? (x.ok || 0) + '/' + x.total + ' ✓' : '—') + '</span><span class="f">' + x.feuilles + ' 🌿</span></li>';
+        }).join('') + '</ul></div>';
+    } else {
+      var arrive = etat.premier >= 0 ? joueurs[etat.premier] : null;
+      var meilleur = joueurs.reduce(function (m, x) { return x.feuilles > m.feuilles ? x : m; }, joueurs[0]);
+      var gagnants = joueurs.filter(function (x) { return x.feuilles === meilleur.feuilles; });
+      h = '<section class="bilan"><div class="accueil"><div class="big" aria-hidden="true">🌳</div></div>' +
+        '<h2>' + (arrive ? 'Bravo, ' + esc(arrive.nom) + ' !' : 'Fin de la partie') + '</h2>' +
+        '<p class="sous" style="text-align:center;color:var(--muted)">' + (arrive ? 'Arrivé·e en premier au grand eucalyptus.' : 'Voici le bilan de votre partie.') + '</p>' +
+        '<div class="podium">' +
+        (arrive ? '<div class="prix"><div class="ic" aria-hidden="true">' + arrive.pion + '</div><b>Le premier à l\'arrivée</b>' + esc(arrive.nom) + '</div>' : '') +
+        '<div class="prix"><div class="ic" aria-hidden="true">🌿</div><b>Le plus de feuilles</b>' +
+        gagnants.map(function (x) { return x.pion + ' ' + esc(x.nom); }).join(', ') + ' · ' + meilleur.feuilles + ' 🌿</div></div>' +
+        classementHtml();
+    }
     h += '<div class="bloc"><h3>Vos résultats par thème</h3>';
     THEMES_QUIZ.concat(['partage']).forEach(function (k) {
       var s = etat.stats[k] || { ok: 0, total: 0 };
@@ -852,7 +910,9 @@
       '<li><b>Case Partage</b> 💬 : un sujet à discuter, sans bonne ou mauvaise réponse. Celui qui anime la discussion gagne 1 🌿.</li>' +
       '<li><b>Case Chance</b> 🍀 : une carte surprise, bonne ou moins bonne.</li>' +
       '<li><b>Après chaque question</b>, lisez le « à retenir » : c\'est là que se passe l\'apprentissage.</li>' +
-      '<li><b>Fin :</b> le premier arrivé gagne, et celui qui a le plus de feuilles reçoit aussi un prix. Un bilan des points à retenir est affiché.</li>' +
+      '<li><b>En opposition :</b> le premier arrivé gagne, et celui qui a le plus de feuilles reçoit aussi un prix. Un classement de toutes les équipes est affiché à la fin.</li>' +
+      '<li><b>En collaboration :</b> tout le groupe avance sur le même pion. Le groupe doit atteindre l\'eucalyptus avant la fin des ' + TOURS_COOP + ' tours, en s\'entraidant sur les questions. La bonne réponse de l\'un fait avancer tout le monde.</li>' +
+      '<li><b>À la fin</b>, un bilan des points à retenir est affiché.</li>' +
       '</ol>' +
       '<p class="aide">Les contenus sont des repères généraux. En cas de doute, les protocoles de votre établissement et l\'avis des professionnels de santé prévalent.</p>' +
       '<div class="pied"><button class="bt" type="button" data-act="fermer-regles">Compris</button></div>');

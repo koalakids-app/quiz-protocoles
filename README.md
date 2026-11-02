@@ -13,3 +13,5 @@ Le jeu a deux modes : un seul appareil, ou **chacun sur son téléphone**. En li
 La salle d’attente affiche aussi un **QR code** du lien de la partie (qrcodejs depuis cdnjs, comme dans gestion-stock) ; sans la bibliothèque, le code et le lien restent disponibles.
 
 Chronomètre de réponse : réglé à l’accueil (sans limite, 30 s, 1 min, 1 min 30 ; 1 min par défaut). En ligne, chaque téléphone affiche son compte à rebours et c’est l’animateur qui tranche : temps écoulé = mauvaise réponse (retour à la case de départ du tour).
+
+Deux façons de jouer (réglées à l’accueil) : **en opposition** (la première équipe arrivée gagne, classement final avec case atteinte, feuilles et réponses justes) ou **en collaboration** (un seul pion pour tout le groupe, qui doit atteindre l’eucalyptus avant la fin de `TOURS_COOP` = 16 tours ; bilan avec la contribution de chacun·e). Le nombre de tours se règle dans `jeu-societe/jeu-societe.js`.
