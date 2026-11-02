@@ -113,25 +113,25 @@
   /* ───────── 🧼 Protocoles ───────── */
   Q('pro', 'x', "Un nourrisson doit être couché pour dormir…",
     "Sur le dos, sur un matelas ferme, sans oreiller ni couette", "Sur le ventre, c'est plus sécurisant", "Sur le côté, calé par des coussins",
-    "Sur le dos, dans une gigoteuse, sans tour de lit ni peluche : ces règles réduisent le risque de mort inattendue du nourrisson.");
+    "Sur le dos, dans une gigoteuse, sans couverture, oreiller, tour de lit ni peluche, et un matelas ferme à la bonne taille. La chambre ne dépasse pas 20 °C, reste dans la pénombre pour voir la respiration de chaque enfant, et on contrôle la respiration toutes les 15 minutes, surtout chez les moins de 6 mois.");
   Q('pro', 'x', "Quelle est la température idéale d'une chambre de bébé ?",
     "20 °C au maximum (environ 18-20 °C)", "24-26 °C, bien chauffée", "15 °C pour l'endurcir",
     "Notre projet demande de vérifier que la chambre n'excède pas 20 °C. Un bébé trop couvert ou dans une pièce trop chaude est exposé aux risques : on l'habille légèrement et on aère.");
   Q('pro', 'x', "Pendant une convulsion, que fait-on ?",
     "On protège l'enfant, on note l'heure et la durée, on appelle le 15 et on le met en position latérale de sécurité quand les secousses s'arrêtent", "On met un objet entre ses dents", "On le maintient fermement pour arrêter les secousses",
-    "On ne retient pas les mouvements et on ne met rien dans la bouche. Les gestes à suivre sont ceux du protocole « convulsions » de votre établissement, à relire avec l'équipe.");
-  Q('pro', 'x', "À partir de quelle température rectale parle-t-on de fièvre ?",
-    "38 °C et plus", "37,2 °C", "39,5 °C",
-    "À partir de 38 °C. Le thermomètre sert de repère, mais l'état général de l'enfant (agitation, abattement, douleur) compte autant.");
+    "On ne déplace pas l'enfant sauf risque de chute, on dégage l'espace, on ne met rien dans sa bouche. On demande de l'aide pour isoler le groupe et appeler le 15, puis on prévient les parents et la responsable. Si la température dépasse 38,5 °C, on découvre l'enfant.");
+  Q('pro', 'e', "Comment prend-on la température d'un enfant à la crèche ?",
+    "Par voie axillaire (sous le bras), en ajoutant 0,5 °C ; on parle de fièvre au-dessus de 38 °C", "Par voie rectale, sans rien ajouter", "Avec un thermomètre dans l'oreille, sans rien ajouter",
+    "La pharmacie contient un thermomètre axillaire et un thermomètre frontal. On dévêtit et on hydrate l'enfant dès 38 °C. Avant 3 mois, la fièvre est une urgence diagnostique : on appelle les parents pour qu'ils l'accompagnent aux urgences.");
   Q('pro', 'x', "Un bébé de moins d'un an s'étouffe et ne peut plus tousser ni respirer. Quel geste ?",
     "5 claques dans le dos puis 5 compressions du thorax, en alternance, et appeler le 15", "Lui mettre les doigts dans la bouche", "Lui donner de l'eau pour faire passer",
     "Bébé à plat ventre sur l'avant-bras, tête plus basse que le thorax : 5 claques entre les omoplates. Si ça ne passe pas, retourner et faire 5 compressions du milieu du thorax. Appeler ou faire appeler le 15.");
   Q('pro', 'x', "Quel numéro d'urgence européen est gratuit pour toute détresse ?",
     "Le 112", "Le 17", "Le 119",
     "Le 112 fonctionne partout en Europe. Le 15 (SAMU) pour une urgence médicale, le 18 pour les pompiers, le 119 pour un enfant en danger.");
-  Q('pro', 'x', "Brûlure légère par eau chaude. On…",
-    "Refroidit tout de suite sous l'eau du robinet (ni glacée) au moins 10 minutes", "Applique du beurre ou du dentifrice", "Pose de la glace directement sur la peau",
-    "Refroidir vite limite la profondeur de la brûlure. On ne retire pas un vêtement collé à la peau et on demande un avis médical si la brûlure est étendue, au visage ou sur un bébé.");
+  Q('pro', 'e', "Un enfant se brûle la peau. Quel est le premier geste ?",
+    "Passer la zone brûlée sous l'eau tiède au moins 10 minutes, sans faire couler l'eau directement dessus", "Appliquer du beurre ou du dentifrice", "Mettre de la glace directement sur la peau",
+    "On retire doucement les vêtements de la zone brûlée si possible ; s'ils résistent, on les laisse. On prévient la direction et les parents. Si la peau est à vif ou en cas de signe de gravité (3e degré, brûlure étendue, localisation sensible), on appelle les parents ou le 15.");
   Q('pro', 'x', "Dans quel cas met-on un enfant en position latérale de sécurité (PLS) ?",
     "Quand il est inconscient mais qu'il respire", "Quand il vomit mais qu'il parle", "Quand il pleure beaucoup",
     "La PLS protège les voies respiratoires d'un enfant inconscient qui respire. On appelle le 15 et on surveille la respiration jusqu'à l'arrivée des secours.");
@@ -369,7 +369,7 @@
     "Le harnais empêche les glissades sous le plateau et les chutes. L'adulte reste à proximité.");
   Q('pro', 'e', "Une alarme incendie sonne dans la crèche. Quel est le bon réflexe ?",
     "Évacuer les enfants selon le plan d'évacuation et faire l'appel avec la liste des présents", "Éteindre soi-même le feu avant de faire sortir les enfants", "Rassembler les enfants à l'intérieur, loin des fenêtres",
-    "La priorité est de mettre les enfants en sécurité. On prévient les secours (18 ou 112) et personne ne retourne à l'intérieur.");
+    "On appelle le 18 et on attend l'accord des pompiers pour raccrocher, on ouvre les portes de secours, on sort les lits d'évacuation, on prend la feuille de présence, le téléphone et le sac d'évacuation, on désigne une personne pour vérifier les locaux et les lits, et on ne réintègre la crèche que sur consigne.");
   Q('pro', 'x', "Un enfant avale une pile bouton. Que faire ?",
     "Appeler le 15 tout de suite, sans le faire vomir ni manger", "Attendre qu'elle sorte naturellement", "Lui faire boire beaucoup d'eau",
     "Une pile bouton peut brûler l'œsophage en quelques heures. Les aimants avalés sont aussi une urgence. On garde l'emballage ou la référence.");
@@ -503,6 +503,116 @@
     "On s'appuie sur l'observation de l'enfant et sur ses signaux. On fera plus ample connaissance avec la famille au fil des arrivées et des départs.");
   D('e', "Racontez une situation où vous avez laissé l'enfant « vous guider » (modèle de l'accompagnement). Qu'est-ce que cela a changé ?",
     "Pistes : regarder ce que l'enfant fait avant d'intervenir, lui laisser le choix de la façon, accepter son rythme, se demander ce qu'il cherche à comprendre.");
+
+  /* ───────── Vos protocoles (catégories « Protocoles » du module Documents) ───────── */
+  Q('pro', 'e', "À partir de combien de selles liquides demande-t-on aux parents de venir chercher leur enfant ?",
+    "Dès la 3e : on les prévient par message dès la 2e", "Dès la 1re", "Dès la 5e",
+    "Les selles molles ne sont pas une diarrhée. On réhydrate l'enfant toutes les 15 minutes (eau ou soluté de réhydratation orale), on renforce l'hygiène et on prévient la responsable et la direction.");
+  Q('pro', 'e', "Comment prépare-t-on le soluté de réhydratation orale pour un enfant qui a la diarrhée ?",
+    "Un sachet dans 200 ml d'eau, sans le mélanger à rien d'autre", "Un sachet dans un biberon de lait", "Un sachet dans un jus de fruits pour qu'il le boive",
+    "L'enfant le boit à volonté. En cas de léthargie, de comportement anormal ou de respiration très rapide, on appelle le 15 ; un enfant de moins de 4 mois est considéré comme à risque.");
+  Q('pro', 'e', "Quand soupçonne-t-on une toxi-infection alimentaire collective (TIAC) ?",
+    "Quand au moins deux personnes ayant mangé le même repas présentent en même temps des symptômes similaires, le plus souvent digestifs", "Dès qu'un enfant a une seule selle liquide", "Quand un parent se plaint du goût du repas",
+    "On arrête la distribution, on surveille les enfants, on prévient la responsable et la direction, puis la DDPP, la PMI et le prestataire de repas. La TIAC est une maladie à déclaration obligatoire : on garde les fiches d'autocontrôle et le plan de maîtrise sanitaire à disposition.");
+  Q('pro', 'e', "Pour combien de maladies l'éviction de la collectivité est-elle une obligation réglementaire ?",
+    "11 pathologies seulement, sur avis médical", "Toutes les maladies contagieuses", "Uniquement la rougeole",
+    "Parmi elles : angine à streptocoque, coqueluche, hépatite A, impétigo à lésions étendues, méningocoque, oreillons, rougeole, scarlatine, tuberculose, gastro-entérites à E. coli et à Shigelles. La direction est informée de toute éviction par téléphone ou SMS.");
+  Q('pro', 'e', "Un enfant revient chez le médecin et n'a pas de certificat. Que fait l'équipe ?",
+    "Rien de particulier : ce n'est pas obligatoire, on le surveille et on appelle les parents s'il ne va pas bien", "Elle refuse l'enfant", "Elle exige un certificat avant de l'accueillir",
+    "Un enfant malade le matin peut être accueilli si la direction ou le référent technique, en accord avec l'équipe, le juge apte à rester. S'il y a des médicaments, l'ordonnance, l'autorisation parentale et le médicament fermé dans sa boîte d'origine sont obligatoires.");
+  Q('pro', 'e', "Un enfant a une conjonctivite. Quelle mesure est prévue ?",
+    "Pas d'éviction obligatoire : on nettoie chaque œil avec une compresse stérile et du sérum physiologique, une compresse par œil", "Éviction de 8 jours", "Un collyre donné par l'équipe sans ordonnance",
+    "On nettoie 3 fois par jour et à chaque écoulement, on se lave les mains avant et après, on désinfecte le plan de change et les jouets, et on incite les parents à consulter. Un collyre n'est instillé que sur ordonnance.");
+  Q('pro', 'e', "Un enfant bave beaucoup, mordille et geint : on soupçonne une douleur dentaire. Que fait-on ?",
+    "On envoie un SMS aux parents pour demander l'autorisation de donner une dose adaptée à son poids, et on attend leur réponse", "On donne tout de suite une dose, sans prévenir", "On appelle le 15",
+    "Le registre de soin est rempli à chaque fois qu'un médicament est donné.");
+  Q('pro', 'e', "Un enfant a une détresse respiratoire. Que ne fait-on jamais ?",
+    "Lui donner à boire ou à manger", "L'installer en position semi-assise", "Rester auprès de lui",
+    "On l'installe semi-assis, au calme, on desserre ses vêtements, on demande de l'aide, on ne le quitte pas des yeux et on appelle le 15. Signes : respiration rapide, lèvres bleues, creusement des côtes, bruits anormaux.");
+  Q('pro', 'e', "Dans quel délai maximum doit-on suturer une plaie qui en a besoin ?",
+    "6 heures", "24 heures", "48 heures",
+    "On nettoie la plaie à l'eau claire et au savon, on appuie 5 à 10 minutes avec un linge propre si elle saigne, puis on met un pansement. On prévient les parents si elle est profonde, au visage, sur une main ou une articulation.");
+  Q('pro', 'e', "Un enfant se cogne la tête et a une bosse. Comment applique-t-on du froid ?",
+    "Jamais directement sur la peau : gant d'eau froide ou poche de glace dans un gant", "Directement avec un glaçon", "On n'applique rien, jamais de froid",
+    "Sans signe de gravité (perte de connaissance, vomissements, comportement inhabituel, convulsions), on surveille l'enfant et on poursuit la surveillance pendant 48 heures en prévenant les parents.");
+  Q('pro', 'x', "Un enfant est piqué par une abeille, une guêpe ou un frelon. Comment retire-t-on le dard ?",
+    "On le racle avec un objet rigide, par exemple le côté non tranchant d'un couteau", "On le pince avec les doigts", "On ne le retire jamais",
+    "On lave à l'eau et au savon, on désinfecte et on surveille attentivement : au moindre gonflement excessif ou difficulté respiratoire, on appelle le 15.");
+  Q('pro', 'e', "Lors d'une réaction allergique grave avec un stylo d'adrénaline, une 2e injection est possible…",
+    "5 à 15 minutes après la 1re, en l'absence d'amélioration ou en cas d'aggravation", "Jamais", "Immédiatement après la 1re",
+    "Si l'enfant a un PAI, on le suit et on récupère le stylo (Anapen, Jext ou Epipen). On met l'enfant au calme demi-assis, on appelle le 15, on ne lui donne rien et on le garde en surveillance visuelle.");
+  Q('pro', 'e', "Quand on appelle le 15, quelle information donne-t-on en premier ?",
+    "Son nom, puis la micro-crèche et son adresse exacte, avant de décrire l'enfant", "L'état de l'enfant d'abord", "Le nom de la direction",
+    "Ensuite le numéro de téléphone, l'enfant (date de naissance, antécédents et allergies) et ce qu'il présente (convulsion, perte de connaissance, gêne respiratoire, éruption, plaie…). On précise ce qu'il y a à la crèche si on le demande.");
+  Q('pro', 'e', "Pour la surveillance du dortoir, quelle lumière laisse-t-on ?",
+    "Une pénombre qui permet de voir la respiration de chaque enfant", "Le noir complet", "Une lumière vive",
+    "Les lits sont disposés pour voir tous les enfants par les oculi des portes. Un enfant malade et inquiétant dort dans la salle de jeux pour être mieux surveillé.");
+  Q('pro', 'e', "Où range-t-on la pharmacie de la crèche ?",
+    "Dans la salle de bain, en hauteur, inaccessible aux enfants et fermée à clé", "Dans le bureau, dans un tiroir ouvert", "Dans la cuisine, près du réfrigérateur",
+    "Tous les médicaments des enfants sont identifiés à leur nom. La pharmacie ne contient aucun médicament d'adulte et on vérifie régulièrement les dates de péremption.");
+  Q('pro', 'e', "Après l'administration d'un médicament, que fait-on ?",
+    "On l'inscrit tout de suite dans le registre dédié (nom de l'enfant, date et heure, professionnel, médicament, posologie)", "On le note le soir si on y pense", "On prévient seulement les parents",
+    "Toute réaction anormale est signalée par écrit. Les PAI sont renouvelables chaque année : l'original est dans le dossier de l'enfant, une copie est affichée et placée dans la trousse d'urgence.");
+  Q('pro', 'e', "Quel matériel de lavage de nez n'utilise-t-on pas en crèche ?",
+    "Le mouche-bébé", "La pipette de sérum physiologique", "La seringue individuelle",
+    "La seringue, avec embout individuel fourni par la famille, ne s'utilise que si l'enfant a un tonus suffisant (en général à partir de 6 mois). Ce soin reste limité au maximum à la crèche.");
+  Q('pro', 'e', "En période de canicule, comment couche-t-on les enfants pour la sieste ?",
+    "En couche ou en culotte, éventuellement avec un t-shirt, sans turbulette ni couverture", "Avec une gigoteuse, comme d'habitude", "Avec une couverture légère et un pyjama",
+    "Le dortoir doit se rapprocher de 20 °C, on ferme les stores, on surveille étroitement le sommeil, on propose à boire toutes les heures, on met en place le bar à eau et on favorise les jeux d'eau.");
+  Q('pro', 'e', "Quelles chaussures le personnel porte-t-il auprès des enfants ?",
+    "Des chaussures « crèche » fermées, antidérapantes et sans talon", "Des chaussettes, pour être plus silencieux", "Des sandales ouvertes en été",
+    "En cuisine, la charlotte et le tablier sont obligatoires. Les gants sont changés entre deux enfants ou deux activités, jetés dans une poubelle fermée, puis on se lave les mains.");
+  Q('pro', 'e', "Les jouets en bois sont nettoyés…",
+    "Après chaque proposition de jeu, avec un détergent désinfectant et un temps de contact de 15 minutes, puis rincés et séchés", "Une fois par mois", "Seulement en cas d'épidémie",
+    "Le nettoyage est inscrit sur la feuille de traçabilité. Les jouets en plastique sont lavés au minimum une fois par semaine, les peluches après chaque proposition à 40 °C.");
+  Q('pro', 'e', "Des poux sont découverts dans les peluches. Que fait-on ?",
+    "On les enferme dans un sac poubelle au moins une semaine, puis on les lave à 60 °C", "On les lave à 40 °C comme d'habitude", "On les jette à la poubelle sans prévenir personne",
+    "En cas d'infection du cuir chevelu, on lave aussi soigneusement les taies d'oreiller et les objets utilisés pour coiffer l'enfant.");
+  Q('pro', 'e', "Peut-on laver ensemble le linge de la cuisine et celui des changes ?",
+    "Non : on utilise deux machines distinctes, avec une lessive désinfectante", "Oui, à 60 °C", "Oui, si on rince bien",
+    "Le linge sale est manipulé avec des gants à usage unique et déposé dans une poubelle à linge fermée.");
+  Q('pro', 'e', "À quel moment sort-on les poubelles de la crèche ?",
+    "En fin de journée, et aussi quand elles sont pleines, qu'elles sentent mauvais ou si nécessaire en cours de journée", "Une fois par semaine", "Seulement quand une famille s'en plaint",
+    "On met des gants jetables, on ferme le sac, on le vide dans le container, on lave le bac s'il est souillé, on met un sac propre, puis on jette les gants et on se lave les mains.");
+  Q('pro', 'e', "Comment dilue-t-on le vinaigre blanc pour détartrer le chauffe-biberon ?",
+    "50 % d'eau et 50 % de vinaigre blanc", "Du vinaigre pur", "Un quart de vinaigre et trois quarts d'eau",
+    "On nettoie l'extérieur chaque jour, on détartre une fois par semaine, on laisse agir 15 à 20 minutes puis on rince avec un cycle d'eau claire.");
+  Q('pro', 'e', "Quand prépare-t-on un biberon de lait ?",
+    "À la demande : aucun biberon n'est préparé à l'avance", "Le matin, pour toute la journée", "Dès qu'on a un moment de libre",
+    "On utilise l'eau froide du robinet, après un temps d'écoulement de quelques secondes. Le biberon est identifié au nom de l'enfant avec la date et l'heure de préparation.");
+  Q('pro', 'e', "Du lait maternel a été décongelé. Que fait-on ?",
+    "On le consomme dans les 24 heures et on ne le recongèle jamais", "On le recongèle s'il en reste", "On le garde 4 jours au réfrigérateur",
+    "Le lait est apporté chaque jour dans une poche isotherme, avec 4 heures maximum entre le réfrigérateur de la famille et celui de la crèche. Il est stocké à 4 °C, pas dans la porte.");
+  Q('pro', 'e', "Quelle boisson est autorisée dans un panier repas apporté par la famille (PAI) ?",
+    "L'eau, qui reste la seule boisson autorisée", "Les jus de fruits sans sucre ajouté", "Les sodas allégés",
+    "Les produits sucrés (viennoiseries, pâtisseries, crèmes dessert) et gras (sauces, charcuterie, chips) ne sont pas autorisés. Le panier voyage à 0-6 °C maximum, avec des packs réfrigérés, dans une boîte hermétique identifiée.");
+  Q('pro', 'e', "À partir de combien d'enfants prélève-t-on un plat témoin ?",
+    "À partir de 2 enfants", "Dès le premier enfant", "À partir de 10 enfants",
+    "Pour les produits ayant subi une manipulation : un plat témoin pour l'entrée, le plat protidique, les purées bébé, les accompagnements, les laitages et les desserts. On évite de les congeler.");
+  Q('pro', 'e', "Quelle température faut-il vérifier à la livraison des repas ?",
+    "Idéalement entre 0 et 3 °C, acceptable jusqu'à 6 °C ; au-delà de 6 °C, on refuse et on utilise les plats secours", "Celle du four", "Celle de la voiture du livreur",
+    "On installe les barquettes au réfrigérateur dans les 30 minutes après la livraison, en les déconditionnant. Le réfrigérateur est contrôlé deux fois par jour.");
+  Q('pro', 'e', "À quelle température sert-on les plats aux enfants ?",
+    "Entre 37 et 45 °C au maximum", "À 63 °C, à la sortie du four", "Aussi chaud que possible pour tuer les microbes",
+    "Les plats sont chauffés puis contrôlés avant le service : ils doivent avoir atteint 63 °C pour pouvoir être servis, puis être servis tièdes.");
+  Q('pro', 'e', "Pour préparer un gâteau à la crèche, comment casse-t-on les œufs ?",
+    "Un à un, dans un récipient à part, avant de les incorporer à la préparation", "Tous directement dans le saladier", "À l'avance, la veille",
+    "Tablier et charlotte, lavage des mains, traçabilité des matières premières, œufs propres et intacts. Le gâteau est consommé dans la journée, et peut être partagé le soir avec les parents.");
+  Q('pro', 'e', "Combien d'exercices de mise en sûreté sont obligatoires chaque année ?",
+    "Deux, dont les dates sont notées dans le registre de sécurité", "Un seul", "Aucun, c'est facultatif",
+    "En cas d'intrusion en l'absence de la référente technique, la dernière personne arrivée prend en charge la mise en sûreté.");
+  Q('pro', 'e', "Un stagiaire accompagne une sortie. Comment est-il pris en compte ?",
+    "Il est un soutien, mais n'est pas compté dans les professionnels de la sortie", "Il compte comme un professionnel diplômé", "Il n'a pas le droit de venir",
+    "Un sac de sortie est obligatoire (téléphone avec les numéros des secours, de la direction et de la référente santé ; trousse de secours ; couches ; lingettes ; eau). Le numéro de la crèche est affiché sur la poussette.");
+  Q('pro', 'e', "Un contrôleur de la PMI se présente. Que demande-t-on d'abord ?",
+    "Son nom, son prénom, sa fonction et sa carte professionnelle, puis on lui fait signer la feuille de présence avec son heure d'arrivée", "Rien : on le laisse entrer librement", "De revenir un autre jour",
+    "Les professionnels restent auprès des enfants ; la visite est gérée par le référent technique, ou, en son absence, la direction est prévenue immédiatement par téléphone et SMS.");
+  Q('pro', 'e', "Une ecchymose chez un nourrisson qui ne se déplace pas est…",
+    "Un signe qui doit alerter et être signalé", "Normale à cet âge", "Sans importance si les parents l'expliquent",
+    "Le responsable de la structure rédige l'information préoccupante à transmettre à la cellule de recueil (CRIP), avec des faits précis. En cas de danger avéré nécessitant une protection immédiate, on appelle le Procureur de la République.");
+  Q('pro', 'e', "Les repas ne sont pas livrés ou sont partiellement livrés. Que fait-on ?",
+    "On appelle le prestataire de repas, on utilise les repas secours et on complète si besoin en achetant ce qui manque", "On donne un goûter à la place", "On demande aux parents d'apporter le repas",
+    "Les repas secours existent pour les livraisons refusées (température au-dessus de 6 °C) ou manquantes.");
 
   window.KK_JEU_CARTES = CARTES;
 
