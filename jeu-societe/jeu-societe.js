@@ -224,6 +224,7 @@
     if (etat.fini) return;
     if (!a || a.passer) { suivant(); return; }
     var valeur = 1 + Math.floor(Math.random() * 6);
+    etat.origine = j.pos;                                  // case de départ du tour : on y revient après une mauvaise réponse
     etat.de = { valeur: valeur, roule: true, n: ((etat.de && etat.de.n) || 0) + 1 };
     maj();
     await pause(750);
@@ -254,6 +255,10 @@
       if (ok) {
         j.feuilles++;
         if (j.pos < FIN) { ajouterToast('Bonne réponse : +1 🌿 et 1 case de bonus'); await deplacer(j, 1); }
+      } else if (ok === false && etat.origine < j.pos) {
+        ajouterToast('Mauvaise réponse : retour ' + libelleCase(etat.origine));
+        await pause(600);
+        await deplacer(j, etat.origine - j.pos);
       }
     }
     if (etat.fini) return;
@@ -261,6 +266,7 @@
     if (rejoue) { etat.de = null; etat.carte = null; ajouterToast(j.nom + ' rejoue !'); await pause(500); return; }
     suivant();
   }
+  function libelleCase(n) { return n === 0 ? 'au départ' : 'à la case ' + n; }
   function suivant() {
     etat.nbTours++;
     etat.tour = (etat.tour + 1) % etat.joueurs.length;
@@ -295,14 +301,15 @@
 
   async function carteQuestion(j, cat) {
     var c = piocher(cat);
-    if (!c) return false;
+    if (!c) return null;
     var ordre = melange([0, 1, 2]);
     etat.carte = { kind: 'q', cat: cat, id: c.id, ordre: ordre, rep: null };
     maj();
     var a = await att(['repondre']);
-    if (etat.fini || !a || a.passer || !(a.i >= 0 && a.i <= 2)) { etat.carte = null; return false; }
+    if (etat.fini || !a || a.passer || !(a.i >= 0 && a.i <= 2)) { etat.carte = null; return null; }
     etat.carte.rep = a.i;
     var bon = ordre[a.i] === 0;
+    if (!bon && etat.origine < j.pos) etat.carte.retour = etat.origine;
     var s = etat.stats[cat] || (etat.stats[cat] = { ok: 0, total: 0 });
     s.total++;
     if (bon) s.ok++; else if (etat.rates.indexOf(c.id) < 0) etat.rates.push(c.id);
@@ -675,7 +682,7 @@
       h += '</div>';
       if (c.rep !== null) {
         var bon = c.ordre[c.rep] === 0;
-        h += '<div class="resultat ' + (bon ? 'ok' : 'ko') + '" role="status">' + (bon ? 'Bravo ! +1 🌿' : 'Pas tout à fait…') + '</div>' +
+        h += '<div class="resultat ' + (bon ? 'ok' : 'ko') + '" role="status">' + (bon ? 'Bravo ! +1 🌿' : 'Pas tout à fait…' + (c.retour != null ? ' Retour ' + libelleCase(c.retour) + '.' : '')) + '</div>' +
           '<div class="retenir"><b>À retenir.</b> ' + esc(q.retenir) + '</div>' +
           '<div class="pied">' + (actif ? '<button class="bt" type="button" data-act="continuer" id="cont">Continuer</button>' : '<span class="aide">En attente de ' + esc(j.nom) + '…</span>') + '</div>';
       }
@@ -775,7 +782,7 @@
       '<ol class="regles">' +
       '<li><b>But du jeu :</b> atteindre le grand eucalyptus 🌳 (case ' + FIN + ') en premier, en récoltant un maximum de feuilles 🌿.</li>' +
       '<li><b>À son tour</b>, le joueur lance le dé et avance de ce nombre de cases. En ligne, chacun voit le jeu en direct sur son téléphone.</li>' +
-      '<li><b>Cases thèmes</b> (🧠 développement, 🎨 pédagogie, 🧼 protocoles, 👨‍👩‍👧 familles) : une question à 3 réponses. Concertez-vous avant de répondre. Bonne réponse : +1 🌿 et une case de bonus.</li>' +
+      '<li><b>Cases thèmes</b> (🧠 développement, 🎨 pédagogie, 🧼 protocoles, 👨‍👩‍👧 familles) : une question à 3 réponses. Concertez-vous avant de répondre. Bonne réponse : +1 🌿 et une case de bonus. Mauvaise réponse : retour à la case de départ du tour.</li>' +
       '<li><b>Case Partage</b> 💬 : un sujet à discuter, sans bonne ou mauvaise réponse. Celui qui anime la discussion gagne 1 🌿.</li>' +
       '<li><b>Case Chance</b> 🍀 : une carte surprise, bonne ou moins bonne.</li>' +
       '<li><b>Après chaque question</b>, lisez le « à retenir » : c\'est là que se passe l\'apprentissage.</li>' +
