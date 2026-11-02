@@ -61,8 +61,9 @@
   var monId = null;
   var attente = null;                 // action attendue par l'arbitre : { types, res }
   var enBoucle = false;
-  var config = { mode: 'local', public: 'equipe', nb: 3, noms: [], nom: '', code: '', erreur: '' };
+  var config = { mode: 'local', public: 'equipe', chrono: 60, nb: 3, noms: [], nom: '', code: '', erreur: '' };
   var qrCache = { lien: null, node: null };
+  var chronoDebut = { id: null, t: 0 }, timerChrono = null;
   var pistes = null, reglesOuvertes = false, derniereCarte = '', dernierToast = 0, timerDe = null, focusAvant = null;
 
   /* ───────── Outils ───────── */
@@ -172,16 +173,22 @@
   }
   function nouvelEtat(extra) {
     var e = { rev: 0, phase: 'jeu', public: config.public, joueurs: [], tour: 0, nbTours: 0, vus: {}, stats: {}, rates: [], premier: -1, fini: false,
-      de: null, carte: null, toast: null, enligne: false, code: null };
+      de: null, carte: null, toast: null, enligne: false, code: null, chrono: config.chrono };
     THEMES_QUIZ.concat(['partage']).forEach(function (k) { e.stats[k] = { ok: 0, total: 0 }; });
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
   }
 
   /* ───────── Actions ───────── */
-  function att(types) {
+  /* Attend une action ; avec `ms`, le temps écoulé répond { temps: true } à la place du joueur. */
+  function att(types, ms) {
     if (etat.fini) return Promise.resolve(null);
-    return new Promise(function (res) { attente = { types: types, res: res }; });
+    return new Promise(function (res) {
+      var t = null;
+      var mine = { types: types, res: function (v) { clearTimeout(t); res(v); } };
+      attente = mine;
+      if (ms) t = setTimeout(function () { if (attente === mine) { attente = null; res({ temps: true }); } }, ms);
+    });
   }
   function recevoir(a, idx) {
     if (!a || !etat) return;
@@ -305,12 +312,14 @@
     var c = piocher(cat);
     if (!c) return null;
     var ordre = melange([0, 1, 2]);
-    etat.carte = { kind: 'q', cat: cat, id: c.id, ordre: ordre, rep: null };
+    var duree = etat.chrono || 0;
+    etat.carte = { kind: 'q', cat: cat, id: c.id, ordre: ordre, rep: null, duree: duree };
     maj();
-    var a = await att(['repondre']);
-    if (etat.fini || !a || a.passer || !(a.i >= 0 && a.i <= 2)) { etat.carte = null; return null; }
-    etat.carte.rep = a.i;
-    var bon = ordre[a.i] === 0;
+    var a = await att(['repondre'], duree * 1000);
+    var temps = !!(a && a.temps);                          // temps écoulé : compte comme une mauvaise réponse
+    if (!temps && (etat.fini || !a || a.passer || !(a.i >= 0 && a.i <= 2))) { etat.carte = null; return null; }
+    etat.carte.rep = temps ? -1 : a.i;
+    var bon = !temps && ordre[a.i] === 0;
     if (!bon && etat.origine < j.pos) etat.carte.retour = etat.origine;
     var s = etat.stats[cat] || (etat.stats[cat] = { ok: 0, total: 0 });
     s.total++;
@@ -384,20 +393,21 @@
         '<label>Prénom <input id="monNom" type="text" maxlength="24" value="' + esc(config.nom) + '" placeholder="Votre prénom" autocomplete="given-name"></label></div></div>' +
         '<div class="actions"><button class="bt bt-gros" id="btnRejoindre" type="button">🔑 <span>Rejoindre</span></button></div>';
     } else {
-      h += '<div class="bloc"><h3>' + (config.mode === 'creer' ? '1' : '1') + '. Qui joue ?</h3><div class="choix-liste" role="group" aria-label="Public">';
+      h += '<div class="bloc"><h3>1. Qui joue ?</h3><div class="choix-liste" role="group" aria-label="Public">';
       Object.keys(PUBLICS).forEach(function (k) {
         var p = PUBLICS[k];
         h += '<button class="choix" type="button" data-public="' + k + '" aria-pressed="' + (config.public === k) + '">' +
           '<span class="ic" aria-hidden="true">' + p.ico + '</span><span><b>' + esc(p.nom) + '</b><small>' + esc(p.desc) + '</small></span></button>';
       });
       h += '</div></div>';
+      h += blocChrono();
       if (config.mode === 'creer') {
-        h += '<div class="bloc"><h3>2. Votre prénom</h3><div class="noms"><label><span class="pion" aria-hidden="true">' + PIONS[0] + '</span>' +
+        h += '<div class="bloc"><h3>3. Votre prénom</h3><div class="noms"><label><span class="pion" aria-hidden="true">' + PIONS[0] + '</span>' +
           '<input id="monNom" type="text" maxlength="24" value="' + esc(config.nom) + '" placeholder="Votre prénom" autocomplete="given-name"></label></div>' +
           '<p style="font-size:13px;color:var(--muted);margin-top:8px">Vous êtes l\'animateur·rice : gardez votre téléphone ouvert pendant la partie. Les autres rejoindront avec le code à l\'écran (jusqu\'à ' + MAX_LIGNE + ' joueur·ses).</p></div>';
         h += '<div class="actions"><button class="bt bt-gros" id="btnCreer" type="button">🎉 <span>Créer la partie</span></button></div>';
       } else {
-        h += '<div class="bloc"><h3>2. Combien d\'équipes ?</h3><div class="nb-equipes">' +
+        h += '<div class="bloc"><h3>3. Combien d\'équipes ?</h3><div class="nb-equipes">' +
           '<button type="button" id="moins" aria-label="Une équipe de moins">−</button>' +
           '<output id="nb" aria-live="polite">' + config.nb + '</output>' +
           '<button type="button" id="plus" aria-label="Une équipe de plus">+</button></div><div class="noms" id="noms"></div></div>';
@@ -423,6 +433,12 @@
         app.querySelectorAll('[data-public]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
       });
     });
+    app.querySelectorAll('[data-chrono]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        config.chrono = +b.getAttribute('data-chrono');
+        app.querySelectorAll('[data-chrono]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      });
+    });
     on('moins', function () { changerNb(-1); });
     on('plus', function () { changerNb(1); });
     on('btnJouer', demarrerLocal);
@@ -431,6 +447,13 @@
     on('btnReprendre', function () { reprendre(sauvee); });
     on('btnOublier', function () { oublier(); ecranAccueil(); });
     on('btnRevenir', function () { rejoindre(client.code, client.nom); });
+  }
+  function blocChrono() {
+    var h = '<div class="bloc"><h3>2. ⏱ Temps pour répondre</h3><div class="chrono-choix" role="group" aria-label="Temps pour répondre">';
+    [[0, 'Sans limite'], [30, '30 s'], [60, '1 min'], [90, '1 min 30']].forEach(function (o) {
+      h += '<button class="choix" type="button" data-chrono="' + o[0] + '" aria-pressed="' + (config.chrono === o[0]) + '">' + o[1] + '</button>';
+    });
+    return h + '</div><p style="font-size:13px;color:var(--muted);margin-top:8px">Quand le temps est écoulé, la question compte comme une mauvaise réponse.</p></div>';
   }
   function on(id, fn) { var e = document.getElementById(id); if (e) e.addEventListener('click', fn); }
   function modeBouton(mode, ico, titre, desc) {
@@ -680,7 +703,7 @@
   function rendreCarte() {
     if (reglesOuvertes) return;
     var c = etat.carte;
-    if (!c) { if (!voile.hidden) fermerModale(); derniereCarte = ''; return; }
+    if (!c) { if (!voile.hidden) fermerModale(); derniereCarte = ''; clearInterval(timerChrono); chronoDebut = { id: null, t: 0 }; return; }
     var j = etat.joueurs[etat.tour], actif = peutAgir();
     var sig = JSON.stringify([c, actif, pistes === c.id, etat.tour]);
     if (sig === derniereCarte && !voile.hidden) return;
@@ -692,6 +715,7 @@
       h = '<span class="chip t-' + c.cat + '"><span aria-hidden="true">' + th.ico + '</span> ' + th.nom + '</span>' +
         '<h2 id="modaleTitre">' + esc(q.q) + '</h2>' +
         '<p class="aide">' + (c.rep !== null ? '' : (actif ? j.pion + ' ' + esc(j.nom) + ' : concertez-vous, puis choisissez une réponse.' : 'C\'est à ' + j.pion + ' ' + esc(j.nom) + ' de répondre. Vous pouvez en discuter ensemble !')) + '</p>' +
+        (c.duree && c.rep === null ? '<div class="chrono" id="chrono" role="timer" aria-label="Temps restant"><span class="chrono-n" id="chronoN">' + c.duree + '</span><span class="chrono-barre"><i id="chronoB"></i></span></div>' : '') +
         '<div class="opts">';
       c.ordre.forEach(function (idx, i) {
         var texte = idx === 0 ? q.bon : q.mauvaises[idx - 1];
@@ -705,8 +729,8 @@
       });
       h += '</div>';
       if (c.rep !== null) {
-        var bon = c.ordre[c.rep] === 0;
-        h += '<div class="resultat ' + (bon ? 'ok' : 'ko') + '" role="status">' + (bon ? 'Bravo ! +1 🌿' : 'Pas tout à fait…' + (c.retour != null ? ' Retour ' + libelleCase(c.retour) + '.' : '')) + '</div>' +
+        var bon = c.rep >= 0 && c.ordre[c.rep] === 0;
+        h += '<div class="resultat ' + (bon ? 'ok' : 'ko') + '" role="status">' + (bon ? 'Bravo ! +1 🌿' : (c.rep === -1 ? 'Temps écoulé ⏱' : 'Pas tout à fait…') + (c.retour != null ? ' Retour ' + libelleCase(c.retour) + '.' : '')) + '</div>' +
           '<div class="retenir"><b>À retenir.</b> ' + esc(q.retenir) + '</div>' +
           '<div class="pied">' + (actif ? '<button class="bt" type="button" data-act="continuer" id="cont">Continuer</button>' : '<span class="aide">En attente de ' + esc(j.nom) + '…</span>') + '</div>';
       }
@@ -728,6 +752,24 @@
     ouvrirModale(h);
     var cont = document.getElementById('cont');
     if (cont) cont.focus();
+    lancerChrono(c);
+  }
+  /* Compte à rebours affiché (chaque téléphone le compte de son côté ; c'est l'animateur qui tranche) */
+  function lancerChrono(c) {
+    clearInterval(timerChrono);
+    if (!c || c.kind !== 'q' || !c.duree || c.rep !== null) return;
+    if (chronoDebut.id !== c.id) chronoDebut = { id: c.id, t: Date.now() };
+    function tic() {
+      var n = document.getElementById('chronoN'), b = document.getElementById('chronoB'), z = document.getElementById('chrono');
+      if (!n) { clearInterval(timerChrono); return; }
+      var reste = Math.max(0, c.duree - (Date.now() - chronoDebut.t) / 1000);
+      n.textContent = Math.ceil(reste);
+      b.style.width = (100 * reste / c.duree) + '%';
+      z.classList.toggle('urgent', reste <= 10);
+      if (reste <= 0) clearInterval(timerChrono);
+    }
+    tic();
+    timerChrono = setInterval(tic, 200);
   }
   function ouvrirModale(html) {
     if (voile.hidden) focusAvant = document.activeElement;
@@ -806,7 +848,7 @@
       '<ol class="regles">' +
       '<li><b>But du jeu :</b> atteindre le grand eucalyptus 🌳 (case ' + FIN + ') en premier, en récoltant un maximum de feuilles 🌿.</li>' +
       '<li><b>À son tour</b>, le joueur lance le dé et avance de ce nombre de cases. En ligne, chacun voit le jeu en direct sur son téléphone.</li>' +
-      '<li><b>Cases thèmes</b> (🧠 développement, 🎨 pédagogie, 🧼 protocoles, 👨‍👩‍👧 familles) : une question à 3 réponses. Concertez-vous avant de répondre. Bonne réponse : +1 🌿 et une case de bonus. Mauvaise réponse : retour à la case de départ du tour.</li>' +
+      '<li><b>Cases thèmes</b> (🧠 développement, 🎨 pédagogie, 🧼 protocoles, 👨‍👩‍👧 familles) : une question à 3 réponses. Concertez-vous avant de répondre, sans dépasser le temps affiché (si le chronomètre est activé : temps écoulé = mauvaise réponse). Bonne réponse : +1 🌿 et une case de bonus. Mauvaise réponse : retour à la case de départ du tour.</li>' +
       '<li><b>Case Partage</b> 💬 : un sujet à discuter, sans bonne ou mauvaise réponse. Celui qui anime la discussion gagne 1 🌿.</li>' +
       '<li><b>Case Chance</b> 🍀 : une carte surprise, bonne ou moins bonne.</li>' +
       '<li><b>Après chaque question</b>, lisez le « à retenir » : c\'est là que se passe l\'apprentissage.</li>' +
