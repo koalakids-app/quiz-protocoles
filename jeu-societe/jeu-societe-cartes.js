@@ -313,6 +313,85 @@
   D('x', "Comment rendre le temps du repas agréable pour un enfant qui mange peu ou refuse de goûter ?",
     "Pistes : manger avec lui, présenter de petites quantités, nommer les aliments, le laisser se servir, éviter les récompenses et les pressions, patience (8 à 10 essais).");
 
+  /* ───────── 🧴 Hygiène et 🛡️ sécurité ───────── */
+  Q('pro', 'e', "Un bébé a sucé un jouet. Que fait-on ?",
+    "On le met de côté pour le laver et le désinfecter avant de le remettre en circulation", "On le remet aussitôt dans la caisse", "On l'essuie avec sa manche",
+    "Les jouets portés à la bouche passent d'un enfant à l'autre : un bac « à laver » évite la transmission des microbes.");
+  Q('pro', 'x', "Peut-on mélanger de l'eau de Javel avec un détartrant ou un autre produit ménager ?",
+    "Jamais : le mélange peut dégager un gaz toxique", "Oui, ça nettoie mieux", "Oui, dans une pièce fermée",
+    "On n'associe pas les produits, on suit le mode d'emploi et on aère. Les produits restent dans leur emballage d'origine.");
+  Q('pro', 'x', "Où range-t-on les produits d'entretien ?",
+    "Hors de portée des enfants, dans leur emballage d'origine, dans un placard fermé ou en hauteur", "Dans une bouteille d'eau vide pour gagner de la place", "Sous l'évier, la porte entrouverte",
+    "Une bouteille d'eau ou de jus attire l'enfant : un produit ménager avalé est une urgence (15 ou centre antipoison).");
+  Q('pro', 'x', "Après avoir mouché un enfant, l'adulte…",
+    "Jette le mouchoir à usage unique et se lave les mains", "Garde le mouchoir dans sa poche pour le réutiliser", "Essuie simplement ses doigts sur son vêtement",
+    "Un mouchoir à usage unique, une poubelle fermée et des mains lavées limitent la propagation des rhumes et des gastros.");
+  Q('pro', 'x', "Quel geste apprendre à un enfant qui tousse ou éternue ?",
+    "Tousser ou éternuer dans son coude", "Dans ses mains", "À l'air libre, sans rien faire",
+    "Le pli du coude évite de contaminer les mains, donc les objets et les autres enfants. Les adultes montrent l'exemple.");
+  Q('pro', 'e', "Plusieurs enfants ont une gastro-entérite dans la section. Quelles mesures ?",
+    "Renforcer le lavage des mains au savon, nettoyer et désinfecter les surfaces, isoler le linge souillé, prévenir la direction", "Ne rien changer, c'est banal", "Utiliser uniquement du gel hydroalcoolique",
+    "Le savon est plus efficace que le gel sur certains virus. On pense aussi à informer les familles des consignes à suivre.");
+  Q('pro', 'e', "Le matelas à langer est nettoyé…",
+    "Après chaque change, ou protégé par un papier à usage unique changé à chaque enfant", "Une fois par jour", "Une fois par semaine",
+    "Le plan à langer touche les fesses de chaque enfant : le nettoyage après chaque change est la règle.");
+  Q('pro', 'e', "Pour la literie et le linge, la règle est…",
+    "Une literie personnelle pour chaque enfant, changée dès qu'elle est souillée et régulièrement", "Un drap commun pour tous", "Un lavage uniquement en fin d'année",
+    "Un enfant malade peut contaminer les autres par la literie. Les doudous sont aussi personnels, et lavés selon le protocole.");
+  Q('par', 'p', "Où ranger les médicaments à la maison ?",
+    "En hauteur, dans un placard fermé, hors de portée des enfants", "Dans le sac à main posé par terre", "Dans la salle de bain, à portée de main",
+    "Les médicaments sont une cause fréquente d'intoxication des tout-petits. Même un sirop doux n'est pas anodin.");
+  Q('pro', 'e', "À quelle fréquence aérer les pièces où vivent les enfants ?",
+    "Chaque jour, au moins 10 minutes, même en hiver", "Seulement l'été", "Jamais, pour éviter de refroidir les enfants",
+    "L'air des pièces se charge en humidité, microbes et polluants. On aère pendant que les enfants sont dans une autre pièce.");
+
+  Q('par', 'p', "Que faire des prises électriques accessibles aux tout-petits ?",
+    "Les équiper d'obturateurs ou de prises sécurisées", "Les laisser telles quelles : l'enfant apprendra à ne pas y toucher", "Les cacher derrière un rideau",
+    "Un enfant explore avec les doigts : l'obturateur évite l'électrisation. Les rallonges et multiprises sont aussi rangées.");
+  Q('pro', 'x', "Une barrière d'escalier doit être…",
+    "Fixée en haut et en bas, et vérifiée régulièrement", "Posée de temps en temps quand on y pense", "Inutile dès que l'enfant sait marcher",
+    "Les chutes dans les escaliers sont fréquentes entre 1 et 3 ans. On vérifie aussi que l'enfant ne peut pas l'escalader.");
+  Q('par', 'p', "Fenêtres et balcons : que faire avec un jeune enfant ?",
+    "Ne laisser aucun meuble sous la fenêtre et sécuriser l'ouverture (entrebâilleur, verrou)", "Compter sur le fait qu'il a peur du vide", "L'envoyer jouer sur le balcon seul",
+    "Un enfant peut grimper en quelques secondes. Un meuble ou une chaise sous une fenêtre devient un escabeau.");
+  Q('par', 'p', "Les cordons de rideaux ou de stores sont…",
+    "Un risque de strangulation : ils doivent être hors de portée", "Sans danger s'ils sont courts", "Un jeu intéressant pour éveiller l'enfant",
+    "On attache ou on enlève les cordons, et on éloigne le lit des rideaux.");
+  Q('par', 'x', "Piscine gonflable, seau, baignoire : que faut-il retenir ?",
+    "Un enfant peut se noyer en quelques centimètres d'eau et en silence : surveillance constante à portée de bras", "Dès qu'il est en brassards, il ne risque rien", "On peut s'éloigner brièvement si l'eau est basse",
+    "La noyade est silencieuse. On vide les récipients après usage et on garde le regard sur l'enfant, sans téléphone.");
+  Q('pro', 'x', "Dans une chaise haute, l'enfant doit être…",
+    "Attaché avec le harnais complet et jamais laissé seul", "Assis sans harnais s'il se tient droit", "Laissé seul quelques minutes pour manger",
+    "Le harnais empêche les glissades sous le plateau et les chutes. L'adulte reste à proximité.");
+  Q('pro', 'e', "Une alarme incendie sonne dans la crèche. Quel est le bon réflexe ?",
+    "Évacuer les enfants selon le plan d'évacuation et faire l'appel avec la liste des présents", "Éteindre soi-même le feu avant de faire sortir les enfants", "Rassembler les enfants à l'intérieur, loin des fenêtres",
+    "La priorité est de mettre les enfants en sécurité. On prévient les secours (18 ou 112) et personne ne retourne à l'intérieur.");
+  Q('pro', 'x', "Un enfant avale une pile bouton. Que faire ?",
+    "Appeler le 15 tout de suite, sans le faire vomir ni manger", "Attendre qu'elle sorte naturellement", "Lui faire boire beaucoup d'eau",
+    "Une pile bouton peut brûler l'œsophage en quelques heures. Les aimants avalés sont aussi une urgence. On garde l'emballage ou la référence.");
+  Q('pro', 'e', "Un parent inconnu vient chercher un enfant. Vous…",
+    "Ne le lui remettez que s'il est autorisé par les parents et que son identité est vérifiée", "Le lui remettez s'il connaît le prénom de l'enfant", "Le lui remettez s'il apporte le doudou",
+    "On suit la liste des personnes autorisées. En cas de doute, on contacte les parents ou la direction avant toute remise.");
+  Q('pro', 'e', "Un enfant allergique fait une réaction grave (visage gonflé, difficulté à respirer). Que faire ?",
+    "Utiliser le stylo d'adrénaline prévu au PAI et appeler le 15", "Lui donner un antihistaminique et attendre", "Lui faire boire de l'eau et le laisser se reposer",
+    "Chaque seconde compte : on suit le protocole du PAI, on note l'heure de l'injection et on reste avec l'enfant jusqu'à l'arrivée des secours.");
+  Q('pro', 'x', "Un enfant saigne du nez. Que faire ?",
+    "Pencher sa tête en avant et pincer les narines pendant environ 10 minutes", "Pencher sa tête en arrière", "Introduire un coton profondément dans la narine",
+    "Tête en arrière, le sang coule dans la gorge. Si le saignement dure plus de 20 minutes ou suit un choc, on demande un avis médical.");
+  Q('pro', 'x', "Par forte chaleur, un enfant est rouge, somnolent et agité. Que faire ?",
+    "Le mettre au frais, le rafraîchir, le faire boire et appeler le 15", "Le couvrir pour qu'il transpire", "Le laisser dormir au soleil",
+    "Un coup de chaleur est une urgence. En période de canicule, on propose de l'eau régulièrement et on évite les sorties aux heures chaudes.");
+  Q('pro', 'e', "Après un accident ou un incident, que consigne-t-on ?",
+    "Les faits, l'heure, les gestes réalisés, et on prévient les parents et la direction", "Rien si l'enfant va bien", "Uniquement le nom de l'enfant",
+    "Une trace écrite précise protège l'enfant, la famille et l'équipe, et sert à améliorer la prévention.");
+  Q('pro', 'e', "Lors d'une sortie à l'extérieur, que fait-on avant de partir ?",
+    "Compter les enfants avec la liste (départ, pendant, retour) et emporter la trousse de secours et un téléphone", "Partir sans compter : on connaît les enfants", "Laisser les enfants marcher sans surveillance",
+    "On compte à chaque étape et on garde les enfants dans son champ de vision, avec le taux d'encadrement prévu.");
+  D('x', "À hauteur d'enfant (environ 80 cm du sol), quels dangers repérez-vous dans la pièce où vous êtes ?",
+    "Pistes : prises, câbles, angles de meubles, objets coupants, produits à portée, fenêtres, petits objets au sol. Qu'est-ce qui peut être réglé tout de suite ?");
+  D('e', "Racontez un « presque-accident » dont vous avez tiré une leçon. Qu'avez-vous changé ensuite ?",
+    "Pistes : on parle de faits et d'organisation, pas de fautes. L'objectif est d'améliorer la prévention ensemble.");
+
   window.KK_JEU_CARTES = CARTES;
 
   /* Cartes « Chance » */

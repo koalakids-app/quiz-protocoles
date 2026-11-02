@@ -17,3 +17,5 @@ Chronomètre de réponse : réglé à l’accueil (sans limite, 30 s, 1 min, 1 m
 Deux façons de jouer (réglées à l’accueil) : **en opposition** (la première équipe arrivée gagne, classement final avec case atteinte, feuilles et réponses justes) ou **en collaboration** (un seul pion pour tout le groupe, qui doit atteindre l’eucalyptus avant la fin de `TOURS_COOP` = 16 tours ; bilan avec la contribution de chacun·e). Le nombre de tours se règle dans `jeu-societe/jeu-societe.js`.
 
 Cartes **sommeil** et **alimentation** : rangées dans les thèmes existants (développement, pédagogie, protocoles, familles) et à la fin de `jeu-societe/jeu-societe-cartes.js`, avec deux sujets de discussion. Le jeu compte 99 cartes.
+
+Cartes **hygiène** et **sécurité** (23 questions et 2 sujets de discussion) à la fin de `jeu-societe/jeu-societe-cartes.js`, rangées surtout dans le thème Protocoles ; le jeu compte 125 cartes.
