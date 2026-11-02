@@ -159,3 +159,7 @@ button{font-family:inherit;cursor:pointer}
 .tour .qui small{font-size:14px;color:var(--muted);font-weight:700}
 .pied .aide{margin:0;align-self:center}
 .bt:disabled{filter:grayscale(.4)}
+
+.qr{display:inline-block;background:#fff;padding:12px;border:2px solid var(--line);border-radius:14px;margin-top:10px;line-height:0}
+.qr:empty{display:none}
+.qr img,.qr canvas{display:block;width:200px;height:200px;max-width:100%}

@@ -14,6 +14,7 @@
   var CARTES = window.KK_JEU_CARTES || [];
   var CHANCE = window.KK_JEU_CHANCE || [];
   var CFG = window.KK_JEU_SUPABASE || null;
+  var LIB_QR = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
   var LIB_SUPABASE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
   var MODE_TEST = /[?&]test=bc/.test(location.search);      // canal local entre onglets, pour les essais
   var EN_LIGNE_DISPO = !!CFG || MODE_TEST;
@@ -61,6 +62,7 @@
   var attente = null;                 // action attendue par l'arbitre : { types, res }
   var enBoucle = false;
   var config = { mode: 'local', public: 'equipe', nb: 3, noms: [], nom: '', code: '', erreur: '' };
+  var qrCache = { lien: null, node: null };
   var pistes = null, reglesOuvertes = false, derniereCarte = '', dernierToast = 0, timerDe = null, focusAvant = null;
 
   /* ───────── Outils ───────── */
@@ -567,7 +569,8 @@
     var lien = lienPartie();
     var h = '<section class="accueil"><div class="big" aria-hidden="true">🎉</div><h2>Salle d\'attente</h2>' +
       '<div class="bloc" style="text-align:center"><p>Code de la partie</p><div class="code-grand" aria-label="Code ' + esc(etat.code.split('').join(' ')) + '">' + esc(etat.code) + '</div>' +
-      '<p style="font-size:13px;color:var(--muted);margin-top:6px">Sur son téléphone, chaque joueur ouvre ce jeu, choisit « Je rejoins une partie » et saisit le code.</p>' +
+      '<div class="qr" id="qr" role="img" aria-label="QR code pour rejoindre la partie"></div>' +
+      '<p style="font-size:13px;color:var(--muted);margin-top:6px">Scannez le QR code avec l\'appareil photo du téléphone, ou ouvrez ce jeu, choisissez « Je rejoins une partie » et saisissez le code.</p>' +
       (hote ? '<div class="actions" style="margin-top:10px"><button class="bt bt-second" id="btnLien" type="button">🔗 Copier le lien</button>' +
         (navigator.share ? '<button class="bt bt-second" id="btnPartager" type="button">📤 Partager</button>' : '') + '</div>' : '') + '</div>' +
       '<div class="bloc"><h3>Joueur·ses (' + etat.joueurs.length + '/' + MAX_LIGNE + ')</h3><ul class="score">' +
@@ -582,12 +585,33 @@
     }
     h += '</section>';
     app.innerHTML = h;
+    dessinerQr(lien);
     on('btnGo', lancerPartieEnLigne);
     on('btnLien', function () {
       var m = essayer(function () { return navigator.clipboard.writeText(lien); });
       if (m && m.then) m.then(function () { toast('Lien copié'); }, function () { toast(lien); }); else toast(lien);
     });
     on('btnPartager', function () { essayer(function () { navigator.share({ title: 'Le Sentier du Koala', text: 'Rejoins la partie ' + etat.code, url: lien }); }); });
+  }
+  /* QR code du lien de la partie (qrcodejs, comme les autres QR de l'application) ; dessiné une fois, puis réutilisé */
+  function chargerQr() {
+    return new Promise(function (ok) {
+      if (window.QRCode) return ok(true);
+      var s = document.createElement('script');
+      s.src = LIB_QR; s.onload = function () { ok(!!window.QRCode); }; s.onerror = function () { ok(false); };
+      document.head.appendChild(s);
+    });
+  }
+  async function dessinerQr(lien) {
+    var zone = document.getElementById('qr');
+    if (!zone) return;
+    if (qrCache.lien === lien && qrCache.node) { zone.appendChild(qrCache.node); return; }
+    if (!(await chargerQr())) { zone.remove(); return; }       // sans bibliothèque : le code et le lien suffisent
+    var n = document.createElement('div');
+    new window.QRCode(n, { text: lien, width: 200, height: 200, colorDark: '#2B2740', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M });
+    qrCache = { lien: lien, node: n };
+    zone = document.getElementById('qr');
+    if (zone) { zone.innerHTML = ''; zone.appendChild(n); }
   }
   function lienPartie() {
     var u = new URL(location.href);
