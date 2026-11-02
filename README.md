@@ -19,3 +19,7 @@ Deux façons de jouer (réglées à l’accueil) : **en opposition** (la premiè
 Cartes **sommeil** et **alimentation** : rangées dans les thèmes existants (développement, pédagogie, protocoles, familles) et à la fin de `jeu-societe/jeu-societe-cartes.js`, avec deux sujets de discussion. Le jeu compte 99 cartes.
 
 Cartes **hygiène** et **sécurité** (23 questions et 2 sujets de discussion) à la fin de `jeu-societe/jeu-societe-cartes.js`, rangées surtout dans le thème Protocoles ; le jeu compte 125 cartes.
+
+Public visé : les enfants d’une micro-crèche, de **2 mois et demi à 3 ans (4 ans au maximum)** ; les cartes doivent rester pertinentes pour cette tranche d’âge (rappelé en tête de `jeu-societe-cartes.js`). Le jeu compte 130 cartes.
+
+Les cartes ont été rédigées pour **ne pas reprendre** les questions des quiz existants du dépôt (projet éducatif et pédagogique, « Protocoles & Sécurité », modules 1 et 2, « accompagner les pleurs ») : le jeu laisse de côté l’attachement, les pleurs, la colère et les limites, traités par les quiz, au profit de la vie quotidienne (repas, soins, sommeil), de l’hygiène, de la sécurité, des protocoles et de la relation avec les familles. À vérifier de la même façon avant d’ajouter une carte. Le contenu pédagogique suit le projet éducatif et pédagogique Koalakids (01/10/2025).
