@@ -5,6 +5,8 @@
  *   public : 'e' équipe · 'p' parents · 'x' les deux
  * D(public, sujet, pistes)  : carte « Partage » sans bonne réponse (échange en groupe)
  *
+ * Les cartes de pédagogie, de développement, de relation aux familles, de soins, de repas et de sommeil suivent le projet
+ * éducatif et pédagogique Koalakids (01/10/2025) : modèle de l'accompagnement, attachement, partenariat avec les parents.
  * Public visé : les enfants d'une micro-crèche, de 2 mois et demi à 3 ans (4 ans au maximum) : les questions
  * et les « à retenir » doivent rester pertinents pour cette tranche d'âge.
  * Repères généraux de bonnes pratiques de la petite enfance : à faire relire par la direction
@@ -30,9 +32,9 @@
   Q('dev', 'x', "Vers quel âge un enfant dit-il ses premiers mots ?",
     "Autour de 12 mois", "Vers 6 mois", "Vers 3 ans",
     "Avant les premiers mots, il babille (dès 6-8 mois) et comprend bien plus de mots qu'il n'en dit. Un rythme varie d'un enfant à l'autre.");
-  Q('dev', 'x', "Un enfant de 2 ans dit « non » à tout et se jette par terre. C'est…",
-    "Une étape normale : il affirme son autonomie et ses émotions le dépassent", "Un signe de mauvaise éducation", "Un problème de comportement qui demande une punition",
-    "Le cerveau des tout-petits ne sait pas encore réguler les émotions fortes. L'adulte rassure, nomme l'émotion et garde un cadre clair et stable.");
+  Q('dev', 'x', "Vers quel âge un enfant associe-t-il deux mots pour faire ses premières phrases ?",
+    "Vers 2 ans, avec de grandes différences d'un enfant à l'autre", "Dès 8 mois", "Seulement après 4 ans",
+    "Il comprend bien plus de mots qu'il n'en dit. On l'aide en lui parlant, en nommant ce qu'il vit et en reformulant ses essais, sans lui faire répéter.");
   Q('dev', 'x', "Quelle recommandation courante existe pour les écrans chez les tout-petits ?",
     "Pas d'écran avant 3 ans", "Dès 6 mois, en petites séquences", "Dès 1 an pour les dessins animés dits « éducatifs »",
     "Avant 3 ans, les écrans prennent la place des échanges, du jeu et du sommeil. Mieux vaut des livres, du jeu libre et du temps avec l'adulte.");
@@ -45,18 +47,18 @@
   Q('dev', 'p', "Mon bébé de 7 mois ne tient pas encore assis seul. Dois-je m'inquiéter ?",
     "Pas forcément : chaque enfant a son rythme, j'en parle au médecin au prochain rendez-vous", "Oui, il faut le caler assis tous les jours", "Oui, c'est forcément un retard grave",
     "La station assise sans appui arrive souvent entre 6 et 9 mois, parfois plus tard. En cas de doute, le médecin ou la PMI font le point.");
-  Q('dev', 'x', "Pourquoi un enfant de 18 mois mord-il parfois ?",
-    "Il n'a pas encore les mots pour dire frustration, excitation ou envie", "Il est agressif par nature", "Il veut faire mal volontairement",
-    "La morsure est fréquente entre 1 et 2 ans. On console d'abord l'enfant mordu, on dit calmement « on ne mord pas, ça fait mal », on propose un autre geste ou un mot.");
+  Q('dev', 'x', "À partir de quel âge les enfants commencent-ils à jouer à « faire semblant » ensemble ?",
+    "Autour de 2 ans, avec les premiers jeux d'imitation du réel", "Dès 6 mois", "Vers 5 ans",
+    "Avant, ils jouent à côté les uns des autres et s'imitent. Vers 2 ans apparaissent les jeux symboliques, puis vers 3 ans les jeux de règles.");
   Q('dev', 'x', "Combien d'heures dort environ un enfant de 2 ans sur 24 heures, sieste comprise ?",
     "11 à 14 heures", "8 à 9 heures", "16 à 18 heures",
     "Les besoins varient d'un enfant à l'autre : on observe les signes de fatigue plutôt que de forcer ou de supprimer la sieste.");
   Q('dev', 'x', "Le doudou ou la tétine d'un enfant, c'est…",
     "Un objet transitionnel qui le rassure quand ses parents sont absents", "Une mauvaise habitude à supprimer vite", "Un jouet comme un autre",
-    "On ne le retire pas de force et on le garde à portée de l'enfant. Il disparaît naturellement quand l'enfant n'en a plus besoin.");
+    "L'enfant doit pouvoir se coucher avec son objet transitionnel, et certains n'en ont pas besoin. Proposé systématiquement à tout chagrin, il devient fétiche et prend la place de l'adulte, qui reste la figure d'attachement : par ses bras, ses mots et son empathie, il aide l'enfant à reconnaître et à apaiser sa peine.");
   Q('dev', 'x', "Propreté : quand l'enfant est-il prêt ?",
     "Quand il en montre les signes (reste sec, curieux, dit « pipi »), souvent entre 2 et 3 ans", "Dès 12 mois, il suffit de l'asseoir sur le pot", "Seulement après 4 ans",
-    "La maîtrise des sphincters dépend de la maturation du système nerveux. Pas de pression ni de comparaison : on accompagne quand l'enfant est prêt.");
+    "La continence ne s'enseigne pas : l'enfant l'acquiert par lui-même, avec la maturation de son système nerveux. L'équipe l'accompagne, en partenariat avec les parents, en lui proposant régulièrement le pot ou les toilettes, sans pression ni comparaison.");
   Q('dev', 'x', "Vers quel âge un bébé commence-t-il à se retourner du dos sur le ventre ?",
     "Entre 4 et 6 mois", "À 1 mois", "Vers 10 mois",
     "Le retournement arrive en général entre 4 et 6 mois. Le bébé a besoin de temps au sol, libre de ses mouvements, pour y arriver.");
@@ -65,21 +67,21 @@
   Q('ped', 'e', "Le « panier des trésors » (Goldschmied) s'adresse à…",
     "Des bébés qui tiennent assis, environ 6-12 mois, avec des objets du quotidien", "Des enfants de 3 ans avec des jouets sonores", "Des bébés allongés avec des jouets en plastique colorés",
     "Brosse, anneaux, tissus, bois, métal : des objets de textures différentes à explorer librement, sans que l'adulte dirige le jeu.");
-  Q('ped', 'x', "Un enfant essaie de mettre ses chaussures seul. Que fait l'adulte ?",
-    "Il l'encourage et lui laisse le temps (« aide-moi à faire seul »)", "Il le fait à sa place pour gagner du temps", "Il le gronde parce qu'on est en retard",
-    "Faire avec, plutôt que faire à la place. Prévoir plus de temps le matin est le vrai secret.");
-  Q('ped', 'x', "Un enfant hurle de colère. Quelle première réaction l'aide le plus ?",
-    "Se mettre à sa hauteur, nommer l'émotion (« tu es en colère ») et l'accompagner", "Lui dire de se calmer ou il sera puni", "L'ignorer complètement jusqu'à ce que ça passe",
-    "Mettre des mots sur l'émotion aide l'enfant à la reconnaître, puis à la réguler. Le calme de l'adulte est contagieux.");
+  Q('ped', 'e', "Comment aménager l'espace pour que l'enfant puisse agir sans solliciter sans cesse l'adulte ?",
+    "Mobilier et matériel à sa hauteur, accessibles, sans danger", "Tout ranger en hauteur pour éviter les dégâts", "Servir l'enfant à chaque fois pour gagner du temps",
+    "Un environnement adapté lui permet de faire par lui-même. Les enfants ne sont pas des marionnettes que l'on manipule : on tient compte de leur envie de faire seul.");
+  Q('par', 'e', "Pourquoi installe-t-on des porte-manteaux et des sièges pour les parents dans la crèche ?",
+    "Pour qu'ils se sentent chez eux et puissent s'attarder, s'asseoir près de leur enfant et se mettre à l'aise", "Pour qu'ils déposent leurs affaires et repartent plus vite", "Pour limiter les allées et venues dans les espaces de jeu",
+    "L'ouverture de la crèche aux parents se pense aussi concrètement : confort, espace convivial, possibilité d'allaiter sur place et de participer à un temps de jeu ou à une sortie.");
   Q('ped', 'x', "La fessée et les violences éducatives ordinaires sont…",
     "Interdites par la loi depuis 2019", "Tolérées si elles sont rares", "Autorisées à la maison, interdites en crèche",
-    "La loi du 10 juillet 2019 interdit les violences éducatives ordinaires (fessée, gifle, humiliations…). Des alternatives existent : cadre, explications, coopération.");
-  Q('ped', 'e', "Pendant la période d'adaptation (familiarisation), il est recommandé de…",
-    "Progresser par étapes, avec un parent présent au début, sur plusieurs jours", "Confier l'enfant toute la journée dès le premier jour", "Demander au parent de ne pas rester pour que l'enfant s'habitue vite",
-    "Le parent est la base de sécurité : sa présence au début permet à l'enfant de créer des liens avec les professionnels sans rupture brutale.");
-  Q('ped', 'x', "Le matin, au moment de la séparation, le plus aidant est de…",
-    "Dire au revoir clairement, même si l'enfant pleure, puis partir", "Partir discrètement pendant qu'il joue", "Rester une heure pour être sûr qu'il aille bien",
-    "Partir en cachette brise la confiance. Un rituel court (câlin, mot doux, signe à la fenêtre) rassure et se retrouve chaque jour.");
+    "La loi du 10 juillet 2019 interdit les violences éducatives ordinaires (fessée, gifle, humiliations…). Pour notre projet, toute violence physique ou verbale et tout isolement d'un enfant sont des fautes professionnelles : on en parle en équipe et on demande de l'aide avant d'en arriver là.");
+  Q('ped', 'x', "Pour les premières venues d'un enfant, qui décide des modalités d'entrée à la crèche ?",
+    "Les parents « ont la main » : on construit avec eux, selon leurs souhaits et leurs contraintes", "L'équipe, avec un protocole d'adaptation identique pour toutes les familles", "La crèche, selon une durée standard de deux semaines",
+    "Chaque famille est unique : les modalités ne se standardisent pas. Si les parents demandent un avis, la seule indication que l'équipe partage est de préférer la régularité (mêmes lieux, mêmes personnes) à la progressivité. On parle d'habituation ou de familiarisation plutôt que d'adaptation : l'enfant n'a pas à s'adapter, c'est un nouvel enfant qui arrive.");
+  Q('par', 'e', "Pourquoi les enfants arrivent-ils de préférence à la crèche en ayant déjà pris leur premier repas ?",
+    "Pour que les professionnels soient pleinement disponibles à l'accueil des familles", "Parce que la crèche ne propose jamais de petit déjeuner", "Pour gagner du temps sur le planning",
+    "Si ce n'est pas possible, l'enfant peut le prendre à la crèche, selon la disponibilité des professionnels. L'accueil se fait à toute heure, sans guichet, selon le rythme de vie des parents.");
   Q('ped', 'x', "Que développe surtout le jeu libre ?",
     "Créativité, autonomie, langage et résolution de problèmes", "Rien, c'est du temps perdu", "Uniquement la motricité",
     "Quand l'enfant choisit son jeu, il expérimente, imagine et apprend à surmonter les difficultés. L'adulte est présent, il observe et sécurise.");
@@ -95,26 +97,26 @@
   Q('ped', 'p', "Parler sa langue d'origine à la maison avec son enfant, c'est…",
     "Une richesse : l'enfant entend un langage riche et apprendra plus facilement d'autres langues", "À éviter pour ne pas retarder le français", "Réservé aux vacances",
     "On parle à l'enfant dans la langue où l'on est le plus à l'aise. Le français s'apprend aussi à la crèche et à l'école.");
-  Q('ped', 'e', "Les transmissions du soir aux parents doivent surtout…",
-    "Raconter la journée de façon factuelle et positive, y compris les difficultés, sans jugement", "Lister les bêtises de la journée", "Se limiter à « tout s'est bien passé »",
-    "Un repas, une sieste, un jeu, un moment de joie : des informations concrètes aident les parents à retrouver leur enfant.");
-  Q('ped', 'x', "Un enfant refuse de prêter son jouet. L'adulte…",
-    "Reconnaît son besoin et propose d'attendre son tour ou un autre jeu", "Oblige à prêter tout de suite", "Retire le jouet à tout le monde",
-    "Avant 3 ans, le partage n'est pas acquis : l'enfant construit d'abord la notion de « à moi ». On l'aide à patienter, sans forcer.");
-  Q('ped', 'x', "Un enfant de 2 ans ne veut pas ranger. Le mieux est de…",
-    "Rendre le rangement concret et ludique, et ranger avec lui", "Lui demander de ranger seul tous les jouets", "Le punir s'il ne range pas",
-    "Une consigne simple (« les voitures dans la caisse ») et un adulte qui participe font toute la différence.");
-  Q('ped', 'e', "Un espace bien aménagé pour des tout-petits comprend…",
-    "Un espace sûr, des jouets accessibles à hauteur d'enfant, des coins calmes et des zones de mouvement", "Tous les jouets rangés en hauteur", "Un seul grand espace sans zones",
-    "Des repères clairs et du matériel accessible favorisent l'autonomie : l'enfant choisit, sort et range.");
+  Q('par', 'e', "À quoi servent les tableaux d'informations journalières (repas, sommeil, soins) placés près des lieux de soin ?",
+    "À permettre aux parents qui le souhaitent de trouver l'information sans attendre un professionnel, sans remplacer les échanges", "À remplacer les échanges avec les parents", "À contrôler le travail des professionnels",
+    "Tous les parents n'ont pas besoin d'informations systématiques. Les tableaux servent aussi de repère aux professionnels, et les parents peuvent y inscrire eux-mêmes des informations (heure du biberon, du réveil).");
+  Q('ped', 'e', "Pourquoi privilégie-t-on les enfants pieds nus (sans chaussettes ni collants) dans la crèche ?",
+    "Pour limiter les glissades, favoriser de bons appuis et stimuler les capteurs sensori-moteurs des pieds", "Pour qu'ils aient moins chaud en hiver", "Pour faciliter le ménage",
+    "Les chaussons ou chaussettes tiennent mal les chevilles et ne favorisent pas la voûte plantaire. Tous les enfants circulent librement dans toute la crèche toute la journée.");
+  Q('ped', 'e', "Qui range les jouets à la crèche ?",
+    "Les professionnels : on ne demande pas de « travail » à un jeune enfant", "Les enfants, pour apprendre la discipline dès 2 ans", "Chaque enfant range tout avant de passer au jeu suivant",
+    "Les professionnels ramassent régulièrement les objets éparpillés et rangent hors de la vue des enfants ce qui n'est pas utilisé : voir, c'est vouloir, donc source de frustration. Aucune commande de type travail et aucun résultat ne sont attendus d'un jeune enfant.");
+  Q('ped', 'e', "Dans une proposition de jeu, qu'est-ce qui aide les enfants à se concentrer ?",
+    "Peu d'objets mais riches de possibilités, en plusieurs exemplaires, que l'on peut déplacer", "Tous les jouets de la crèche étalés pour qu'ils puissent choisir", "Un seul jouet très attractif pour toute la section",
+    "Un jeune enfant ne sait pas encore inhiber ce qu'il voit : trop d'objets éparpillés l'empêchent de jouer. On réorganise et on enrichit régulièrement la proposition pour garder l'intérêt, en équilibrant régularité et nouveauté.");
 
   /* ───────── 🧼 Protocoles ───────── */
   Q('pro', 'x', "Un nourrisson doit être couché pour dormir…",
     "Sur le dos, sur un matelas ferme, sans oreiller ni couette", "Sur le ventre, c'est plus sécurisant", "Sur le côté, calé par des coussins",
     "Sur le dos, dans une gigoteuse, sans tour de lit ni peluche : ces règles réduisent le risque de mort inattendue du nourrisson.");
   Q('pro', 'x', "Quelle est la température idéale d'une chambre de bébé ?",
-    "Environ 18-20 °C", "24-26 °C, bien chauffée", "15 °C pour l'endurcir",
-    "Un bébé trop couvert ou dans une pièce trop chaude est exposé aux risques. On l'habille légèrement et on aère la chambre.");
+    "20 °C au maximum (environ 18-20 °C)", "24-26 °C, bien chauffée", "15 °C pour l'endurcir",
+    "Notre projet demande de vérifier que la chambre n'excède pas 20 °C. Un bébé trop couvert ou dans une pièce trop chaude est exposé aux risques : on l'habille légèrement et on aère.");
   Q('pro', 'x', "Un enfant a de la fièvre. Premier réflexe ?",
     "Le découvrir un peu, le faire boire et surveiller sa tolérance", "Le couvrir pour le faire transpirer", "Le plonger dans un bain froid",
     "On regarde surtout l'état général. Avant 3 mois, une température de 38 °C ou plus impose un avis médical sans attendre. Tout médicament suit l'ordonnance ou le protocole médical.");
@@ -151,9 +153,9 @@
   Q('pro', 'e', "Suspicion de maltraitance sur un enfant : que faire ?",
     "Noter les faits objectifs, alerter la direction et transmettre une information préoccupante ; le 119 peut conseiller", "Interroger longuement l'enfant", "Attendre d'avoir une preuve avant d'en parler",
     "On ne mène pas d'enquête et on n'attend pas la certitude. Les faits sont notés tels qu'ils sont constatés, sans interprétation, et partagés avec la direction.");
-  Q('pro', 'x', "Les pleurs d'un bébé sont inconsolables et l'adulte est à bout. Que faire ?",
-    "Poser le bébé en sécurité sur le dos, sortir quelques minutes, respirer et appeler un relais", "Le secouer doucement pour le calmer", "Le laisser pleurer sans jamais revenir",
-    "Secouer un bébé peut provoquer des lésions cérébrales graves et irréversibles. Demander de l'aide n'est pas un échec, c'est protéger l'enfant.");
+  Q('pro', 'x', "Quel numéro gratuit permet de signaler ou de demander conseil pour un enfant en danger ?",
+    "Le 119 (Allô enfance en danger)", "Le 114", "Le 3919",
+    "Le 119 est joignable à toute heure. En cas de doute ou d'inquiétude pour un enfant, on peut appeler pour être conseillé, en plus d'alerter la direction.");
   Q('pro', 'x', "Un enfant a des poux. Faut-il l'écarter de la crèche ?",
     "Pas d'éviction obligatoire, mais un traitement dès que possible", "Oui, 15 jours", "Oui, il faut lui raser la tête",
     "On prévient l'équipe et on traite sans attendre : lotion adaptée, vérification des proches, lavage des bonnets et du linge.");
@@ -214,20 +216,20 @@
     "Respectez le choix indiqué dans l'autorisation de droit à l'image", "Prenez la photo en cachant le visage plus tard", "La prenez quand même pour le projet de la crèche",
     "Sans autorisation, pas de photo ni de publication. Les images d'enfants relèvent de la protection des données.");
   Q('par', 'e', "Un parent est régulièrement en retard le soir. Que faire ?",
-    "En parler tôt, sans jugement, rappeler le cadre et chercher une solution ensemble", "Attendre qu'il s'excuse", "Le critiquer devant les autres parents",
-    "Un retard répété pèse sur l'équipe et sur l'enfant. Une discussion calme évite que la situation s'installe.");
-  Q('par', 'x', "Un parent est en colère à son arrivée. Quelle attitude aide à apaiser la situation ?",
-    "Écouter jusqu'au bout, reformuler, proposer un temps pour en reparler au calme", "Se justifier tout de suite point par point", "Répondre sur le même ton",
-    "Reformuler (« si je comprends bien… ») montre qu'on a entendu. On règle le fond à tête reposée, hors de la vue des enfants.");
+    "En parler sans jugement, comprendre ses contraintes et chercher ensemble les ajustements nécessaires", "Attendre qu'il s'excuse", "Le critiquer devant les autres parents",
+    "Dans un partenariat éducatif, on cherche à comprendre ce que vit le parent et à trouver ensemble des ajustements, sans le juger.");
+  Q('par', 'x', "Un parent a une question administrative (contrat, facture). À qui s'adresse-t-il ?",
+    "À l'interlocuteur dédié du siège, plutôt qu'à l'équipe qui accompagne les enfants", "À n'importe quel professionnel de la section, en pleine journée", "À l'enfant lui-même",
+    "Les questions de santé relèvent de la référente santé et accueil inclusif, les conditions d'accueil de la responsable de la crèche, l'administratif du siège : chacun a son interlocuteur.");
 
   /* ───────── 💬 Partage ───────── */
-  D('x', "Un parent dit au revoir en dix secondes et file pendant que l'enfant pleure. Comment l'aider, sans le juger ?",
-    "Pistes : proposer un rituel court et identique chaque jour ; rassurer sur le fait que les pleurs passent vite ; donner une nouvelle dans la journée ; valoriser le parent.");
-  D('x', "Quel rituel de retrouvailles le soir facilite le passage de la crèche à la maison ?",
-    "Pistes : un câlin avant de partir, laisser l'enfant raconter ou montrer sa journée, éviter de commencer par les courses, garder le doudou.");
+  D('x', "Comment accueillir un parent qui découvre la crèche pour la première fois ?",
+    "Pistes : lui dire bonjour et lui souhaiter la bienvenue, un coin « petit salon » sans barrière, lui laisser la parole, présenter les grandes lignes du projet éducatif sans le noyer d'informations, l'inviter à visiter à son rythme.");
+  D('e', "Qu'est-ce qui rend l'espace de sieste vraiment accueillant pour un jeune enfant ?",
+    "Pistes : son lit à lui, ses draps et son odeur, un lit placé pour voir entrer les personnes, la température (20 °C au maximum), son doudou, un rituel de coucher toujours identique, un adulte patient et confiant.");
   D('e', "Un enfant mord régulièrement. Qui prévenir, que dire aux parents des deux enfants et quelles actions mettre en place ?",
     "Pistes : noter quand et où ça arrive, repérer les déclencheurs, protéger les autres, parler aux deux familles avec les mêmes mots, proposer un geste ou un mot à l'enfant, valoriser les réussites.");
-  D('p', "Quelle est votre plus grande difficulté du moment avec votre enfant (repas, sommeil, colères…) ? Partagez une astuce qui marche chez vous.",
+  D('p', "Quelle est votre plus grande difficulté du moment avec votre enfant (repas, sommeil, écrans…) ? Partagez une astuce qui marche chez vous.",
     "Pistes : on échange sans juger. L'important n'est pas la solution parfaite mais ce qui convient à votre enfant et à votre famille.");
   D('x', "Citez trois gestes du quotidien qui montrent à un enfant qu'on le respecte.",
     "Pistes : annoncer ce qu'on va faire avant de le toucher, se mettre à sa hauteur, lui laisser le temps de répondre, le laisser choisir, s'excuser quand on se trompe.");
@@ -235,16 +237,16 @@
     "Pistes : rester calme, ne pas se justifier sur place, proposer un échange en privé, prévenir la direction, soutenir l'équipe sans minimiser le ressenti du parent.");
   D('x', "Quel jeu simple et gratuit pourriez-vous proposer à un enfant de 18 mois avec ce que vous avez sous la main ?",
     "Pistes : boîtes à remplir et vider, tissus à cacher, ballon en chaussettes, instruments en casseroles, comptines avec les doigts.");
-  D('x', "Racontez un moment où vous avez dû lâcher prise face à une colère. Qu'est-ce qui vous a aidé ?",
-    "Pistes : respirer, sortir du conflit un instant, demander du soutien, se rappeler que l'enfant n'est pas contre vous mais dépassé.");
+  D('x', "Quels objets du quotidien ou de récupération, sans danger, proposeriez-vous à un bébé qui explore ?",
+    "Pistes : des contenants variés (possibles et impossibles), des tissus, des objets en bois, en métal ou en carton, plusieurs exemplaires identiques. Ce ne sont pas des jouets mais des jeux par excellence : plus neutres, ils offrent plus de possibilités de manipulation.");
   D('e', "Une famille parle peu français. Comment s'assurer qu'elle a compris un protocole (médicament, urgence, allergie) ?",
     "Pistes : phrases courtes, pictogrammes, interprète ou proche présent, demander de reformuler, remettre un document traduit si possible.");
   D('p', "Comment préparez-vous votre enfant à un changement (crèche, école, naissance, déménagement) ?",
     "Pistes : en parler avec des mots simples, lire des livres sur le sujet, visiter, garder des repères, prévoir du temps de qualité.");
   D('e', "Un enfant refuse la sieste. Quelles alternatives respectueuses de son rythme proposez-vous ?",
-    "Pistes : un coin calme avec livres, accompagner l'endormissement, proposer un temps de repos sans obligation de dormir, échanger avec la famille sur les besoins.");
-  D('x', "Dire « tu as bien essayé » plutôt que « tu es le meilleur » : qu'est-ce que cela change pour l'enfant ?",
-    "Pistes : on valorise l'effort et pas la comparaison, l'enfant ose recommencer et accepte l'échec comme une étape de l'apprentissage.");
+    "Pistes : ne pas maintenir au lit un enfant qui n'a pas sommeil, le laisser jouer puis lui reproposer plus tard, observer ses signes de fatigue, garder les mêmes horaires et rituels, échanger avec la famille, lui laisser choisir son objet de sécurisation.");
+  D('x', "Au lieu de dire « bravo », comment montrer à un enfant qu'on s'intéresse à son jeu ?",
+    "Pistes : décrire ce qu'il fait avec des mots, s'émerveiller de ses idées, jouer au même jeu quand il nous y invite, respecter ses essais et ses erreurs. Le « bravo » installe l'enfant dans le système échec/réussite ; l'intérêt de l'adulte construit sa confiance en lui.");
 
   /* ───────── 😴 Sommeil et 🍽️ alimentation (rangés dans les thèmes existants) ───────── */
   Q('pro', 'x', "Que met-on dans le lit d'un bébé de 3 mois pour la nuit ?",
@@ -256,9 +258,9 @@
   Q('dev', 'x', "Un bébé de 8 mois se réveille plusieurs fois par nuit. C'est…",
     "Fréquent : son sommeil se construit par cycles courts et la séparation peut l'inquiéter", "Le signe qu'il a faim à chaque réveil", "La preuve qu'on le câline trop",
     "Un rituel du coucher rassurant, des repères réguliers et une présence calme aident l'enfant à se rendormir.");
-  Q('dev', 'x', "Un enfant de 3 ans ne s'endort plus à la sieste. Que propose-t-on ?",
-    "Un temps calme allongé (livres, musique douce), sans l'obliger à dormir", "On l'oblige à rester les yeux fermés", "On le laisse jouer bruyamment pendant que les autres dorment",
-    "Beaucoup d'enfants gardent encore une sieste jusqu'à 3-4 ans, mais certains n'en ont plus besoin. Un temps de repos respecte les besoins de chacun.");
+  Q('dev', 'x', "Un enfant de 3 ans ne s'endort pas à la sieste. Que fait-on ?",
+    "On ne le maintient pas au lit : il retourne jouer, et on l'accompagne à nouveau au sommeil plus tard, s'il montre des signes de fatigue", "On l'oblige à rester allongé les yeux fermés", "On le laisse pleurer dans sa chambre jusqu'à ce qu'il dorme",
+    "Un enfant qui n'a pas sommeil a besoin de bouger et de jouer. Un adulte patient, constant et qui lui fait confiance le rassure plus que tout.");
   Q('dev', 'x', "Quels signes montrent qu'un tout-petit est fatigué ?",
     "Bâillements, yeux frottés, agitation ou irritabilité, regard dans le vide", "Il demande toujours lui-même à aller se coucher", "Il rit beaucoup et court partout : il est en pleine forme",
     "Un enfant trop fatigué peut devenir très excité. On le couche dès les premiers signes, sans attendre qu'il craque.");
@@ -268,15 +270,15 @@
   Q('par', 'p', "Faire dormir un nourrisson dans le lit des parents, c'est…",
     "Déconseillé : il dort plus sûrement dans son propre lit, près des parents", "Recommandé pour qu'il dorme mieux", "Sans risque si l'on fait attention",
     "Le couchage partagé augmente le risque de mort inattendue du nourrisson (couette, oreillers, fatigue des parents). Un lit à côté du vôtre permet de rester proche.");
-  Q('pro', 'e', "Pendant la sieste en crèche, la surveillance consiste à…",
-    "Garder un adulte à proximité et contrôler régulièrement, à vue et à l'écoute, selon le protocole de l'établissement", "Passer toutes les deux heures", "Se fier au babyphone sans entrer dans la pièce",
-    "On note l'heure du coucher et du réveil pour les transmissions. Les bébés demandent une attention particulière.");
-  Q('pro', 'x', "Un enfant dort encore à l'heure du goûter. Que faire ?",
-    "Respecter son sommeil autant que possible, et le réveiller en douceur (voix, lumière, caresse) si c'est nécessaire", "Le réveiller brusquement pour qu'il s'habitue aux horaires", "Le laisser dormir jusqu'au soir quoi qu'il arrive",
-    "On adapte les horaires aux besoins de l'enfant. Une sieste trop tardive peut retarder l'endormissement du soir, d'où l'intérêt d'en parler avec la famille.");
-  Q('ped', 'e', "Pour un bon temps de sieste en collectivité, on propose…",
-    "Un coin calme et tamisé, un rituel d'endormissement et le doudou à portée", "Une salle lumineuse avec de la musique forte", "Un coucher en même temps pour tous, quelle que soit la fatigue",
-    "Chaque enfant a son rythme : on accueille les petits dormeurs d'abord et on garde un environnement apaisant.");
+  Q('pro', 'e', "À quel rythme surveille-t-on la sieste dans notre projet pédagogique ?",
+    "Toutes les 15 minutes, avec un protocole de surveillance de sieste journalier", "Toutes les heures", "Seulement quand un enfant pleure",
+    "On vérifie aussi que la chambre ne dépasse pas 20 °C, que les lits sont éloignés des sources de chaleur et que l'enfant ne peut rien attraper de dangereux depuis son lit (fils de rideaux, objets sur les étagères).");
+  Q('pro', 'x', "Des parents demandent de réveiller leur enfant plus tôt de sa sieste pour qu'il s'endorme mieux le soir. Que fait l'équipe ?",
+    "Elle accepte, observe le rythme de l'enfant, en parle avec les parents et réveille toujours en douceur, entre deux cycles de sommeil", "Elle refuse : le sommeil d'un enfant ne se touche jamais", "Elle réveille brusquement tous les enfants à heure fixe",
+    "Le sommeil de nuit est privilégié : une sieste trop tardive peut rendre le coucher du soir difficile. Si l'enfant doit se lever tôt, il doit pouvoir se coucher tôt.");
+  Q('ped', 'e', "Pour l'endormissement en collectivité, on propose…",
+    "Un accompagnement individuel dès les signes de fatigue, avec un lit à lui, son doudou et un rituel identique", "Un coucher collectif à heure fixe pour que tout le monde dorme", "Une salle lumineuse avec de la musique",
+    "Chaque enfant a ses propres signes de fatigue. Dès qu'ils se déplacent, les enfants dorment en lits bas et peuvent se coucher et se lever seuls. On respecte leurs positions et leurs rituels d'endormissement.");
   Q('pro', 'x', "À quel âge peut-on commencer la diversification alimentaire ?",
     "Entre 4 et 6 mois (pas avant 4 mois révolus)", "Dès 2 mois", "Après 1 an",
     "Avant 4 mois, le système digestif n'est pas prêt. On introduit les aliments un par un, par petites quantités, sans forcer.");
@@ -410,6 +412,97 @@
   Q('pro', 'x', "Un enfant de 2 ans s'étouffe et ne peut plus tousser ni respirer. Quel geste ?",
     "5 claques dans le dos puis 5 compressions de l'abdomen (manœuvre de Heimlich), en alternance, et appeler le 15", "Le faire boire pour faire passer", "Lui passer les doigts au fond de la gorge",
     "Après 1 an, on alterne claques dans le dos et compressions abdominales. Pour un bébé de moins d'un an, ce sont les compressions du thorax.");
+
+  /* ───────── Projet éducatif et pédagogique Koalakids (01/10/2025) ───────── */
+  Q('dev', 'x', "Comment un enfant de moins de 3 ans apprend-il le mieux ?",
+    "En jouant, en observant, en imitant et en répétant ses actions, dans un environnement sûr", "En suivant des leçons et les consignes de l'adulte", "En faisant des activités avec un résultat attendu",
+    "Il apprend de façon implicite, par ses propres expériences : jouer et apprendre sont des synonymes pour lui. Il a besoin d'un équilibre entre régularité et nouveauté, et que l'on accepte ses « erreurs ».");
+  Q('ped', 'e', "Parmi ces propositions, laquelle évite-t-on pour des enfants de moins de 3 ans ?",
+    "Une activité avec un résultat attendu (« on fait un joli dessin pour maman »)", "Un jeu de manipulation avec des contenants variés", "Des objets de récupération sans danger",
+    "Les activités de type scolaire et les productions ne correspondent pas à l'âge des enfants. L'enfant reste l'auteur de son jeu : les limites servent de cadre, et à l'intérieur il crée son jeu.");
+  Q('ped', 'e', "Pour favoriser les échanges entre jeunes enfants, on propose…",
+    "Plusieurs objets identiques en nombre suffisant, pour qu'ils puissent s'imiter", "Des objets tous différents, pour qu'ils apprennent à se les échanger", "Un seul objet très attractif, pour apprendre à attendre",
+    "L'imitation simultanée est une forme de communication entre enfants de cet âge : la notion d'échange est encore trop abstraite. Cela évite aussi bien des conflits.");
+  Q('ped', 'e', "Deux enfants de 2 ans se disputent un objet. Que fait l'adulte ?",
+    "Il reste présent sans intervenir tout de suite, sauf danger ou blocage ; s'il intervient, il accompagne les deux enfants", "Il sépare aussitôt les enfants et punit celui qui a pris l'objet", "Il donne l'objet à celui qui l'avait en premier, sans un mot",
+    "Les deux enfants sont en situation d'apprentissage. On leur laisse l'occasion de s'accorder et de trouver ensemble une solution.");
+  Q('ped', 'x', "Doit-on exiger d'un enfant de 2 ans qu'il dise « merci » ou « pardon » ?",
+    "Non : on les utilise nous-mêmes avec lui et entre adultes, et il imite peu à peu", "Oui, c'est la base de la politesse", "Oui, sinon il n'aura pas son goûter",
+    "L'enfant apprend surtout par imprégnation et imitation. Lui demander de s'excuser ou de réfléchir à ses actes ne correspond pas à son développement.");
+  Q('ped', 'e', "Combien de propositions de jeu sont ouvertes dès que possible le matin ?",
+    "Au moins deux, pour ne pas concentrer tous les enfants au même endroit", "Une seule, plus facile à surveiller", "Autant que d'enfants",
+    "Les enfants jouent là où se trouvent l'adulte et les objets. Deux propositions leur permettent de choisir et d'exercer leur autonomie.");
+  Q('ped', 'e', "Pourquoi évite-t-on de regrouper tous les enfants pour le lavage des mains ou pour des « temps forts » ?",
+    "Parce que les jeunes enfants ne fonctionnent pas encore en groupe : ces regroupements sont frustrants et stressants", "Parce que cela prend trop de place", "Parce que les enfants n'aiment pas se laver les mains",
+    "Les soins, le repas et le sommeil se font individuellement, au rythme de chacun, avec une organisation « en orchestre » où chaque professionnel joue sa partition.");
+  Q('ped', 'e', "Un enfant veut faire seul quelque chose qu'on pense trop difficile pour lui. Que propose-t-on ?",
+    "Trouver l'astuce qui lui laisse une participation dans l'action", "Faire à sa place pour aller plus vite", "Lui interdire d'essayer",
+    "Chaque enfant est à son maximum de développement : pas de comparaison, pas de brusquerie pour aller plus vite, pas de refus pour le ralentir.");
+  Q('ped', 'e', "Quand change-t-on la couche d'un enfant ?",
+    "Quand il en a réellement besoin ou qu'il le demande, de façon individuelle", "À heures fixes pour tous les enfants", "Quand le groupe passe en salle de bain",
+    "Le change n'est ni systématique ni groupal : c'est un moment de relation individuelle. Si l'enfant est en plein jeu, on se demande si cela peut attendre.");
+  Q('ped', 'e', "Un enfant refuse le change. Quels choix peut-on lui proposer ?",
+    "Finir son jeu avant, choisir la personne, être changé debout ou allongé", "Aucun : le change est obligatoire et immédiat", "Choisir s'il veut être changé ou non",
+    "Les choix portent sur la façon dont se déroule le soin. Un enfant qui marche peut être changé debout : c'est plus rapide et il est plus acteur.");
+  Q('ped', 'e', "Quelle formule respecte le mieux l'enfant pendant un change ?",
+    "« Je vais changer ta couche »", "« Je vais changer tes fesses »", "« Tu es tout sale, je te change »",
+    "Nos mots reflètent la façon dont l'enfant et le soin sont considérés : c'est la couche qui est changée, et le langage doit permettre d'envisager le soin, pas juger un état de non-propreté.");
+  Q('ped', 'e', "Avant de commencer un soin, l'adulte…",
+    "Annonce à l'enfant ce qui va se passer et lui laisse la possibilité d'accepter", "Le prend et le change rapidement sans rien dire", "Le déshabille entièrement pour gagner du temps",
+    "Pas de déshabillage inutile, une main toujours sur l'enfant, une température agréable, des gestes doux (le rouler sur le côté, sans le soulever par les pieds) : le soin est un moment de relation individuelle.");
+  Q('ped', 'e', "Au repas, sur quoi l'enfant peut-il choisir ?",
+    "Sur la façon de manger : coupé ou non, avec ou sans aide, cuillère ou fourchette, se servir seul", "Sur ce qu'il veut manger : il décide du menu", "Sur l'heure à laquelle toute la section déjeune",
+    "Choisir ce qui est servi est la prérogative de l'adulte. Le choix porte sur la manière de manger, et l'autonomie consiste à choisir entre faire seul ou être aidé.");
+  Q('ped', 'x', "Un enfant recrache un aliment qu'il n'aime pas. Que fait l'adulte ?",
+    "Il l'accepte, ne force pas à goûter et représente régulièrement l'aliment", "Il lui fait finir son assiette", "Il le garde à table jusqu'à ce qu'il avale",
+    "On entend le « non » du premier coup, sans chantage. Les enfants se méfient parfois d'aliments inconnus : on les leur présente régulièrement pour les familiariser.");
+  Q('ped', 'e', "Comment s'assure-t-on que les jeunes enfants boivent entre les repas ?",
+    "De l'eau est en libre accès (broc et verres, « bar à eau ») et on en propose à ceux qui ne demandent pas", "On ne donne de l'eau qu'au moment des repas", "On attend qu'ils réclament à boire",
+    "Les jeunes enfants expriment peu leur soif : en dehors des repas, elle doit être prise en considération.");
+  Q('pro', 'x', "Un bébé de 3 mois montre des signes de faim. Que fait-on ?",
+    "On prépare son biberon tout de suite : avant 4 mois, pas de réserve, il ne peut pas attendre", "On attend l'heure prévue du biberon", "On lui donne un biberon préparé à l'avance",
+    "On repère les signes de faim et on propose à manger avant qu'il ne réclame à cor et à cris. La préparation respecte les règles d'hygiène et de conservation.");
+  Q('ped', 'e', "Pour donner la cuillère à un enfant, l'adulte…",
+    "Se place à sa hauteur, face à lui, suit son rythme et reste en relation du début à la fin du repas", "Reste debout et enchaîne les cuillères pour gagner du temps", "Se relève pour préparer la suite pendant le repas",
+    "Le nourrissage est une relation : l'enfant vit mal que l'adulte la rompe pour des raisons matérielles. On prévoit tout à portée de main et on propose dès que possible une double cuillère.");
+  Q('pro', 'x', "Vers quel âge propose-t-on des aliments en texture granuleuse (écrasés) ?",
+    "Vers 8 mois, après des purées lisses au début", "Dès le début de la diversification", "Seulement après 2 ans",
+    "Diversification entre 4 et 6 mois, textures lisses puis granuleuses vers 8 mois, morceaux vers un an. L'enfant mange sans texture adaptée entre 2 et 3 ans.");
+  Q('ped', 'e', "À table, on accepte que les enfants…",
+    "Se salissent, manipulent les aliments, bougent et mangent à leur rythme", "Ne touchent pas la nourriture avec leurs mains", "Restent assis jusqu'à avoir fini leur assiette",
+    "Il est normal que l'enfant se salisse : c'est à l'adulte de prévoir des facilités de nettoyage. Les enfants apprennent à manger en touchant et en imitant.");
+  Q('pro', 'e', "Un enfant qui marche dort en lit bas. Porte-t-il une gigoteuse ?",
+    "Non : il risquerait de tomber en voulant se lever ; on le couvre d'un drap ou d'une couverture selon la saison", "Oui, toujours, comme les bébés", "Oui, pour qu'il ne se lève pas",
+    "Les bébés qui ne se déplacent pas dorment sur le dos, sans oreiller ni couette ni couverture. Les enfants qui marchent sortent seuls de leur lit bas : cela favorise leur autonomie.");
+  Q('ped', 'e', "Quand couche-t-on un enfant ?",
+    "Dès qu'il montre des signes de fatigue, encore éveillé, pour qu'il fasse le lien entre fatigue et sommeil", "À heure fixe pour tous", "Quand il s'est endormi dans nos bras",
+    "Bâillements, yeux frottés, doudou réclamé, excitation, pâleur : chaque enfant a ses signes. L'enfant apprend à dormir par la répétition et les rituels de coucher et de lever.");
+  Q('ped', 'e', "Si possible, comment place-t-on le lit d'un jeune enfant ?",
+    "De façon qu'il voie entrer les personnes, pour que les visages n'apparaissent pas d'un coup au-dessus de sa tête", "Face au mur pour qu'il ne soit pas distrait", "Au centre de la pièce",
+    "Son lit lui est propre : s'il est partagé avec un autre enfant, ses draps sont conservés pour son retour afin qu'il retrouve son odeur. L'enfant a besoin d'un nid sensoriel qui le sécurise.");
+  Q('par', 'e', "Un parent demande comment faire arrêter la tétine. Quelle posture adopter ?",
+    "Se positionner comme personne ressource : informer et accompagner son propre choix, sans donner de consigne", "Lui donner la bonne méthode : c'est vous la spécialiste", "Lui dire de faire comme à la crèche",
+    "Nous ne sommes pas là pour donner des conseils mais pour accompagner les parents dans leur cheminement. On soutient leurs choix sans les juger, tant qu'ils ne relèvent pas de violences faites aux enfants : sinon, on en parle en équipe et on signale.");
+  Q('par', 'e', "Que privilégie-t-on lors de la première rencontre avec une famille ?",
+    "L'écoute de ce que les parents ont envie de dire, plutôt qu'un questionnaire préétabli", "Un questionnaire détaillé à remplir", "La lecture complète du règlement",
+    "Laisser la main aux parents donne plus de renseignements et leur signifie que ce sont eux qui décident ce que l'équipe a besoin de savoir. On présente aussi les grandes lignes du projet éducatif, sans les noyer d'informations.");
+  Q('par', 'e', "Où note-t-on les informations confidentielles (traitement, incident) ?",
+    "Dans le cahier d'équipe, réservé aux professionnels", "Dans le cahier parental à l'entrée", "Sur le tableau des repas visible de tous",
+    "Le cahier parental sert à la communication courante avec la famille ; le cahier d'équipe garantit la confidentialité. Chaque professionnel lit les deux chaque jour.");
+  Q('par', 'e', "Un parent est mécontent à propos de la santé de son enfant. Qui lui répond ?",
+    "La référente santé et accueil inclusif, à l'oral (appel ou rencontre), avec un écrit au besoin ; la réclamation est tracée", "Le premier collègue disponible, sans en garder trace", "Personne : on laisse passer quelques jours",
+    "Pour les conditions d'accueil, c'est la responsable de la crèche, avec la coordinatrice pédagogique au besoin. Pour une question administrative, l'interlocuteur dédié du siège. Toutes les réclamations sont tracées.");
+  Q('par', 'x', "À la crèche, jusqu'à quand un parent peut-il rester avec son enfant ?",
+    "Aussi longtemps qu'il le souhaite, à tout moment de la journée, y compris pour allaiter", "Seulement pendant les premiers jours", "Uniquement aux horaires d'arrivée et de départ",
+    "Les parents sont toujours les bienvenus et peuvent circuler librement. Ils décident aussi des modalités d'entrée de leur enfant et peuvent les modifier, en concertation avec l'équipe.");
+  Q('par', 'e', "À quoi sert l'album de l'enfant ?",
+    "À raconter sa vie à la crèche (photos, mots doux, anecdotes) : ouvert dès la première rencontre, en libre accès, remis à son départ", "À noter ses repas et ses siestes", "À garder ses dessins pour l'école",
+    "C'est un outil de communication enfant-parents-professionnels qui s'inscrit dans le partenariat éducatif.");
+  Q('par', 'e', "Une famille arrive en urgence, sans temps de préparation. Que fait l'équipe ?",
+    "Elle l'accueille avec la même chaleur, sans ajouter d'inquiétude, et fait confiance à l'enfant pour tisser des liens", "Elle refuse tant que l'entrée n'est pas préparée", "Elle impose un protocole d'adaptation accéléré",
+    "On s'appuie sur l'observation de l'enfant et sur ses signaux. On fera plus ample connaissance avec la famille au fil des arrivées et des départs.");
+  D('e', "Racontez une situation où vous avez laissé l'enfant « vous guider » (modèle de l'accompagnement). Qu'est-ce que cela a changé ?",
+    "Pistes : regarder ce que l'enfant fait avant d'intervenir, lui laisser le choix de la façon, accepter son rythme, se demander ce qu'il cherche à comprendre.");
 
   window.KK_JEU_CARTES = CARTES;
 
