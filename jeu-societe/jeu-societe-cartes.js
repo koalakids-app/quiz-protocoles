@@ -5,6 +5,8 @@
  *   public : 'e' équipe · 'p' parents · 'x' les deux
  * D(public, sujet, pistes)  : carte « Partage » sans bonne réponse (échange en groupe)
  *
+ * Public visé : les enfants d'une micro-crèche, de 2 mois et demi à 3 ans (4 ans au maximum) : les questions
+ * et les « à retenir » doivent rester pertinents pour cette tranche d'âge.
  * Repères généraux de bonnes pratiques de la petite enfance : à faire relire par la direction
  * et à confronter aux protocoles propres à chaque établissement avant usage en formation.
  */
@@ -254,9 +256,9 @@
   Q('dev', 'x', "Un bébé de 8 mois se réveille plusieurs fois par nuit. C'est…",
     "Fréquent : son sommeil se construit par cycles courts et la séparation peut l'inquiéter", "Le signe qu'il a faim à chaque réveil", "La preuve qu'on le câline trop",
     "Un rituel du coucher rassurant, des repères réguliers et une présence calme aident l'enfant à se rendormir.");
-  Q('dev', 'x', "À partir de quel âge de nombreux enfants arrêtent-ils la sieste ?",
-    "Souvent entre 3 et 5 ans, selon l'enfant", "Dès 1 an", "Vers 8 ans",
-    "Il n'y a pas d'âge officiel. En collectivité, on propose un temps calme à ceux qui ne dorment plus.");
+  Q('dev', 'x', "Un enfant de 3 ans ne s'endort plus à la sieste. Que propose-t-on ?",
+    "Un temps calme allongé (livres, musique douce), sans l'obliger à dormir", "On l'oblige à rester les yeux fermés", "On le laisse jouer bruyamment pendant que les autres dorment",
+    "Beaucoup d'enfants gardent encore une sieste jusqu'à 3-4 ans, mais certains n'en ont plus besoin. Un temps de repos respecte les besoins de chacun.");
   Q('dev', 'x', "Quels signes montrent qu'un tout-petit est fatigué ?",
     "Bâillements, yeux frottés, agitation ou irritabilité, regard dans le vide", "Il demande toujours lui-même à aller se coucher", "Il rit beaucoup et court partout : il est en pleine forme",
     "Un enfant trop fatigué peut devenir très excité. On le couche dès les premiers signes, sans attendre qu'il craque.");
@@ -326,7 +328,7 @@
   Q('pro', 'x', "Après avoir mouché un enfant, l'adulte…",
     "Jette le mouchoir à usage unique et se lave les mains", "Garde le mouchoir dans sa poche pour le réutiliser", "Essuie simplement ses doigts sur son vêtement",
     "Un mouchoir à usage unique, une poubelle fermée et des mains lavées limitent la propagation des rhumes et des gastros.");
-  Q('pro', 'x', "Quel geste apprendre à un enfant qui tousse ou éternue ?",
+  Q('pro', 'x', "Dès 2-3 ans, quel geste apprend-on à un enfant qui tousse ou éternue ?",
     "Tousser ou éternuer dans son coude", "Dans ses mains", "À l'air libre, sans rien faire",
     "Le pli du coude évite de contaminer les mains, donc les objets et les autres enfants. Les adultes montrent l'exemple.");
   Q('pro', 'e', "Plusieurs enfants ont une gastro-entérite dans la section. Quelles mesures ?",
@@ -391,6 +393,23 @@
     "Pistes : prises, câbles, angles de meubles, objets coupants, produits à portée, fenêtres, petits objets au sol. Qu'est-ce qui peut être réglé tout de suite ?");
   D('e', "Racontez un « presque-accident » dont vous avez tiré une leçon. Qu'avez-vous changé ensuite ?",
     "Pistes : on parle de faits et d'organisation, pas de fautes. L'objectif est d'améliorer la prévention ensemble.");
+
+  /* ───────── Pour tous les âges de la micro-crèche : dès 2 mois et demi, jusqu'à 3-4 ans ───────── */
+  Q('dev', 'x', "Vers quel âge un bébé tient-il sa tête seul ?",
+    "Vers 3-4 mois", "Dès la naissance", "Vers 8 mois",
+    "Avant, on soutient toujours la tête et la nuque, au change, au portage et au biberon.");
+  Q('pro', 'e', "Un bébé de 3 mois éveillé est posé sur le ventre sur un tapis. Qu'en pensez-vous ?",
+    "C'est bénéfique tant qu'il est éveillé et surveillé : nuque et dos se renforcent", "C'est dangereux jusqu'à 1 an", "On peut l'y laisser dormir un moment",
+    "Ce temps « ventre » éveillé aide la motricité. Pour dormir, on couche toujours le bébé sur le dos.");
+  Q('dev', 'x', "Vers 4-6 mois, un bébé porte tout à la bouche. Pourquoi ?",
+    "C'est sa façon d'explorer le monde : on lui propose des objets propres et adaptés à son âge", "C'est une mauvaise habitude à corriger", "Il a toujours faim",
+    "La bouche est son principal outil d'exploration. On surveille la taille des objets et on lave les jouets régulièrement.");
+  Q('ped', 'e', "Pendant les soins d'un petit bébé (change, habillage), on…",
+    "Lui annonce ce qu'on fait, on le regarde et on lui parle : le soin devient un moment de relation", "Va vite sans rien dire pour gagner du temps", "Profite du soin pour parler avec ses collègues",
+    "Les soins sont des temps privilégiés d'attention individuelle : respect du rythme, gestes doux, regards et paroles.");
+  Q('pro', 'x', "Un enfant de 2 ans s'étouffe et ne peut plus tousser ni respirer. Quel geste ?",
+    "5 claques dans le dos puis 5 compressions de l'abdomen (manœuvre de Heimlich), en alternance, et appeler le 15", "Le faire boire pour faire passer", "Lui passer les doigts au fond de la gorge",
+    "Après 1 an, on alterne claques dans le dos et compressions abdominales. Pour un bébé de moins d'un an, ce sont les compressions du thorax.");
 
   window.KK_JEU_CARTES = CARTES;
 
