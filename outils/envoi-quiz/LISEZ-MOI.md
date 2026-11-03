@@ -1,12 +1,13 @@
 # Mail unique avec deux quiz (parcours quiz)
 
 `envoyer-quiz.ts` est la fonction du projet quiz (`phbcqxjzobzwuzetgbem`), copie de
-`gestion-stock/docs/quiz-envoi/envoyer-quiz.ts` avec trois ajouts, sans rien changer d'autre :
+`gestion-stock/docs/quiz-envoi/envoyer-quiz.ts` avec quatre ajouts, sans rien changer d'autre :
 
 - `item_id_2` : un deuxième quiz dans le même mail. Le message contient `{lien}` (1er quiz) et
   `{lien2}` (2e quiz), même `ref` pour la personne. Chaque quiz a sa ligne dans `envois_quiz`.
 - `sonde: true` : répond `{ok:true, deux_liens:true}` sans rien envoyer.
 - Les deux quiz doivent être publiés ; l'appel est refusé sinon.
+- Pause entre deux mails (1 s, 2 s vers hotmail/outlook/live/msn) : certains serveurs, surtout Microsoft, refusent en 5.7.1 les envois en rafale depuis Gmail. Constantes `PAUSE_MS` et `PAUSE_MICROSOFT_MS`.
 
 ## Mise en place
 
