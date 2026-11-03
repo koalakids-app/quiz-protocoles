@@ -22,6 +22,8 @@
 //    s'en sert pour savoir si cette version est déployée.
 //  - 40 destinataires au plus par appel (limite de durée de la fonction) :
 //    admin.html découpe les envois plus longs.
+//  - pause de 1 s entre deux mails (2 s vers les adresses Microsoft) pour éviter les refus
+//    5.7.1 des serveurs qui rejettent les envois en rafale.
 //
 // DÉPLOIEMENT : nom « envoyer-quiz », « Verify JWT » : ACTIVÉ.
 // SECRETS dans le projet quiz :
@@ -58,6 +60,14 @@ const esc = (s: unknown) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 const propre = (s: unknown, max = 200) => String(s ?? '').replace(/[\r\n]+/g, ' ').trim().slice(0, max);
 const mailValide = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+
+// Pause entre deux mails : les envois en rafale depuis un compte Gmail sont refusés (5.7.1)
+// par certains serveurs, surtout Microsoft (hotmail, outlook, live, msn). 40 destinataires
+// au plus par appel : 40 x 2 s = 80 s au pire, sous la limite de durée de la fonction.
+const attendre = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const PAUSE_MS = 1000;
+const PAUSE_MICROSOFT_MS = 2000;
+const estMicrosoft = (email: string) => /@(hotmail|outlook|live|msn)\./i.test(email);
 
 // Jamais un retour à la ligne ni de chevron dans le nom affiché : injection SMTP.
 const nomExpediteur = (s: unknown) => {
@@ -201,6 +211,7 @@ Deno.serve(async (req) => {
     connection: { hostname: 'smtp.gmail.com', port: 465, tls: true, auth: { username: user, password: pass } },
   });
   let client = nouveauClient();
+  let dejaEnvoye = false; // un mail est déjà parti dans cet appel : on espace le suivant
 
   const vus = new Set<string>();
   const resultats: { email: string; prenom: string; nom: string; etat: string; erreur?: string }[] = [];
@@ -235,6 +246,8 @@ Deno.serve(async (req) => {
       const lien2 = item2 ? construireLien(base, kind, item2.id, d, ref) : null;
 
       let erreur: string | null = null;
+      if (dejaEnvoye) await attendre(estMicrosoft(d.email) ? PAUSE_MICROSOFT_MS : PAUSE_MS);
+      dejaEnvoye = true;
       try {
         await client.send({
           from: `${nomAffiche} de Koalakids <${user}>`,
