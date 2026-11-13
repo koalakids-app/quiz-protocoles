@@ -416,7 +416,7 @@ function envMajActions(){
 /* {referent} : référent·e de la crèche de la personne. La liste du réseau (gestion-stock) marque
    `referent:true` les personnes qui ont une fiche « referents ». Aucun trouvé : « votre référent(e) ». */
 function referentDe(creche){
-  const noms=[...new Set(ENV.reseau.filter(d=>(d.referent===true||d.origine==='referents')&&d.creche===creche).map(d=>(d.prenom+' '+(d.nom||'')).trim()).filter(Boolean))];
+  const noms=[...new Set(ENV.reseau.filter(d=>d.referent===true&&d.creche===creche).map(d=>(d.prenom+' '+(d.nom||'')).trim()).filter(Boolean))];
   return noms.join(' ou ');
 }
 const SANS_REFERENT='votre référent(e)';
