@@ -335,7 +335,7 @@ function resetAnswers(){
 }
 
 function render(){
-  sessSauver();
+  sessSauver();histQuiz();
   if(state==='start')renderStart();
   else if(state==='quiz')renderQuiz();
   else renderResults();
@@ -522,6 +522,19 @@ function nextAction(){
   else{current++;render();}
 }
 function navigate(d){current=Math.max(0,Math.min(questions.length-1,current+d));render()}
+/* Sur Android, le geste ou bouton « retour » ferme l'onglet intégré du mail (aucun
+   historique) et fait perdre le quiz. Pendant le quiz, « retour » ramène donc à la
+   question précédente au lieu de quitter la page. */
+let _histQuiz=false;
+function histQuiz(){
+  if(state==='quiz'&&!_histQuiz){try{history.pushState({kk:1},'');_histQuiz=true}catch(e){}}
+}
+window.addEventListener('popstate',()=>{
+  if(!_histQuiz)return;
+  _histQuiz=false;
+  if(state==='quiz'&&current>0){navigate(-1);histQuiz();}
+  else if(state==='quiz'){histQuiz();}
+});
 /* La cr\u00e8che est demand\u00e9e quel que soit le statut : la fonction n'a plus rien
    \u00e0 masquer. Elle reste appel\u00e9e par le <select>, et sert de point d'accroche
    si un statut devait un jour changer l'\u00e9cran. */
