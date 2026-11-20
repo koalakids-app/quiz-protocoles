@@ -304,13 +304,24 @@ let saved=false;
 const sessKey=()=>quiz&&!APERCU?'kk_quiz_'+quiz.id:null;
 function sessSauver(){
   const k=sessKey();if(!k)return;
-  try{sessionStorage.setItem(k,JSON.stringify({user,answers,revealed,current,state,saved}));}catch(e){}
+  const j=JSON.stringify({user,answers,revealed,current,state,saved,t:Date.now()});
+  try{sessionStorage.setItem(k,j);}catch(e){}
+  /* Double sauvegarde : certains navigateurs intégrés (mail, WhatsApp) ou mobiles
+     rechargent la page en arrière-plan et perdent sessionStorage. On ne garde dans
+     localStorage qu'un quiz EN COURS (jamais les résultats : appareils partagés). */
+  try{if(state==='quiz')localStorage.setItem(k,j);else localStorage.removeItem(k);}catch(e){}
 }
-function sessEffacer(){const k=sessKey();if(k)try{sessionStorage.removeItem(k)}catch(e){}}
+function sessEffacer(){const k=sessKey();if(k){try{sessionStorage.removeItem(k)}catch(e){}try{localStorage.removeItem(k)}catch(e){}}}
+window.addEventListener('pagehide',()=>{try{if(quiz&&questions.length)sessSauver()}catch(e){}});
+document.addEventListener('visibilitychange',()=>{try{if(document.visibilityState==='hidden'&&quiz&&questions.length)sessSauver()}catch(e){}});
 function sessRestaurer(){
   const k=sessKey();if(!k)return;
   try{
-    const d=JSON.parse(sessionStorage.getItem(k)||'null');
+    let d=JSON.parse(sessionStorage.getItem(k)||'null');
+    if(!d){
+      const l=JSON.parse(localStorage.getItem(k)||'null');
+      if(l&&l.t&&Date.now()-l.t<4*3600*1000)d=l;
+    }
     if(!d||!Array.isArray(d.answers)||d.answers.length!==questions.length)return;
     if(d.state!=='quiz'&&d.state!=='results')return;
     user=d.user||user;answers=d.answers;revealed=d.revealed||revealed;
